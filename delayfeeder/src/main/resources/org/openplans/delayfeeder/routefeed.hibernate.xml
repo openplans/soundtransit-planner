@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+	<class name="org.openplans.delayfeeder.feed.RouteFeed"
+		table="route_feed">
+		<id name="id" column="feed_id">
+			<generator class="increment" />
+		</id>
+
+		<property name="agency" />
+		<property name="route" />
+		<property name="url" />
+		<property name="lastFetched" column="last_fetched" />
+		<set name="items" table="route_feed_items">
+			<key column="id" />
+			<many-to-many column="feed_id"
+				class="org.openplans.delayfeeder.feed.RouteFeedItem" />
+		</set>
+	</class>
+    <class name="org.openplans.delayfeeder.feed.RouteFeedItem"
+		table="route_feed">
+		<id name="id" column="feed_item_id">
+			<generator class="increment" />
+		</id>
+
+		<property name="description" />
+		<property name="date" />
+	</class>
+
+</hibernate-mapping>
