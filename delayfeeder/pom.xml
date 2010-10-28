@@ -177,11 +177,18 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.5</version>
 				<configuration>
-					<argLine>-Xmx1500m</argLine>
+					<argLine>-Xmx800m</argLine>
 					<disableXmlReport>true</disableXmlReport>
 				</configuration>
 			</plugin>
-		</plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+        </configuration>
+      </plugin>
+    </plugins>
 	</build>
 
 	<!-- If we are running in hudson -->
