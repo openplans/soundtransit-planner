@@ -1,0 +1,7 @@
+To use delayfeeder:
+
+1. edit data-sources.xml to point to some reasonable database.
+2. mvn package.  Move the war file to your tomcat webapps directory
+3. To load in the list of feed URLs, run:
+mvn exec:java -Dexec.mainClass=org.openplans.delayfeeder.LoadFeeds -Dexec.args=/path/to/kcmetro.txt
+You can run this any time you need to update the URLs; it's idempotent.
