@@ -1,0 +1,262 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<title>Tripplanner Start</title>
+	<link type="text/css" href="css/screen-reset.css" rel="stylesheet" media="screen, projection" />
+	<link type="text/css" href="css/print-reset.css" rel="stylesheet" media="print" />
+  <!--[if lt IE 8]><link rel="stylesheet" href="css/ie.css" type="text/css" media="screen, projection"><![endif]-->
+  
+	
+	<link type="text/css" href="css/ui.combobox.css" rel="stylesheet" media="screen, projection" />
+	<link type="text/css" href="css/ui-custom/jquery-ui-1.8.6.custom.css" rel="stylesheet" media="screen, projection" />
+	<link type="text/css" href="css/ui.spinner.css" rel="stylesheet" media="screen, projection" />
+	<link type="text/css" href="css/ui.combobox.css" rel="stylesheet" media="screen, projection" />
+	
+	
+	<link type="text/css" href="css/app.css" rel="stylesheet" media="screen, projection" />
+
+	<script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
+	<script type="text/javascript" src="js/jquery-ui-1.8.6.custom.min.js"></script>
+	<script type="text/javascript" src="js/ui.spinner.min.js"></script>
+	
+	
+	<script type="text/javascript">
+		$(function(){
+		  
+    	(function( $ ) {
+    		$.widget( "ui.combobox", {
+    			_create: function() {
+    				var self = this,
+    					select = this.element.hide(),
+    					selected = select.children( ":selected" ),
+    					value = selected.val() ? selected.text() : "";
+    				var input = $( "<input>" )
+    					.insertAfter( select )
+    					.val( value )
+    					.autocomplete({
+    						delay: 0,
+    						minLength: 0,
+    						source: function( request, response ) {
+    							var matcher = new RegExp( $.ui.autocomplete.escapeRegex(request.term), "i" );
+    							response( select.children( "option" ).map(function() {
+    								var text = $( this ).text();
+    								if ( this.value && ( !request.term || matcher.test(text) ) )
+    									return {
+    										label: text.replace(
+    											new RegExp(
+    												"(?![^&;]+;)(?!<[^<>]*)(" +
+    												$.ui.autocomplete.escapeRegex(request.term) +
+    												")(?![^<>]*>)(?![^&;]+;)", "gi"
+    											), "<strong>$1</strong>" ),
+    										value: text,
+    										option: this
+    									};
+    							}) );
+    						},
+    						select: function( event, ui ) {
+    							ui.item.option.selected = true;
+    							self._trigger( "selected", event, {
+    								item: ui.item.option
+    							});
+    						},
+    						change: function( event, ui ) {
+    							if ( !ui.item ) {
+    								var matcher = new RegExp( "^" + $.ui.autocomplete.escapeRegex( $(this).val() ) + "$", "i" ),
+    									valid = false;
+    								select.children( "option" ).each(function() {
+    									if ( this.value.match( matcher ) ) {
+    										this.selected = valid = true;
+    										return false;
+    									}
+    								});
+    								if ( !valid ) {
+    									// remove invalid value, as it didn't match anything
+    									$( this ).val( "" );
+    									select.val( "" );
+    									return false;
+    								}
+    							}
+    						}
+    					})
+    					.addClass( "ui-widget ui-widget-content ui-corner-left" );
+
+    				input.data( "autocomplete" )._renderItem = function( ul, item ) {
+    					return $( "<li></li>" )
+    						.data( "item.autocomplete", item )
+    						.append( "<a>" + item.label + "</a>" )
+    						.appendTo( ul );
+    				};
+
+    				$( "<button type='button'>&nbsp;</button>" )
+    					.attr( "tabIndex", -1 )
+    					.attr( "title", "Show All Items" )
+    					.insertAfter( input )
+    					.button({
+    						icons: {
+    							primary: "ui-icon-triangle-1-s"
+    						},
+    						text: false
+    					})
+    					.removeClass( "ui-corner-all" )
+    					.addClass( "ui-corner-right ui-button-icon" )
+    					.click(function() {
+    						// close if already visible
+    						if ( input.autocomplete( "widget" ).is( ":visible" ) ) {
+    							input.autocomplete( "close" );
+    							return false;
+    						}
+
+    						// pass empty string as value to search for, displaying all results
+    						input.autocomplete( "search", "" );
+    						input.focus();
+    						return false;
+    					});
+    			}
+    		});
+    	})( jQuery );
+
+      // to/from fields
+      function blankIfEmpty(element) {
+        ($(element).val() == "") ? $(element).addClass('blank') : $(element).removeClass('blank');
+      }
+      $('#to, #from').bind('blur', function(event, ui) {blankIfEmpty(this);});
+      $('#to, #from').each(function() {blankIfEmpty(this);});
+      
+      
+      
+      //Spinner		  
+			$('#leaveminute').spinner({ min: 0, max: 59, increment: 'fast' });
+			//Force zero-padding
+			function zeropad(value) { return (parseInt(value) < 10) ? ("0" + value) : value;}
+			
+			$('#leaveminute').bind('change', function(event, ui) {this.value = zeropad(this.value);});
+			
+
+  		
+  		$( "#leaveday" ).datepicker({
+  			showOn: "button",
+  			buttonImage: "img/calendar.png",
+  			buttonImageOnly: true
+  		});
+  		
+  		//initialize time
+  		var d = new Date();
+
+  		$('#leavehour').val((d.getHours() > 12) ? (d.getHours() -12) : d.getHours());
+  		
+  		$('#leaveminute').val(zeropad(d.getMinutes()));
+      
+      if (d.getHours() > 12) {$('#leaveampm option[value="pm"]').attr('selected', 'selected');}
+      
+      $('#leaveday').val(zeropad(d.getMonth() + 1) + "/" + zeropad(d.getDate()) + "/" + d.getFullYear());
+
+      
+      // Must happen after initializing time
+      $( "#leavetype, #leaveampm, #trippriority, #maxwalk" ).combobox();
+      
+      $("#tofromtoggle").click(function() {
+        var tempSwapVal = $("#from").val();
+        $("#from").val($("#to").val()).each(function() {blankIfEmpty(this);});
+        $("#to").val(tempSwapVal).each(function() {blankIfEmpty(this);});
+      });
+
+      
+      
+      // table row focus
+      $('#tripresult-summaries tr').click(function() {
+        $('#tripresult-summaries tr').removeClass("active");
+        $(this).addClass("active");
+        $('#' + (this.id).split('-')[0] + '-results').slideDown().addClass("active");
+        $('.results').not('#' + (this.id).split('-')[0] + '-results').slideUp().removeClass("active");
+      });
+      
+      //More options
+      $('a#optionstoggle').click(function() {
+        if ($(this).hasClass('active')) {
+          $('#moreoptions').hide();
+          $(this).html('More Options<span></span>').removeClass('active');
+        } else {
+          $('#moreoptions').show();
+          $(this).html('Fewer Options<span></span>').addClass('active');
+        }
+      });
+      
+  	});
+  	
+		
+	</script>
+	<!-- 994px -->
+</head>
+
+<body>
+<div id="tripplanner-wrap">
+  <div id="plannerpanel">
+    <div class="form-meta">
+      <a href="#">Clear</a> <a href="#">Help</a>
+    </div>
+    <h2>Plan your trip!</h2>
+    <form>
+      <div id="tofrom-area">
+        <div class="ui-widget">
+          <label for="from"><img class="tripflag" src="img/a-flag.png" alt="A" /> <strong>Start</strong> Address, intersection, or landmark</label>
+          <input id="from" type="text" value="" />
+        </div>
+        <div class="ui-widget">
+          <label for="to"><img class="tripflag" src="img/b-flag.png" alt="B" /> <strong>End</strong> Address, intersection, or landmark</label>
+          <input id="to" type="text" value="" />
+        </div>
+        <a id="tofromtoggle" href="#">toggle</a>
+      </div>
+      <div class="ui-widget">
+        <span id="leavetype-wrap">
+          <select id="leavetype">
+        		<option value="Arrive By">Arrive By</option>
+        		<option value="Leave At">Leave At</option>
+        	</select>
+      	</span>
+      	<span id="leaveday-wrap"><input id="leaveday" type="text" /></span>
+      	<input id="leavehour" type="text" value="12" />
+      	<input id="leaveminute" type="text" value="00" />
+      	<span id="leaveampm-wrap">
+        	<select id="leaveampm" />
+        	  <option value="am">am</option>
+        	  <option value="pm">pm</option>
+          </select>
+        </span>
+      </div>
+      <div id="moreoptions" class="ui-widget">
+        <span id="trippriority-wrap">
+          <select id="trippriority">
+        		<option value="Fewest Transfers">Fewest Transfers</option>
+        		<option value="Fastest Trip">Fastest Trip</option>
+        	</select>
+      	</span>
+        <span id="maxwalk-wrap">
+          <select id="maxwalk">
+        		<option value="1/4 mile max walk">1/4 mile max walk</option>
+        		<option value="1/2 mile max walk">1/2 mile max walk</option>
+          	<option value="3/4 mile max walk">3/4 mile max walk</option>
+          	<option value="1 mile max walk">1 mile max walk</option>
+        	</select>
+      	</span>
+      	<div id="accessible-area"><label><input type="checkbox" id="accessible" /> Accessible trip <img src="img/wheelchair16x16.png" alt="Wheelchair icon" /></label></div>
+      </div>
+      <div class="ui-widget">
+        <input id="trip-submit" type="submit" value="Plan Trip ⇨" />
+          <a id="optionstoggle" href="#">More Options<span></span></a>
+      </div>
+    </form>
+    <div id="how-to-plan">
+      <h3>2 Ways to Plan Your Trip</h3>
+      <h4>1. Enter your start and end locations.</h4>
+      <p>Enter your origin and destination above (don't use city or zip) then select "Plan Trip".</p>
+      <h4>2. Pick points on the map.</h4>
+      <p>Right-click on the map to set the Start and End locations, then select "Plan Trip".</p>
+    </div>
+  </div><!-- /#plannerpanel -->
+  <div id="map"></div>
+</div><!-- /#tripplanner-wrap -->
+</body>
+</html>
