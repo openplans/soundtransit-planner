@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<title>Tripplanner Start</title>
+	<title>Tripplanner Disambiguation</title>
 	<link type="text/css" href="css/screen-reset.css" rel="stylesheet" media="screen, projection" />
 	<link type="text/css" href="css/print-reset.css" rel="stylesheet" media="print" />
   <!--[if lt IE 8]><link rel="stylesheet" href="css/ie.css" type="text/css" media="screen, projection"><![endif]-->
@@ -21,7 +21,7 @@
 	<script type="text/javascript" src="js/jquery-ui-1.8.6.custom.min.js"></script>
 	<script type="text/javascript" src="js/ui.spinner.min.js"></script>
 	<script type="text/javascript" src="js/app.js"></script>
-
+	
 </head>
 
 <body>
@@ -35,11 +35,11 @@
       <div id="tofrom-area">
         <div class="ui-widget">
           <label for="from"><img class="tripflag" src="img/a-flag.png" alt="A" /> <strong>Start</strong> Address, intersection, or landmark</label>
-          <input id="from" type="text" value="" />
+          <input id="from" class="ambiguous" type="text" value="12th Ave" />
         </div>
         <div class="ui-widget">
           <label for="to"><img class="tripflag" src="img/b-flag.png" alt="B" /> <strong>End</strong> Address, intersection, or landmark</label>
-          <input id="to" type="text" value="" />
+          <input id="to" type="text" value="University of Washington" />
         </div>
         <a id="tofromtoggle" href="#">toggle</a>
       </div>
@@ -82,14 +82,15 @@
           <a id="optionstoggle" href="#">More Options<span></span></a>
       </div>
     </form>
-    <div id="how-to-plan">
-      <h3>2 Ways to Plan Your Trip</h3>
-      <h4>1. Enter your start and end locations.</h4>
-      <p>Enter your origin and destination above (don't use city or zip) then select "Plan Trip".</p>
-      <h4>2. Pick points on the map.</h4>
-      <p>Right-click on the map to set the Start and End locations, then select "Plan Trip".</p>
+    <div id="disambiguation" class="from">
+      <h3>We found several starting points for your search. <em>Did you mean?</em></h3>
+      <ol>
+        <li class="option-1"><em>select</em> <strong>12th Avenue, Seattle WA</strong></li>
+        <li class="option-2"><em>select</em> <strong>52 12th Avenue, Seattle WA</strong></li>
+      </ol>
     </div>
-  </div><!-- /#plannerpanel -->
+
+  </div><!-- /#plannerpanel --> 
   <div id="map"></div>
 </div><!-- /#tripplanner-wrap -->
 </body>

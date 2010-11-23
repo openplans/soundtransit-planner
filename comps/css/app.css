@@ -1,6 +1,6 @@
 /* Temp classes for mockups */
 #tripplanner-wrap {
-width: 964px;
+width: 966px;
 height: 563px;
 position: absolute;
 top: 50%;
@@ -120,6 +120,12 @@ font-weight: normal;
 #tofrom-area label strong {
 margin-left: 5px;
 }
+
+#tofrom-area input.ambiguous {
+color: #b71f24;
+border-color: #b71f24;
+}
+
 
 #leavetype-wrap .ui-autocomplete-input {
 width: 5em;
@@ -378,6 +384,69 @@ color: #656565;
 table.substeps td {
 vertical-align: top;
 padding-right: 30px;	
+}
+
+/* - */
+#disambiguation {
+border-top:1px solid #656565;
+margin-top: 15px;
+padding-top: 15px;
+}
+
+#disambiguation h3 {
+padding: 0 0 0 30px;
+color: #656565;
+margin: 0 0 10px;
+}
+
+#disambiguation h3 em {
+display: block;
+font-size: 18px;
+color: #b71f24;
+font-style: italic;
+}
+
+#disambiguation.from h3 {
+background: url(../img/a-flag.png) 0 50% no-repeat;
+}
+
+#disambiguation.to h3 {
+background: url(../img/b-flag.png) 0 50% no-repeat;
+}
+
+#disambiguation ol li {
+list-style-type: none;
+min-height: 21px;
+vertical-align: middle;
+font-size: 15px;
+padding: 8px 30px 8px 35px;
+margin-bottom: 5px;
+background-position: 0 50%;
+background-repeat: no-repeat;
+cursor: pointer;
+}
+
+#disambiguation ol li em {
+float: right;
+font-size: 12px;
+color: #9c9c9c;
+text-decoration: underline;
+}
+
+#disambiguation ol li.option-1 {
+background-image: url(../img/pin-1.png);
+}
+
+* html #disambiguation ol li.option-1 {
+background-image: url(../img/pin-1-ie.png);
+}
+
+#disambiguation ol li.option-2 {
+background-image: url(../img/pin-2.png);
+}
+
+* html #disambiguation ol li.option-1 {
+background-image: url(../img/pin-2-ie.png);
 }
 
 /* - */
