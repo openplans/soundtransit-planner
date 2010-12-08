@@ -1,0 +1,498 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<title>Tripplanner Results</title>
+	<link type="text/css" href="css/screen-reset.css" rel="stylesheet" media="screen, projection" />
+	<link type="text/css" href="css/print-reset.css" rel="stylesheet" media="print" />
+  <!--[if lt IE 8]><link rel="stylesheet" href="css/ie.css" type="text/css" media="screen, projection"><![endif]-->
+  
+	
+	<link type="text/css" href="css/ui.combobox.css" rel="stylesheet" media="screen, projection" />
+	<link type="text/css" href="css/ui-custom/jquery-ui-1.8.6.custom.css" rel="stylesheet" media="screen, projection" />
+	<link type="text/css" href="css/ui.spinner.css" rel="stylesheet" media="screen, projection" />
+	<link type="text/css" href="css/ui.combobox.css" rel="stylesheet" media="screen, projection" />
+	
+	
+	<link type="text/css" href="css/app.css" rel="stylesheet" media="screen, projection" />
+
+	<script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
+	<script type="text/javascript" src="js/jquery-ui-1.8.6.custom.min.js"></script>
+	<script type="text/javascript" src="js/ui.spinner.min.js"></script>
+	<script type="text/javascript" src="js/app.js"></script>
+	
+	
+  <script src="http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=6.2&mkt=en-us"></script>
+	<script src="js/openlayers/OpenLayers.js"></script>
+	
+	<script type="text/javascript">
+	
+	  OpenLayers.ImgPath = "js/openlayers/theme/stp/";
+    var map;
+
+    function initMap(){
+        map = new OpenLayers.Map('map', {
+            controls: [
+                new OpenLayers.Control.Navigation(),
+                new OpenLayers.Control.PanZoomBar(),
+                new OpenLayers.Control.KeyboardDefaults()
+            ]            
+        });
+
+        var shaded = new OpenLayers.Layer.VirtualEarth("Shaded", {
+            type: VEMapStyle.Shaded
+        });
+        var hybrid = new OpenLayers.Layer.VirtualEarth("Hybrid", {
+            type: VEMapStyle.Hybrid
+        });
+        var aerial = new OpenLayers.Layer.VirtualEarth("Aerial", {
+            type: VEMapStyle.Aerial
+        });
+
+        map.addLayers([shaded, hybrid, aerial]);
+
+        map.setCenter(new OpenLayers.LonLat(-122.30, 47.45), 8);
+    }
+	
+	
+		$(function(){
+		  
+		  // This function is from Google's polyline utility.
+  		function decodePolyline(encoded) {
+  			var len = encoded.length;
+  			var index = 0;
+  			var array = [];
+  			var lat = 0;
+  			var lng = 0;
+
+  			while (index < len) {
+  				var b;
+  				var shift = 0;
+  				var result = 0;
+  				do {
+  					b = encoded.charCodeAt(index++) - 63;
+  					result |= (b & 0x1f) << shift;
+  					shift += 5;
+  				} while (b >= 0x20);
+  				var dlat = ((result & 1) ? ~(result >> 1) : (result >> 1));
+  				lat += dlat;
+
+  				shift = 0;
+  				result = 0;
+  				do {
+  					b = encoded.charCodeAt(index++) - 63;
+  					result |= (b & 0x1f) << shift;
+  					shift += 5;
+  				} while (b >= 0x20);
+  				var dlng = ((result & 1) ? ~(result >> 1) : (result >> 1));
+  				lng += dlng;
+
+  				array.push([lat * 1e-5, lng * 1e-5]);
+  			}
+
+  			return array;
+  		}
+		  
+      //Time conversion
+      // Establish larger units based on milliseconds.
+      var msecondsPerMinute = 1000 * 60;
+      var msecondsPerHour = msecondsPerMinute * 60;
+
+      function millisecondsToString(duration) {
+        if(isNaN(duration)) return "Unknown";
+        
+        var hours = Math.floor( duration / msecondsPerHour );
+        var interval = duration - (hours * msecondsPerHour );
+
+        var minutes = Math.floor( interval / msecondsPerMinute );
+        
+        var hourString = (hours > 0) ? ((hours == 1) ? hours + " hour, " : hours + " hours, ") : false;
+        var minuteString = minutes + " min";
+        
+        if (hourString) { return hourString + minuteString;} else {return minuteString;}
+  
+      }
+      
+      function centsToBucks(num) {
+          num = isNaN(num) || num === '' || num === null ? 0.00 : num;
+          return parseFloat(num/100).toFixed(2);
+      }
+      
+      function metersToMiles (n, p) {
+          var miles = n / 1609.344;
+          return miles.toFixed(1);
+      }
+
+      function metersToFeet(meters) {
+          return parseInt(meters * 3.2808);
+      }
+      
+      function prettyDistance(meters) {
+          if (meters == null || typeof meters == 'undefined') {
+              return "";
+          }
+
+	        var miles = metersToMiles(meters);
+	        // Display distances < 0.1 miles in feet
+	        if (miles < 0.1) {
+	            return metersToFeet(meters) + " ft";
+	        } else {
+	            return miles + " mi";
+	        }
+      }
+      
+      function prettyTime(dateObj) {
+  			var minutes = dateObj.getMinutes();
+  			minutes = (minutes < 10) ? "0" + minutes : "" + minutes;
+  			var hours = dateObj.getHours();            
+  			var amOrPm = "";
+  			if(hours >= 12) {
+  				if(hours > 12) {
+  					hours = hours - 12;        	            	
+  				}
+  				amOrPm = "pm";
+  			} else {
+  				if(hours === 0) {
+  					hours = 12;
+  				}
+  				amOrPm = "am";
+  			}
+  			return hours + ":" + minutes + amOrPm;
+  		}
+      
+
+      //AJAX Request
+      function makeTripRequest() {
+        var hardcodedTestURL = "plan.xml"
+        $.ajax({
+        		type: "GET",
+        		url: hardcodedTestURL,
+        		dataType: "xml",
+        		success: function(xml) {
+        		  $('#trip-data').fadeOut("fast").empty();
+        		  updateTripResults(xml);
+        		  $('#trip-data').fadeIn("fast");
+        		},
+        		error:function(x,e){
+            			if(x.status==0){
+            			alert('You are offline!!\n Please Check Your Network.');
+            			}else if(x.status==404){
+            			alert('Requested URL not found.');
+            			}else if(x.status==500){
+            			alert('Internal Server Error.');
+            			}else if(e=='parsererror'){
+            			alert('Error.\nParsing JSON Request failed.');
+            			}else if(e=='timeout'){
+            			alert('Request Time out.');
+            			}else {
+            			alert('Unknown Error.\n'+x.responseText);
+            			}
+            		}
+            
+        	});
+      }
+
+      function updateTripResults(xml) {
+        
+        var tripSummariesMarkup = $('<table id="tripresult-summaries"><thead><tr><th>Trip</th><th>Travel Time</th><th>Cash</th><th>Route &amp; Transfers</th></tr></thead><tbody></tbody></table>');
+        
+      	$(xml).find('itinerary').each(function(tripIndex){
+      	  var tripNumber = tripIndex + 1;
+      	  var activeClass = (tripNumber == 1) ? "active" : "";
+      	  
+      	  var legDuration = 0;
+      	  var transfers = $(this).find('leg').size() - 1;
+      	  var studentFare = $(this).find('fare entry key:contains("student") + value cents').text();
+      	  var seniorFare = $(this).find('fare entry key:contains("senior") + value cents').text();
+      	  var regularFare = $(this).find('fare entry key:contains("regular") + value cents').text();
+      	  
+          
+      	  var itineraryMarkup = $('<ul class="trip-stepbystep"></ul>');
+      	  var tripModes = [];
+      	  
+
+      	  $(this).find('leg').each(function(legIndex){
+      	    
+      	    var legObject=new Object(); // to facilitiate passing into formatting functions
+      	    legObject.legNumber = legIndex + 1;
+      	    legObject.mode = $(this).attr('mode');
+      	    legObject.route = $(this).attr('route');
+      	    legObject.headsign = $(this).attr('headsign');
+      	    legObject.duration = parseInt($(this).find('duration').text());
+      	    legObject.distance = parseInt($(this).find('distance').text());
+      	    legObject.startPlace = $(this).find('from name').text();
+      	    legObject.endPlace = $(this).find('to name').text();
+      			legObject.startTime = new Date($(this).find('startTime').text());
+      			legObject.endTime = new Date($(this).find('endTime').text());
+      			
+      			legObject.startPlace = (legObject.startPlace == "") ? "Unknown" : legObject.startPlace;
+      			legObject.endPlace = (legObject.endPlace == "") ? "Unknown" : legObject.endPlace;
+      			
+      			var modeText = '<img src="img/' + legObject.mode.toLowerCase() + '16x16.png" alt="' + legObject.mode + '" /> ';
+      			if(legObject.mode != "WALK" && legObject.route != "") {modeText += '<strong>' + legObject.route + '</strong> ';}
+      			tripModes.push(modeText);
+      			
+    			
+      			itineraryMarkup.append((legObject.mode == "WALK") ? formatWalkLeg(legObject) : formatTransitLeg(legObject));
+      			
+      			
+      			legDuration += legObject.duration; // need to handle NaN?
+      		
+      		});
+      		
+      		
+       		// move to a standalone function     		
+      		$('<tr id="trip' + tripNumber + '-summary" class="'+ activeClass + '"><td class="trip-id">' + tripNumber + '</td><td>1 hour 38 min <em>6:15PM-7:28PM</em></td><td>$9.50</td><td class="trip-modes">' + tripModes.join("<em>›</em> ") + '</td></tr>').appendTo(tripSummariesMarkup.children('tbody'));
+
+
+      		// move to a standalone function
+      		$('<table class="trip-prices"><thead><tr><th><h3>Trip ' + tripNumber + '</h3></th><th colspan="2">' + millisecondsToString(legDuration) + ', ' + transfers + ' Transfers</th></tr></thead><tbody><tr><th scope="row">Adult</th><td>$' + centsToBucks(regularFare) + ' Cash</td><td>$7.75 <a href="#">ORCA</a></td></tr><tr><th scope="row">Youth</th><td>$' + centsToBucks(studentFare) + ' Cash</td><td>$7.75 <a href="#">ORCA</a></td></tr><tr><th scope="row">Senior / Disabled</th><td>$' + centsToBucks(seniorFare) + ' Cash</td><td>$5.75 <a href="#">ORCA</a></td></tr></tbody></table>').appendTo("#trip-data");
+
+      		
+      		$(itineraryMarkup).appendTo("#trip-data");
+      	});
+    		
+    		  $(tripSummariesMarkup).prependTo("#trip-data");
+      }
+
+  	
+
+  		function formatWalkLeg(legObject) {
+  		  return $('<li class="' + legObject.mode.toLowerCase() + ' leg-' + legObject.legNumber + '"></li>').html('<img class="mode-icon" src="img/walk16x16.png" alt="' + legObject.mode + '" />Walk from <strong>' + legObject.startPlace + '</strong> to <strong>' + legObject.endPlace + '</strong><div class="stepmeta">' + millisecondsToString(legObject.duration) + ' (' + prettyDistance(legObject.distance) + ')</div>');
+  		}
+  		
+  		function formatTransitLeg(legObject) {
+  		  return $('<li class="' + legObject.mode.toLowerCase() + ' leg-' + legObject.legNumber + '"></li>').html('<img class="mode-icon" src="img/' + legObject.mode.toLowerCase() + '16x16.png" alt="' + legObject.mode + '" /><table class="substeps"><tbody><tr><td>' + prettyTime(legObject.startTime) + '</td><td>Depart ' + legObject.startPlace + '<div class="stepmeta">' + millisecondsToString(legObject.duration) + ' (6 stops)<br />Previous stop is Puyllup station</div></td></tr><tr><td>' + prettyTime(legObject.endTime) + '</td><td>Arrive ' + legObject.endPlace + '<div class="stepmeta">Previous stop is Puyllup station</div></td> </tr></tbody></table>');
+  		}
+      
+      
+      
+      $("form#trip-plan-form").submit(function(e){
+        e.preventDefault(); // Keep the form from submitting
+         makeTripRequest();
+      });
+      
+      
+  	});
+  	
+		$(document).ready(function() {
+       initMap();
+     });
+    
+
+	</script>
+</head>
+
+<body>
+<div id="tripplanner-wrap">
+  <div id="plannerpanel">
+    <div class="form-meta">
+      <a id="clear" href="#">Clear</a> <a href="#">Help</a>
+    </div>
+    <h2>Plan your trip!</h2>
+    <form id="trip-plan-form">
+      <div id="tofrom-area">
+        <div class="ui-widget">
+          <label for="from"><img class="tripflag" src="img/a-flag.png" alt="A" /> <strong>Start</strong> Address, intersection, or landmark</label>
+          <input id="from" type="text" value="Seattle, WA" />
+        </div>
+        <div class="ui-widget">
+          <label for="to"><img class="tripflag" src="img/b-flag.png" alt="B" /> <strong>End</strong> Address, intersection, or landmark</label>
+          <input id="to" type="text" value="Tacoma, WA" />
+        </div>
+        <a id="tofromtoggle" href="#">toggle</a>
+      </div>
+      <div class="ui-widget">
+        <span id="leavetype-wrap">
+          <select id="leavetype">
+        		<option value="Arrive By">Arrive By</option>
+        		<option value="Leave At">Leave At</option>
+        	</select>
+      	</span>
+      	<span id="leaveday-wrap"><input id="leaveday" type="text" /></span>
+      	<input id="leavehour" type="text" value="12" />
+      	<input id="leaveminute" type="text" value="00" />
+      	<span id="leaveampm-wrap">
+        	<select id="leaveampm" />
+        	  <option value="am">am</option>
+        	  <option value="pm">pm</option>
+          </select>
+        </span>
+      </div>
+      <div id="moreoptions" class="ui-widget">
+        <span id="trippriority-wrap">
+          <select id="trippriority">
+        		<option value="Fewest Transfers">Fewest Transfers</option>
+        		<option value="Fastest Trip">Fastest Trip</option>
+        	</select>
+      	</span>
+        <span id="maxwalk-wrap">
+          <select id="maxwalk">
+        		<option value="1/4 mile max walk">1/4 mile max walk</option>
+        		<option value="1/2 mile max walk">1/2 mile max walk</option>
+          	<option value="3/4 mile max walk">3/4 mile max walk</option>
+          	<option value="1 mile max walk">1 mile max walk</option>
+        	</select>
+      	</span>
+      	<div id="accessible-area"><label><input type="checkbox" id="accessible" /> Accessible trip <img src="img/wheelchair16x16.png" alt="Wheelchair icon" /></label></div>
+      </div>
+      <div class="ui-widget">
+        <input id="trip-submit" type="submit" value="Plan Trip ⇨" />
+          <a id="optionstoggle" href="#">More Options<span></span></a>
+      </div>
+    </form>
+    <div id="trip-data">
+      <table id="tripresult-summaries">
+        <thead>
+          <tr>
+            <th>Trip</th>
+            <th>Travel Time</th>
+            <th>Cash</th>
+            <th>Route &amp; Transfers</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr id="trip1-summary" class="active">
+            <td class="trip-id">1</td>
+            <td>1 hour 38 min <em>6:15PM-7:28PM</em></td>
+            <td>$9.50</td>
+            <td class="trip-modes"><img src="img/walk16x16.png" alt="Walk" /> <em>›</em> <img src="img/sounder16x16.png" alt="Sounder" /> <strong>1701</strong> <em>›</em> <img src="img/bus16x16.png" alt="ST Express Bus" /> <strong>666</strong> <em>›</em> <img src="img/link16x16.png" alt="Link Light Rail" /> <strong>Link</strong> <em>›</em> <img src="img/walk16x16.png" alt="Walk" /></td>
+          </tr>
+          <tr id="trip2-summary">
+            <td class="trip-id">2</td>
+            <td>56 min <em>10:38PM-11:27PM</em></td>
+            <td>$9.50</td>
+            <td class="trip-modes"><img src="img/walk16x16.png" alt="Walk" /> <em>›</em> <img src="img/bus16x16.png" alt="ST Express Bus" /> <strong>590</strong> <em>›</em> <img src="img/walk16x16.png" alt="Walk" /></td>
+          </tr>
+        </tbody>
+      </table>
+      <div id="page-wrap"></div>
+      <div id="trip1-results" class="results active">
+        <table class="trip-prices">
+          <thead>
+            <tr>
+              <th><h3>Trip 1</h3></th>
+              <th colspan="2">1 hour 38 min, 2 Transfers</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Adult</th>
+              <td>$9.50 Cash</td>
+              <td>$7.75 <a href="#">ORCA</a></td>
+            </tr>
+            <tr>
+              <th scope="row">Youth</th>
+              <td>$9.50 Cash</td>
+              <td>$7.75 <a href="#">ORCA</a></td>
+            </tr>
+            <tr>
+              <th scope="row">Senior / Disabled</th>
+              <td>$6.00 Cash</td>
+              <td>$5.75 <a href="#">ORCA</a></td>
+            </tr>
+          </tbody>
+        </table>
+        <ul class="trip-stepbystep">
+          <li class="walk">
+            <img class="mode-icon" src="img/walk16x16.png" alt="Walk" />
+            Walk from <strong>Seattle, WA</strong> to <strong>King Street Station</strong>
+            <div class="stepmeta">9 min (0.5mi)</div>
+          </li>
+          <li class="sounder">
+            <img class="mode-icon" src="img/sounder16x16.png" alt="Sounder" />
+            Train - <strong>Sounder 1701</strong>
+            <table class="substeps">
+              <tbody>
+                <tr>
+                  <td>6:15pm</td>
+                  <td>
+                    Depart King Street Station
+                    <div class="stepmeta">9 min (6 stops)<br />Previous stop is Puyllup station</div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>7:14pm</td>
+                  <td>
+                    Arrive Tacoma Dome
+                    <div class="stepmeta">Previous stop is Puyllup station</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </li>
+          <li class="walk">
+            <img class="mode-icon" src="img/walk16x16.png" alt="Walk" />
+            Walk from <strong>Seattle, WA</strong> to <strong>King Street Station</strong>
+            <div class="stepmeta">9 min (0.5mi)</div>
+          </li>
+        </ul>
+      </div><!-- /#trip1-results -->
+      <div id="trip2-results" class="results">
+        <table class="trip-prices">
+          <thead>
+            <tr>
+              <th><h3>Trip 2</h3></th>
+              <th colspan="2">56 min, 1 Transfers</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Adult</th>
+              <td>$9.50 Cash</td>
+              <td>$7.75 <a href="#">ORCA</a></td>
+            </tr>
+            <tr>
+              <th scope="row">Youth</th>
+              <td>$9.50 Cash</td>
+              <td>$7.75 <a href="#">ORCA</a></td>
+            </tr>
+            <tr>
+              <th scope="row">Senior / Disabled</th>
+              <td>$6.00 Cash</td>
+              <td>$5.75 <a href="#">ORCA</a></td>
+            </tr>
+          </tbody>
+        </table>
+        <ul class="trip-stepbystep">
+          <li class="walk">
+            <img class="mode-icon" src="img/walk16x16.png" alt="Walk" />
+            Walk from <strong>Seattle, WA</strong> to <strong>King Street Station</strong>
+            <div class="stepmeta">9 min (0.5mi)</div>
+          </li>
+          <li class="sounder">
+            <img class="mode-icon" src="img/sounder16x16.png" alt="Sounder" />
+            Train - <strong>Sounder 1701</strong>
+            <table class="substeps">
+              <tbody>
+                <tr>
+                  <td>6:15pm</td>
+                  <td>
+                    Depart King Street Station
+                    <div class="stepmeta">9 min (6 stops)<br />Previous stop is Puyllup station</div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>7:14pm</td>
+                  <td>
+                    Arrive Tacoma Dome
+                    <div class="stepmeta">Previous stop is Puyllup station</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </li>
+          <li class="walk">
+            <img class="mode-icon" src="img/walk16x16.png" alt="Walk" />
+            Walk from <strong>Seattle, WA</strong> to <strong>King Street Station</strong>
+            <div class="stepmeta">9 min (0.5mi)</div>
+          </li>
+        </ul>
+      </div><!-- /#trip2-results -->
+    </div><!-- /#trip-data -->
+  </div><!-- /#plannerpanel --> 
+  <div id="map"></div>
+</div><!-- /#tripplanner-wrap -->
+</body>
+</html>

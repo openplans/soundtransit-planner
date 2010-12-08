@@ -95,7 +95,7 @@ $(function(){
   // clear
   $('#clear').click(function() {
     $('#to, #from').val("").removeClass('ambiguous').each(function() {blankIfEmpty(this);});
-    $('#disambiguation, #tripresult-summaries, div.results').fadeOut('slow');
+    $('#disambiguation, #trip-data').fadeOut('slow');
   });
   
   // to/from fields
@@ -125,7 +125,7 @@ $(function(){
 	//initialize time
 	var d = new Date();
 
-	$('#leavehour').val((d.getHours() > 12) ? (d.getHours() -12) : d.getHours());
+	$('#leavehour').val((d.getHours() > 12) ? (d.getHours() -12) : ((d.getHours() == 0) ? 12 : d.getHours()));
 	
 	$('#leaveminute').val(zeropad(d.getMinutes()));
   
