@@ -35,7 +35,8 @@
         map = new OpenLayers.Map('map', {
             controls: [
                 new OpenLayers.Control.Navigation(),
-                new OpenLayers.Control.PanZoomBar(),
+                
+                //new OpenLayers.Control.PanZoomBar(),
                 new OpenLayers.Control.KeyboardDefaults()
             ]            
         });
@@ -165,6 +166,7 @@
       //AJAX Request
       function makeTripRequest() {
         var hardcodedTestURL = "plan.xml"
+        //var hardcodedTestURL = "http://sea.dev.openplans.org:8080/translatis-api/ws/plan?_dc=1291594092957&from=&to=&arriveBy=false&date=12/05/2010&time=4:06%20pm&mode=TRANSIT,WALK&optimize=QUICK&maxWalkDistance=840&wheelchair=false&toPlace=47.6615,%20-122.3123&fromPlace=47.6687,-122.3757&intermediatePlaces=";
         $.ajax({
         		type: "GET",
         		url: hardcodedTestURL,
