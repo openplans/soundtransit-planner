@@ -53,21 +53,88 @@ OTP.Map = function(_root) {
     });
 
     var shaded = new OpenLayers.Layer.VirtualEarth("Shaded", {
-        type: VEMapStyle.Shaded
+        type: VEMapStyle.Shaded,
+		isBaseLayer: true
     });
     var hybrid = new OpenLayers.Layer.VirtualEarth("Hybrid", {
-        type: VEMapStyle.Hybrid
+        type: VEMapStyle.Hybrid,
+		isBaseLayer: true
     });
     var aerial = new OpenLayers.Layer.VirtualEarth("Aerial", {
-        type: VEMapStyle.Aerial
+        type: VEMapStyle.Aerial,
+		isBaseLayer: true
     });
 
-    map.addLayers([shaded, hybrid, aerial]);
-    map.setCenter(new OpenLayers.LonLat(-122.30, 47.45), 8);
+   	map.addLayers([shaded, hybrid, aerial]);
+	map.setCenter(new OpenLayers.LonLat(-122.30, 47.45), 8);
+    
+
+
+    routes = new OpenLayers.Layer.WMS("Routes", "http://sea.dev.openplans.org/geoserver/gwc/service/wms", 
+		{
+			layers: 'soundtransit:routes',
+			format: 'image/png'
+		},
+		{ 
+			tileSize: new OpenLayers.Size(256,256), 
+			isBaseLayer: false 
+		}
+	);
+    map.addLayer(routes);
+
+
+    stops = new OpenLayers.Layer.WMS("Stops", "http://sea.dev.openplans.org/geoserver/gwc/service/wms", 
+		{
+			layers: 'soundtransit:stops',
+			format: 'image/png'
+		},
+		{ 
+			tileSize: new OpenLayers.Size(256,256), 
+			isBaseLayer: false 
+		}
+	);
+    map.addLayer(stops);
 
     
+
+    parkandride = new OpenLayers.Layer.WMS("Park and Ride", "http://sea.dev.openplans.org/geoserver/gwc/service/wms", 
+		{
+			layers: 'soundtransit:parkandride',
+			format: 'image/png'
+		},
+		{ 
+			tileSize: new OpenLayers.Size(256,256), 
+			isBaseLayer: false 
+		}
+	);
+    map.addLayer(parkandride);
+
+
+
+    fareoutlets = new OpenLayers.Layer.WMS("Park and Ride", "http://sea.dev.openplans.org/geoserver/gwc/service/wms", 
+		{
+			layers: 'soundtransit:fareoutlets',
+			format: 'image/png'
+		},
+		{ 
+			tileSize: new OpenLayers.Size(256,256), 
+			isBaseLayer: false
+		}
+	);
+    map.addLayer(fareoutlets);
+
+
+
     // public methods
     return {
+		showLayer: function(name) {
+			
+		},
+		
+		hideLayer: function(name) {
+			
+		},
+		
         setStartPoint: function() {
 
         },
