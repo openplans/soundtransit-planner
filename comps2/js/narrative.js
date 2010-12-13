@@ -80,7 +80,10 @@ OTP.Narrative = function(_root, _map) {
 
 
 
-    function makeTripRequest() {                
+    function makeTripRequest() {
+				// First, add the planning spinner and text
+				jQuery('#trip-data').fadeOut("fast", function() {$(this).html('<div id="trip-spinner">Planning your trip</div>').fadeIn("fast")});				
+	                
         jQuery.ajax({
             url: "http://sea.dev.openplans.org:8080/translatis-api/ws/plan",
             dataType: "jsonp",
@@ -99,18 +102,21 @@ OTP.Narrative = function(_root, _map) {
                 intermediatePlaces: ""
             },
             beforeSend: function() {
-              jQuery('#how-to-plan')
-                .fadeOut("fast")
+              //jQuery('#how-to-plan')
+              //  .fadeOut("fast")
             },
             success: function(data) {
-              jQuery('#trip-data')
-                .fadeOut("fast")
-                .empty();
+							// TODO: determine whether we need to disambiguate a to or from location (or both)
+							if (false) {
+								//create object 
+								var resultSet = {'from': ['array','of','options'], 'to': ['array','of','options']};
+								disambiguateResults(resultSet);
+							} else {
+	              jQuery('#trip-data').fadeOut("fast").empty();
+	              processResults(data);
+	              jQuery('#trip-data').fadeIn("fast");
+							}
 
-              processReuslts(data);
-
-              jQuery('#trip-data')
-                .fadeIn("fast");
             },
             error:function(x,e){
                     if(x.status==0){
@@ -131,9 +137,12 @@ OTP.Narrative = function(_root, _map) {
     }
 
     function processResults(data) {
+				if (jQuery(this).find('leg').size() ==0 ) {jQuery("#trip-data").html('<div id="no-results"><h3>We\'re sorry!</h3><p>We don\'t have transit schedule data for a trip from ' + jQuery("#from").val() + ' to ' + jQuery("#to").val() + ' at the time and date you specified.</p><p>You might try to:</p><ul><li>Double check your spelling</li><li>Change the starting or end point of the trip by selecting them on the map</li><li>Look up schedules</li></ul></div>');}
+	
         var tripSummariesMarkup = jQuery('<table id="tripresult-summaries"><thead><tr><th>Trip</th><th>Travel Time</th><th>Cash</th><th>Route &amp; Transfers</th><tr></thead><tbody></tbody></table>');
 
         jQuery(data).find('itinerary').each(function(tripIndex) {
+	
             var tripNumber = tripIndex + 1;
             var activeClass = (tripNumber == 1) ? "active" : "";
       
@@ -150,6 +159,7 @@ OTP.Narrative = function(_root, _map) {
             
              
                 // why are we creating a new object here? why not just use the existing OTP format/data model? 
+                // This was a legacy of the XML parsing - being able to pass an object to the formatting functions was useful
                 var legObject=[];
                 legObject.legNumber = legIndex + 1;
                 legObject.mode = jQuery(this).attr('mode');
@@ -208,108 +218,30 @@ OTP.Narrative = function(_root, _map) {
         + '<div class="stepmeta">' + millisecondsToString(legObject.duration) + ' (6 stops)<br />Previous stop is Puyllup station</div></td></tr><tr><td>' 
         + prettyTime(legObject.endTime) + '</td><td>Arrive ' + legObject.endPlace + '<div class="stepmeta">Previous stop is Puyllup station</div></td> </tr></tbody></table>');
     }
-            
 
+		// Expects an object in the format  {'from': [array,of,options], 'to': [array,of,options]}
+    function disambiguateResults(results) {
+        var disambiguateMarkup = jQuery('<div id="disambiguate-results"></div>');
+        var disambiguateToMarkup = (results.to) ? jQuery('<div id="from-possibles"><h3>We found several starting points for your search</h3><h4>Did you mean?</h4><ol><li class="possible-1">12th Ave, Seattle WA <a href="#">select</a></li><li class="possible-2">52 12th Ave, Seattle WA <a href="#">select</a></li></ol></div>') : "";
+        var disambiguateFromMarkup = (results.from) ? jQuery('<div id="from-possibles"><h3>We found several ending points for your search</h3><h4>Did you mean?</h4><ol><li class="possible-1">12th Ave, Seattle WA <a href="#">select</a></li><li class="possible-2">52 12th Ave, Seattle WA <a href="#">select</a></li></ol></div>') : "";
+
+				// TODO: Add points to map, select behavior
+				results.to.each(function(toIndex) {       
+            disambiguateToMarkup.append("");
+        });
+
+				// TODO: Add points to map, select behavior
+				results.from.each(function(toIndex) {       
+            disambiguateFromMarkup.append("");
+        });
+
+				jQuery("#trip-data").html(disambiguateMarkup.append(disambiguateToMarkup + disambiguateFromMarkup));
+    }
 
 
 
 
     function addFormUIBehavior() {
-        // what does this do? do we need all this code? please comment this
-		jQuery.widget("ui.combobox", {
-			_create: function() {
-				var self = this,
-					select = this.element.hide(),
-					selected = select.children( ":selected" ),
-					value = selected.val() ? selected.text() : "";
-				
-                var input = jQuery( "<input>" )
-					.insertAfter( select )
-					.val( value )
-					.autocomplete({
-						delay: 0,
-						minLength: 0,
-						source: function( request, response ) {
-							var matcher = new RegExp( jQuery.ui.autocomplete.escapeRegex(request.term), "i" );
-							response( select.children( "option" ).map(function() {
-								var text = jQuery( this ).text();
-								if ( this.value && ( !request.term || matcher.test(text) ) )
-									return {
-										label: text.replace(
-											new RegExp(
-												"(?![^&;]+;)(?!<[^<>]*)(" +
-												jQuery.ui.autocomplete.escapeRegex(request.term) +
-												")(?![^<>]*>)(?![^&;]+;)", "gi"
-											), "<strong>$1</strong>" ),
-										value: text,
-										option: this
-									};
-							}) );
-						},
-						select: function( event, ui ) {
-							ui.item.option.selected = true;
-							self._trigger( "selected", event, {
-								item: ui.item.option
-							});
-						},
-						change: function( event, ui ) {
-							if ( !ui.item ) {
-								var matcher = new RegExp( "^" + jQuery.ui.autocomplete.escapeRegex( jQuery(this).val() ) + "$", "i" ),
-									valid = false;
-								select.children( "option" ).each(function() {
-									if ( this.value.match( matcher ) ) {
-										this.selected = valid = true;
-										return false;
-									}
-								});
-								if ( !valid ) {
-									// remove invalid value, as it didn't match anything
-									jQuery( this ).val( "" );
-									select.val( "" );
-									return false;
-								}
-							}
-						}
-					})
-					.addClass( "ui-widget ui-widget-content ui-corner-left" );
-
-				input.data( "autocomplete" )._renderItem = function( ul, item ) {
-					return jQuery( "<li></li>" )
-						.data( "item.autocomplete", item )
-						.append( "<a>" + item.label + "</a>" )
-						.appendTo( ul );
-				};
-
-				jQuery( "<button type='button'>&nbsp;</button>" )
-					.attr( "tabIndex", -1 )
-					.attr( "title", "Show All Items" )
-					.insertAfter( input )
-					.button({
-						icons: {
-							primary: "ui-icon-triangle-1-s"
-						},
-						text: false
-					})
-					.removeClass( "ui-corner-all" )
-					.addClass( "ui-corner-right ui-button-icon" )
-					.click(function() {
-						// close if already visible
-						if ( input.autocomplete( "widget" ).is( ":visible" ) ) {
-							input.autocomplete( "close" );
-							return false;
-						}
-
-						// pass empty string as value to search for, displaying all results
-						input.autocomplete( "search", "" );
-						input.focus();
-						return false;
-					});
-
-
-			}
-
-		}); // end widget
-
         var setBlankClassIfEmpty = function(element) { 
             if(jQuery(element).val() == "") {
                 jQuery(element).addClass('blank');

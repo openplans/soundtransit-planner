@@ -233,6 +233,154 @@ font-size: 18px;
 
 /* - */
 
+#trip-spinner {
+border-top:1px solid #656565;
+margin-top: 15px;
+padding: 15px 0 15px 30px;
+font-size: 18px;
+color: #656565;
+background: url(../img/spinner.gif) 0 50% no-repeat;
+}
+
+/* - */
+
+#no-results {
+border-top:1px solid #656565;
+margin-top: 15px;
+padding: 15px 0 0 0;
+color: #656565;
+}
+
+#no-results h3 {
+font-weight: bold;
+font-size: 18px;
+}
+
+#no-results p {
+margin-bottom: 1em;
+}
+
+#no-results ul {
+list-style: square inside none;
+}
+
+/* - */
+
+#disambiguate-results {
+border-top:1px solid #656565;
+margin-top: 15px;
+padding: 15px 0 0 0;
+color: #656565;
+}
+
+#disambiguate-results h3 {
+font-weight: bold;
+}
+
+#disambiguate-results h4 {
+font-weight: bold;
+font-size: 18px;
+padding: 4px 0 8px 28px;
+}
+
+#disambiguate-results #from-possibles h4 {
+background: url(../img/a-flag.png) 0 50% no-repeat;
+}
+
+#disambiguate-results #to-possibles h4 {
+background: url(../img/b-flag.png) 0 50% no-repeat;
+}
+
+#disambiguate-results ol {
+list-style-type: none;
+}
+
+#disambiguate-results ol li {
+min-height: 20px;
+padding: 10px 10px 10px 34px;
+background-position: 0 50%;
+background-repeat: no-repeat;
+}
+
+#disambiguate-results ol li a {
+float: right;
+}
+
+/* ASSUMPTION: no more than 9 ambiguous results at once */
+#disambiguate-results ol li.possible-1 {
+background-image: url(../img/pin-1.png);
+}
+
+* html #disambiguate-results ol li.possible-1 {
+background-image: url(../img/pin-1-ie.png);
+}
+
+#disambiguate-results ol li.possible-2 {
+background-image: url(../img/pin-2.png);
+}
+
+* html #disambiguate-results ol li.possible-2 {
+background-image: url(../img/pin-2-ie.png);
+}
+
+#disambiguate-results ol li.possible-3 {
+background-image: url(../img/pin-3.png);
+}
+
+* html #disambiguate-results ol li.possible-3 {
+background-image: url(../img/pin-3-ie.png);
+}
+
+#disambiguate-results ol li.possible-4 {
+background-image: url(../img/pin-4.png);
+}
+
+* html #disambiguate-results ol li.possible-4 {
+background-image: url(../img/pin-4-ie.png);
+}
+
+#disambiguate-results ol li.possible-5 {
+background-image: url(../img/pin-5.png);
+}
+
+* html #disambiguate-results ol li.possible-5 {
+background-image: url(../img/pin-5-ie.png);
+}
+
+#disambiguate-results ol li.possible-6 {
+background-image: url(../img/pin-6.png);
+}
+
+* html #disambiguate-results ol li.possible-6 {
+background-image: url(../img/pin-6-ie.png);
+}
+
+#disambiguate-results ol li.possible-7 {
+background-image: url(../img/pin-7.png);
+}
+
+* html #disambiguate-results ol li.possible-7 {
+background-image: url(../img/pin-7-ie.png);
+}
+
+#disambiguate-results ol li.possible-8 {
+background-image: url(../img/pin-8.png);
+}
+
+* html #disambiguate-results ol li.possible-8 {
+background-image: url(../img/pin-8-ie.png);
+}
+
+#disambiguate-results ol li.possible-9 {
+background-image: url(../img/pin-9.png);
+}
+
+* html #disambiguate-results ol li.possible-9 {
+background-image: url(../img/pin-9-ie.png);
+}
+
+/* - */
+
 #tripresult-summaries {
 border-top: 1px solid #656565;
 border-bottom: 1px solid #656565;
