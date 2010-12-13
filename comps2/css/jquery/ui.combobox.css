@@ -1,0 +1,35 @@
+/*
+ * Copyright (c) 2008 Jonathan Tang
+ * Dual licensed under the MIT (MIT-LICENSE.txt)
+ * and GPL (GPL-LICENSE.txt) licenses.
+ *
+ * vim: noexpandtab
+ */
+
+img.ui-combobox-arrow {
+	position: relative;
+	vertical-align: text-bottom;
+	top: 2px;
+}
+
+* html img.ui-combobox-arrow {
+	top: -3px;
+}
+
+.ui-combobox-list {
+	border: 1px solid black;
+}
+
+.ui-combobox-list, .ui-combobox-item {
+	display: block;
+	font-family: sans-serif;
+	font-size: 80%;
+	background-color: white;
+}
+
+.ui-combobox-list .selected {
+	background-color: #eeeeff;
+	border-top: 1px solid blue;
+	border-bottom: 1px solid blue;
+	font-weight: bold;
+}
