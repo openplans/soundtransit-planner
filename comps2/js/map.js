@@ -42,7 +42,7 @@ OTP.Map = function(_root) {
 
 
     // constructor
-    OpenLayers.ImgPath = "js/openlayers/theme/stp/";
+    OpenLayers.ImgPath = "js/openlayers/img/";
 
     map = new OpenLayers.Map(root.attr("id"), {
         controls: [
