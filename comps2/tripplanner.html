@@ -21,6 +21,7 @@
 	<script type="text/javascript" src="js/jquery/jquery-combobox-support.min.js"></script>
 	<script type="text/javascript" src="js/jquery/jquery-ui-spinner.min.js"></script>
 
+	<script src="http://maps.google.com/maps?file=api&amp;v=3"></script>
     <script src="http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=6.2&mkt=en-us"></script>
 	<script src="js/openlayers/OpenLayers.js"></script>
 
@@ -29,8 +30,7 @@
     
     <script type="text/javascript">
         jQuery(document).ready(function() {
-            var map = OTP.Map(document.getElementById("map"));    
-            var narrative = OTP.Narrative(document.getElementById("plannerpanel"), map);
+			OTP.Narrative(document.getElementById("plannerpanel"), document.getElementById("map"));
         });
     </script>
 </head>
@@ -75,17 +75,17 @@
       <div id="moreoptions" class="ui-widget">
         <span id="trippriority-wrap">
           <select id="trippriority">
-        		<option value="Fewest Transfers">Fewest Transfers</option>
-        		<option value="Fastest Trip">Fastest Trip</option>
+        		<option value="QUICK">Fewest Transfers</option>
+        		<option value="QUICK">Fastest Trip</option>
         	</select>
       	</span>
         <span id="maxwalk-wrap">
           <select id="maxwalk">
-        		<option value="1/4 mile max walk">1/4 mile max walk</option>
-        		<option value="1/2 mile max walk">1/2 mile max walk</option>
-          	<option value="3/4 mile max walk">3/4 mile max walk</option>
-          	<option value="1 mile max walk">1 mile max walk</option>
-        	</select>
+       		<option value="420">1/4 mile max walk</option>
+       		<option value="840">1/2 mile max walk</option>
+          	<option value="1260">3/4 mile max walk</option>
+          	<option value="1680">1 mile max walk</option>
+       	  </select>
       	</span>
       	<div id="accessible-area"><label><input type="checkbox" id="accessible" /> Accessible trip <img src="img/wheelchair16x16.png" alt="Wheelchair icon" /></label></div>
       </div>
