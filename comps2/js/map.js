@@ -58,7 +58,49 @@ OTP.Map = function(_root) {
     // this points OL to our custom pan/zoom icon set
     OpenLayers.ImgPath = "js/openlayers/img/";
 
+    // context menu handler
+    OpenLayers.Control.ContextMenu = OpenLayers.Class(OpenLayers.Control, {                
+        initialize: function() {
+            OpenLayers.Control.prototype.initialize.apply(this, arguments); 
 
+            this.handler = new OpenLayers.Handler.Click(
+                this, 
+                {
+                    'click': this.showContextMenu
+                }, 
+                {
+                    'single': true,
+                    'double': false,
+                    'pixelTolerance': 0,
+                    'stopSingle': true,
+                    'stopDouble': true
+                }
+            );
+        }, 
+        showContextMenu: function(e) {
+            var position = e.xy;
+            var mapDiv = jQuery(e.element);
+            
+            var menu = jQuery("<ul></ul>")
+                        .append("<li>Test</li>")
+                        .menu();
+
+            mapDiv.append(menu);
+
+/*            
+            mapDiv.append(menu)
+                .css("position", "absolute")
+                .css("left", position.x)
+                .css("top", position.y);
+*/
+        }
+
+    });
+
+    var menu = new OpenLayers.Control.ContextMenu();
+    map.addControl(menu);
+    menu.activate();
+  
     // add bing baselayers
     var shaded = new OpenLayers.Layer.VirtualEarth("Shaded", {
         type: VEMapStyle.Shaded,
@@ -130,7 +172,7 @@ OTP.Map = function(_root) {
     );
 
     map.addLayer(fareoutlets);
-//    map.addLayers([routes, stops, parkandride, fareoutlets]);
+    //map.addLayers([routes, stops, parkandride, fareoutlets]);
 
     // a container layer for all the route polylines we'll draw on the map
     var plannedRoute = new OpenLayers.Layer.Vector("Planned Route");
