@@ -44,6 +44,16 @@ OTP.Map = function(_root) {
         return array;
     }
 
+		// Toggle the visibility of a layer, given a name
+		function mapLayerToggle(layerName) {
+			  var layerArray = map.layers;
+			  for (var i=0;i<layerArray.length;i++) {
+				    if (map.layers[i].name == layerName) {
+					      map.layers[i].setVisibility(!map.layers[i].getVisibility());
+				    }
+			  }
+		}
+
     // constructor
     map = new OpenLayers.Map(root.attr("id"), {
         projection: new OpenLayers.Projection("EPSG:900913"),
@@ -138,12 +148,32 @@ OTP.Map = function(_root) {
     // public methods
     return {
 		showLayer: function(name) {
-			// TODO
+			var layerArray = map.layers;
+		  for (var i=0;i<layerArray.length;i++) {
+			    if (map.layers[i].name == name) {
+				      map.layers[i].setVisibility(true);
+			    }
+		  }
 		},
 		
 		hideLayer: function(name) {
-			// TODO			
+			var layerArray = map.layers;
+		  for (var i=0;i<layerArray.length;i++) {
+			    if (map.layers[i].name == name) {
+				      map.layers[i].setVisibility(false);
+			    }
+		  }		
 		},
+
+		toggleLayer: function(name) {
+			var layerArray = map.layers;
+		  for (var i=0;i<layerArray.length;i++) {
+			    if (map.layers[i].name == name) {
+			      map.layers[i].setVisibility(!map.layers[i].getVisibility());
+			    }
+		  }		
+		},
+		
 		
         setStartPoint: function() {
 			// TODO

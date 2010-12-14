@@ -20,12 +20,28 @@
 	<script type="text/javascript" src="js/jquery/jquery-ui-1.8.6.custom.min.js"></script>
 	<script type="text/javascript" src="js/jquery/jquery-combobox-support.min.js"></script>
 	<script type="text/javascript" src="js/jquery/jquery-ui-spinner.min.js"></script>
-	<script type="text/javascript" src="js/tripplanner.js"></script>
 
+  <script src="http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=6.2&mkt=en-us"></script>
+	<script src="js/openlayers/OpenLayers.js"></script>
+
+	<script type="text/javascript" src="js/narrative.js"></script>
+	<script type="text/javascript" src="js/map.js"></script>
+  
+	<script type="text/javascript" src="js/tripplanner.js"></script>
+	
+  <script type="text/javascript">
+      jQuery(document).ready(function() {
+        var map = OTP.Map(document.getElementById("map"));
+		    jQuery("#tester").click(function() {
+          map.toggleLayer('soundtransit:parkandride');
+        });
+      });
+  </script>
 </head>
 
 <body>
-<div id="tripplanner-wrap">
+  <div id="map-controls"><a id="tester" href="#">Toggle</a></div>
+<div id="tripplanner-wrap" class="fullsize">
   <div id="map"></div>
 </div><!-- /#tripplanner-wrap -->
 </body>
