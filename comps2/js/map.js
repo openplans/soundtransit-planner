@@ -61,13 +61,14 @@ OTP.Map = function(_root) {
         controls: [
             new OpenLayers.Control.Navigation(),
             new OpenLayers.Control.KeyboardDefaults(),
-            new OpenLayers.Control.PanZoomBar({zoomWorldIcon:false}),
+            new OpenLayers.Control.PanZoomBar({zoomWorldIcon:false})
         ]
     });
 
     // this points OL to our custom pan/zoom icon set
     OpenLayers.ImgPath = "js/openlayers/img/";
-    
+
+
     // add bing baselayers
     var shaded = new OpenLayers.Layer.VirtualEarth("Shaded", {
         type: VEMapStyle.Shaded,

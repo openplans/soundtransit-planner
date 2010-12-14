@@ -182,10 +182,10 @@ OTP.Narrative = function(_root, _map) {
             var itineraryMarkup = jQuery('<ul class="trip-stepbystep"></ul>');
 
             jQuery.each(trip.legs.leg, function(legIndex, leg) {
-                var modeText = '<img src="img/' + leg.@mode.toLowerCase() + '16x16.png" alt="' + leg.@mode + '" /> ';
+                var modeText = '<img src="img/' + leg["@mode"].toLowerCase() + '16x16.png" alt="' + leg["@mode"] + '" /> ';
 
-                if(leg.@mode !== "WALK" && leg.@route !== "") {
-                    modeText += '<strong>' + leg.@route + '</strong> ';
+                if(leg["@mode"] !== "WALK" && leg["@route"] !== "") {
+                    modeText += '<strong>' + leg["@route"] + '</strong> ';
                 }
 
                 tripModes.push(modeText);
