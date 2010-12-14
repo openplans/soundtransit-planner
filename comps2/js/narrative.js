@@ -21,7 +21,7 @@ OTP.Narrative = function(_root, _map) {
         var interval = duration - (hours * msecondsPerHour);
         var minutes = Math.floor(interval / msecondsPerMinute);
 
-        var hourString = (hours > 0) ? ((hours == 1) ? hours + " hour, " : hours + " hours, ") : false;
+        var hourString = (hours > 0) ? ((hours === 1) ? hours + " hour, " : hours + " hours, ") : false;
         var minuteString = minutes + " min";
 
         if(hourString) {
@@ -43,11 +43,11 @@ OTP.Narrative = function(_root, _map) {
     }
 
     function metersToFeet(meters) {
-        return parseInt(meters * 3.2808);
+        return parseInt(meters * 3.2808, 10);
     }
       
     function prettyDistance(meters) {
-        if (meters == null || typeof meters == 'undefined') {
+        if (meters === null || typeof meters === 'undefined') {
             return "";
         }
 
@@ -83,7 +83,7 @@ OTP.Narrative = function(_root, _map) {
     }
 
     function sentenceCase(string) {
-        return string.toLowerCase().replace(/(^\s*\w|[\.\!\?]\s*\w)/g,function(c){return c.toUpperCase()});
+        return string.toLowerCase().replace(/(^\s*\w|[\.\!\?]\s*\w)/g,function(c){return c.toUpperCase();});
     }
 
     function makeTripRequest() {
@@ -171,9 +171,9 @@ OTP.Narrative = function(_root, _map) {
             var seniorFare = "";
             var regularFare = "";
             jQuery(this.fare.fare.entry).each(function(legIndex) {
-                if (this.key == "student") {studentFare = parseInt(this.value.cents);}
-                if (this.key == "senior") {seniorFare = parseInt(this.value.cents);}
-                if (this.key == "regular") {regularFare = parseInt(this.value.cents);}
+                if (this.key == "student") {studentFare = parseInt(this.value.cents, 10);}
+                if (this.key == "senior") {seniorFare = parseInt(this.value.cents, 10);}
+                if (this.key == "regular") {regularFare = parseInt(this.value.cents, 10);}
             });
 
             var itineraryMarkup = jQuery('<ul class="trip-stepbystep"></ul>');
@@ -200,7 +200,7 @@ OTP.Narrative = function(_root, _map) {
                 // end time, start time, duration across this trip
                 if(! isNaN(leg.duration) && typeof leg.duration !== 'undefined') {
                     try {
-                        tripDuration += parseInt(leg.duration);
+                        tripDuration += parseInt(leg.duration, 10);
                     } catch(e) {}
                 }
 
@@ -288,14 +288,14 @@ OTP.Narrative = function(_root, _map) {
 
     function addFormUIBehavior() {
         var setBlankClassIfEmpty = function(element) { 
-            if(jQuery(element).val() == "") {
+            if(jQuery(element).val() === "") {
                 jQuery(element).addClass('blank');
             } else {
                 jQuery(element).removeClass('blank');
             }
         }
         var zeroPad = function(value) { 
-            return (parseInt(value) < 10) ? ("0" + value) : value;
+            return (parseInt(value, 10) < 10) ? ("0" + value) : value;
         }
 
         // clear button behavior

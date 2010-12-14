@@ -188,7 +188,7 @@ OTP.Map = function(_root) {
                     menu.hide();
                 }
             }
-        },
+        }
     });
     
     var clickControl = new OpenLayers.Control.Click();
@@ -347,4 +347,4 @@ OTP.Map = function(_root) {
             plannedRoute.addFeatures([lineFeature]);
         }
     };
-}
+};
