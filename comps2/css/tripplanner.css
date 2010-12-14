@@ -639,3 +639,7 @@ right: 0;
 width: 561px;
 height: 563px;
 }
+
+.fullsize #map {
+width: 100%;
+}
