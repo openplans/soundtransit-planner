@@ -176,14 +176,14 @@ OTP.Narrative = function(_root, _map) {
             var itineraryMarkup = jQuery('<ul class="trip-stepbystep"></ul>');
 
             jQuery.each(trip.legs.leg, function(legIndex, leg) {
-                var modeText = '<img src="img/' + leg.@mode.toLowerCase() + '16x16.png" alt="' + leg.@mode + '" /> ';
+                var modeText = '<img src="img/' + leg["@mode"].toLowerCase() + '16x16.png" alt="' + leg["@mode"] + '" /> ';
 
-                if(leg.@mode !== "WALK" && leg.@route !== "") {
-                    modeText += '<strong>' + leg.@route + '</strong> ';
+                if(leg["@mode"] !== "WALK" && leg["@route"] !== "") {
+                    modeText += '<strong>' + leg["@route"] + '</strong> ';
                 }
 
                 tripModes.push(modeText);
-                itineraryMarkup.append((leg.@mode === "WALK") ? formatWalkLeg(legIndex, leg) : formatTransitLeg(legIndex, leg));
+                itineraryMarkup.append((leg["@mode"] === "WALK") ? formatWalkLeg(legIndex, leg) : formatTransitLeg(legIndex, leg));
                 tripDuration += leg.duration;
             });
 
@@ -220,22 +220,22 @@ OTP.Narrative = function(_root, _map) {
 
     function formatWalkLeg(legIndex, leg) {
         // add polyline to map
-        map.addLeg(leg.@mode, leg.legGeometry.points);
+        map.addLeg(leg["@mode"], leg.legGeometry.points);
         
         // FIXME
-        return jQuery('<li class="' + leg.@mode.toLowerCase() + ' leg-' + legIndex + '"></li>').html(
-                    '<img class="mode-icon" src="img/walk16x16.png" alt="' + leg.@mode + '" />' +
+        return jQuery('<li class="' + leg["@mode"].toLowerCase() + ' leg-' + legIndex + '"></li>').html(
+                    '<img class="mode-icon" src="img/walk16x16.png" alt="' + leg["@mode"] + '" />' +
                     'Walk from <strong>' + ((typeof leg.startPlace !== 'undefined' && leg.startPlace !== null) ? leg.startPlace : "Unknown") + '</strong> to <strong>' + ((typeof leg.endPlace !== 'undefined' && leg.endPlace !== null) ? leg.endPlace : "Unknown") + '</strong>' + 
                     '<div class="stepmeta">' + millisecondsToString(0) + ' (' + prettyDistance(0) + ')</div>');
     }
 
     function formatTransitLeg(legIndex, leg) {
         // add polyline to map
-        map.addLeg(leg.@mode, leg.legGeometry.points);
+        map.addLeg(leg["@mode"], leg.legGeometry.points);
 
         // FIXME
-        return jQuery('<li class="' + leg.@mode.toLowerCase() + ' leg-' + legIndex + '"></li>').html(
-                    '<img class="mode-icon" src="img/' + leg.@mode.toLowerCase() + '16x16.png" alt="' + leg.@mode + '" /><table class="substeps"><tbody>' + 
+        return jQuery('<li class="' + leg["@mode"].toLowerCase() + ' leg-' + legIndex + '"></li>').html(
+                    '<img class="mode-icon" src="img/' + leg["@mode"].toLowerCase() + '16x16.png" alt="' + leg["@mode"] + '" /><table class="substeps"><tbody>' + 
                     '<tr><td>' + prettyTime(new Date(leg.startTime)) + '</td><td>Depart ' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '<div class="stepmeta">' + millisecondsToString(leg.duration) + ' (6 stops)<br />Previous stop is Puyllup station</div></td></tr>' + 
                     '<tr><td>' + prettyTime(new Date(leg.endTime)) + '</td><td>Arrive ' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + '<div class="stepmeta">Previous stop is Puyllup station</div></td></tr>' + 
                     '</tbody></table>');
