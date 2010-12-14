@@ -168,10 +168,16 @@ OTP.Narrative = function(_root, _map) {
             var tripDuration = 0;
             var transfers = trip.legs.leg.length - 1;
             
-            // FIXME
-            var studentFare = 0.0;
-            var seniorFare = 0.0;
-            var regularFare = 0.0;
+						var studentFare = "";
+						var seniorFare = "";
+						var regularFare = "";
+
+						// Awkward, but I'm not sure how to otherwise navigate the returned JSON
+						jQuery(this.fare.fare.entry).each(function(legIndex) {
+							if (this.key == "student") {studentFare = parseInt(this.value.cents);}
+							if (this.key == "senior") {seniorFare = parseInt(this.value.cents);}
+							if (this.key == "regular") {regularFare = parseInt(this.value.cents);}
+            });
 
             var itineraryMarkup = jQuery('<ul class="trip-stepbystep"></ul>');
 
@@ -184,6 +190,9 @@ OTP.Narrative = function(_root, _map) {
 
                 tripModes.push(modeText);
                 itineraryMarkup.append((leg.@mode === "WALK") ? formatWalkLeg(legIndex, leg) : formatTransitLeg(legIndex, leg));
+                // add polyline to map
+				        map.addLeg(leg.@mode, leg.legGeometry.points);
+				
                 tripDuration += leg.duration;
             });
 
@@ -219,21 +228,13 @@ OTP.Narrative = function(_root, _map) {
     }
 
     function formatWalkLeg(legIndex, leg) {
-        // add polyline to map
-        map.addLeg(leg.@mode, leg.legGeometry.points);
-        
-        // FIXME
         return jQuery('<li class="' + leg.@mode.toLowerCase() + ' leg-' + legIndex + '"></li>').html(
                     '<img class="mode-icon" src="img/walk16x16.png" alt="' + leg.@mode + '" />' +
                     'Walk from <strong>' + ((typeof leg.startPlace !== 'undefined' && leg.startPlace !== null) ? leg.startPlace : "Unknown") + '</strong> to <strong>' + ((typeof leg.endPlace !== 'undefined' && leg.endPlace !== null) ? leg.endPlace : "Unknown") + '</strong>' + 
-                    '<div class="stepmeta">' + millisecondsToString(0) + ' (' + prettyDistance(0) + ')</div>');
+                    '<div class="stepmeta">' + millisecondsToString(leg.duration) + ' (' + prettyDistance(leg.distance) + ')</div>');
     }
 
     function formatTransitLeg(legIndex, leg) {
-        // add polyline to map
-        map.addLeg(leg.@mode, leg.legGeometry.points);
-
-        // FIXME
         return jQuery('<li class="' + leg.@mode.toLowerCase() + ' leg-' + legIndex + '"></li>').html(
                     '<img class="mode-icon" src="img/' + leg.@mode.toLowerCase() + '16x16.png" alt="' + leg.@mode + '" /><table class="substeps"><tbody>' + 
                     '<tr><td>' + prettyTime(new Date(leg.startTime)) + '</td><td>Depart ' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '<div class="stepmeta">' + millisecondsToString(leg.duration) + ' (6 stops)<br />Previous stop is Puyllup station</div></td></tr>' + 
