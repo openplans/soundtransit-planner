@@ -4,8 +4,7 @@ OTP.Map = function(_root) {
     if(typeof _root === 'undefined' || _root === null) {
         return null;
     }
-return null;
-
+    
     var root = jQuery(_root);
     var map = null;
 
