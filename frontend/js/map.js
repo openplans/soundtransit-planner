@@ -267,8 +267,8 @@ OTP.Map = function(_root) {
 
     map.addLayers([routes, stops, parkandride, fareoutlets]);
 
-		//public methods accessible from within OTP.Map
-		var accessible_methods = { 
+    // public methods
+    return {
         showLayer: function(name) {
             var layerArray = map.layers;
             for (var i=0;i<layerArray.length;i++) {
@@ -343,9 +343,7 @@ OTP.Map = function(_root) {
                 style = {
                          strokeColor: "#666666",
                          strokeOpacity: 0.75,
-                         strokeWidth: 4,
-                         strokeLinecap: "square",
-                         strokeDashstyle: "dot"
+                         strokeWidth: 4
                 };
             } else if(type === "BUS") {
                 style = {
@@ -359,7 +357,5 @@ OTP.Map = function(_root) {
             var lineFeature = new OpenLayers.Feature.Vector(polyline, null, style);
             plannedRoute.addFeatures([lineFeature]);
         }
-    }
-    return accessible_methods;
-
+    };
 };
