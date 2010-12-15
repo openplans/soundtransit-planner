@@ -104,7 +104,6 @@ OTP.Narrative = function(_root, _map) {
                 arriveBy: (root.find("#leavetype").val() === "Arrive By"),
                 date: root.find("#leaveday").val(),
                 time: root.find("#leavehour").val() + ":" + root.find("#leaveminute").val() + " " + root.find("#leaveampm").val(),
-                mode: "TRANSIT,WALK",
                 optimize: root.find("#trippriority").val(),
                 maxWalkDistance: root.find("#maxwalk").val(),
                 wheelchair: (root.find("#accessible").checked === true),

@@ -139,24 +139,33 @@ OTP.Map = function(_root) {
     // a container to hold our planned routes
     var plannedRoute = new OpenLayers.Layer.Vector("Planned Route");
     map.addLayer(plannedRoute);
-    
+
     // add bing baselayers
     var road = new OpenLayers.Layer.Bing({ 
         key: "AgszXQ8Q5lbiJFYujII-Lcie9XQ-1DK3a2X7xWJmfSeipw8BAAF0ETX8AJ4K-PDm", 
         layer: "Road", 
-        name: "Road"         
+        name: "Road",
+        isBaseLayer: true,
+  		sphericalMercator: true,          
+        maxExtent: new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34)
     });
     
     var aerial = new OpenLayers.Layer.Bing({ 
         key: "AgszXQ8Q5lbiJFYujII-Lcie9XQ-1DK3a2X7xWJmfSeipw8BAAF0ETX8AJ4K-PDm", 
         layer: "Aerial", 
-        name: "Aerial" 
+        name: "Aerial", 
+        isBaseLayer: true,
+  		sphericalMercator: true,
+        maxExtent: new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34)  		
     });
     
     var hybrid = new OpenLayers.Layer.Bing({ 
         key: "AgszXQ8Q5lbiJFYujII-Lcie9XQ-1DK3a2X7xWJmfSeipw8BAAF0ETX8AJ4K-PDm", 
         layer: "AerialWithLabels", 
-        name: "Aerial With Labels" 
+        name: "Aerial With Labels", 
+        isBaseLayer: true,
+  		sphericalMercator: true,
+        maxExtent: new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34)  		
     });
 
     map.addLayers([road, aerial, hybrid]);
