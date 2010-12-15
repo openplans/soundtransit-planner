@@ -7,6 +7,7 @@ OTP.Map = function(_root) {
     
     var root = jQuery(_root);
     var map = null;
+    var menu = null;
 
     // private methods
     function decodePolyline(encoded) {
@@ -44,6 +45,83 @@ OTP.Map = function(_root) {
         return array;
     }
 
+    function showPopupMenu(point) {
+        var lonlat = map.getLonLatFromViewPortPx(point);
+
+        menu = jQuery("<ul></ul>");
+    
+        var startTripHere = jQuery('<li></li>')
+                            .append('<a href="#">Start Trip Here</a>')
+                            .click(function(e) {
+                                // FIXME
+                                var proj = new OpenLayers.Projection("EPSG:900913");
+                                var proj2 = new OpenLayers.Projection("EPSG:4326");
+                                var wgsLonLat = lonlat.transform(proj, proj2);
+
+                                jQuery("#from").val(wgsLonLat.lat + "," + wgsLonLat.lon).removeClass("blank");                                
+                                menu.remove();
+                                return false;
+                            });
+        menu.append(startTripHere);
+
+        var endTripHere = jQuery('<li></li>')
+                            .append('<a href="#">End Trip Here</a>')
+                            .click(function(e) {
+                                // FIXME
+                                var proj = new OpenLayers.Projection("EPSG:900913");
+                                var proj2 = new OpenLayers.Projection("EPSG:4326");
+                                var wgsLonLat = lonlat.transform(proj, proj2);
+                                
+                                jQuery("#to").val(wgsLonLat.lat + "," + wgsLonLat.lon).removeClass("blank");
+                                menu.remove();
+                                return false;
+                            });
+        menu.append(endTripHere);
+
+        var zoomInHere = jQuery('<li></li>')
+                            .append('<a href="#">Zoom In Here</a>')
+                            .click(function(e) {
+                                var zoom = map.getZoom() + 1;
+                                if(map.isValidZoomLevel(zoom)) {                                    
+                                    map.setCenter(lonlat, zoom);
+                                }
+                                menu.hide();
+                                return false;
+                            });
+        menu.append(zoomInHere);
+
+        var zoomOutHere = jQuery('<li></li>')
+                            .append('<a href="#">Zoom Out Here</a>')
+                            .click(function(e) {
+                                var zoom = map.getZoom() - 1;
+                                if(map.isValidZoomLevel(zoom)) {                                    
+                                    map.setCenter(lonlat, zoom);
+                                }
+                                menu.hide();
+                                return false;
+                            });
+        menu.append(zoomOutHere);
+
+        var centerMapHere = jQuery('<li></li>')
+                            .append('<a href="#">Center Map Here</a>')
+                            .click(function(e) {
+                                var lonlat = map.getLonLatFromViewPortPx(point);
+                                map.centerLayerContainer(lonlat);
+                                menu.hide();
+                                return false;
+                            });
+        menu.append(centerMapHere);
+
+        menu.css("z-index", "10000000")
+            .css("position", "absolute")
+            .css("left", point.x)
+            .css("top", point.y)
+            .menu();
+
+        jQuery(map.viewPortDiv)
+                .append(menu);
+    }
+
     // constructor
     map = new OpenLayers.Map(root.attr("id"), {
         projection: new OpenLayers.Projection("EPSG:900913"),
@@ -58,32 +136,78 @@ OTP.Map = function(_root) {
     // this points OL to our custom pan/zoom icon set
     OpenLayers.ImgPath = "js/openlayers/img/";
 
-
+    // a container to hold our planned routes
+    var plannedRoute = new OpenLayers.Layer.Vector("Planned Route");
+    map.addLayer(plannedRoute);
+    
     // add bing baselayers
-    var shaded = new OpenLayers.Layer.VirtualEarth("Shaded", {
-        type: VEMapStyle.Shaded,
-		isBaseLayer: true,
-		sphericalMercator: true 
+    var road = new OpenLayers.Layer.Bing({ 
+        key: "AgszXQ8Q5lbiJFYujII-Lcie9XQ-1DK3a2X7xWJmfSeipw8BAAF0ETX8AJ4K-PDm", 
+        layer: "Road", 
+        name: "Road"         
     });
-    var hybrid = new OpenLayers.Layer.VirtualEarth("Hybrid", {
-        type: VEMapStyle.Hybrid,
-		isBaseLayer: true,
-		sphericalMercator: true 
+    
+    var aerial = new OpenLayers.Layer.Bing({ 
+        key: "AgszXQ8Q5lbiJFYujII-Lcie9XQ-1DK3a2X7xWJmfSeipw8BAAF0ETX8AJ4K-PDm", 
+        layer: "Aerial", 
+        name: "Aerial" 
     });
-    var aerial = new OpenLayers.Layer.VirtualEarth("Aerial", {
-        type: VEMapStyle.Aerial,
-		isBaseLayer: true,
-		sphericalMercator: true 
+    
+    var hybrid = new OpenLayers.Layer.Bing({ 
+        key: "AgszXQ8Q5lbiJFYujII-Lcie9XQ-1DK3a2X7xWJmfSeipw8BAAF0ETX8AJ4K-PDm", 
+        layer: "AerialWithLabels", 
+        name: "Aerial With Labels" 
     });
 
-   	map.addLayers([shaded, hybrid, aerial]);
+    map.addLayers([road, aerial, hybrid]);
+
+    // context menu
+    OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {                
+       initialize: function(options) {
+           OpenLayers.Control.prototype.initialize.apply(this, arguments); 
+
+           this.handler = new OpenLayers.Handler.Click(
+                this, 
+                {
+                   'click': this.onClick
+                },
+                {
+                  'single': true,
+                  'double': false,
+                  'pixelTolerance': 0,
+                  'stopSingle': false,
+                  'stopDouble': false
+                }
+            );
+        }, 
+        onClick: function(e) {
+            if(e.button === 2 || (e.button === 0 && e.altKey === true)) {
+                showPopupMenu(e.xy);
+            } else {
+                if(menu !== null) {
+                    menu.hide();
+                }
+            }
+        }
+    });
+    
+    var clickControl = new OpenLayers.Control.Click();
+    map.addControl(clickControl);
+    clickControl.activate();
+
+    // (hides context menu in FF)
+    jQuery(map.layerContainerDiv)
+        .get(0).oncontextmenu = function() { 
+            return false; 
+        };
 
    	// center on seattle metro area
    	var point = new OpenLayers.LonLat(-122.30, 47.45);
    	var proj = new OpenLayers.Projection("EPSG:4326");
    	var proj2 = new OpenLayers.Projection("EPSG:900913");
 	map.setCenter(point.transform(proj, proj2), 8);
-    
+	
+/* 
     // setup baselayers
     routes = new OpenLayers.Layer.WMS("Routes", "http://sea.dev.openplans.org/geoserver/gwc/service/wms", 
 		{
@@ -106,7 +230,7 @@ OTP.Map = function(_root) {
 			isBaseLayer: false 
 		}
 	);
-
+	
     parkandride = new OpenLayers.Layer.WMS("Park and Ride", "http://sea.dev.openplans.org/geoserver/gwc/service/wms", 
     	{
     		layers: 'soundtransit:parkandride',
@@ -117,7 +241,7 @@ OTP.Map = function(_root) {
     		isBaseLayer: false 
     	}
     );
-
+    
     fareoutlets = new OpenLayers.Layer.WMS("Fare Outlets", "http://sea.dev.openplans.org/geoserver/gwc/service/wms", 
     	{
     		layers: 'soundtransit:fareoutlets',
@@ -128,43 +252,38 @@ OTP.Map = function(_root) {
     		isBaseLayer: false
     	}
     );
-
-    map.addLayer(fareoutlets);
-//    map.addLayers([routes, stops, parkandride, fareoutlets]);
-
-    // a container layer for all the route polylines we'll draw on the map
-    var plannedRoute = new OpenLayers.Layer.Vector("Planned Route");
-    map.addLayer(plannedRoute);
+    
+    map.addLayers([routes, stops, parkandride, fareoutlets]);
+*/
 
     // public methods
     return {
-		showLayer: function(name) {
-			var layerArray = map.layers;
-		  for (var i=0;i<layerArray.length;i++) {
-			    if (map.layers[i].name == name) {
-				      map.layers[i].setVisibility(true);
-			    }
-		  }
-		},
-		
-		hideLayer: function(name) {
-			var layerArray = map.layers;
-		  for (var i=0;i<layerArray.length;i++) {
-			    if (map.layers[i].name == name) {
-				      map.layers[i].setVisibility(false);
-			    }
-		  }		
-		},
+        showLayer: function(name) {
+            var layerArray = map.layers;
+            for (var i=0;i<layerArray.length;i++) {
+                if (map.layers[i].name === name) {
+                      map.layers[i].setVisibility(true);
+                }
+            }
+        },
+
+        hideLayer: function(name) {
+            var layerArray = map.layers;
+            for (var i=0;i<layerArray.length;i++) {
+                if (map.layers[i].name === name) {
+                    map.layers[i].setVisibility(false);
+                }
+            }
+        },
 
 		toggleLayer: function(name) {
-			var layerArray = map.layers;
-		  for (var i=0;i<layerArray.length;i++) {
-			    if (map.layers[i].name == name) {
-			      map.layers[i].setVisibility(!map.layers[i].getVisibility());
-			    }
-		  }		
-		},
-		
+            var layerArray = map.layers;
+            for (var i=0;i<layerArray.length;i++) {
+                if (map.layers[i].name === name) {
+                    map.layers[i].setVisibility(!map.layers[i].getVisibility());
+              }
+            }
+        },
 		
         setStartPoint: function() {
 			// TODO
@@ -172,6 +291,12 @@ OTP.Map = function(_root) {
         
         setEndPoint: function() {
 			// TODO
+        },
+        
+        reset: function() {
+            if(plannedRoute !== null) {
+                plannedRoute.removeAllFeatures();
+            }
         },
         
         zoomToPlannedRoute: function() {
@@ -211,7 +336,7 @@ OTP.Map = function(_root) {
                 };
             } else if(type === "BUS") {
                 style = {
-                         strokeColor: "#446797",
+                         strokeColor: "#02305E",
                          strokeOpacity: 0.75,
                          strokeWidth: 4
                 };                
@@ -222,4 +347,4 @@ OTP.Map = function(_root) {
             plannedRoute.addFeatures([lineFeature]);
         }
     };
-}
+};

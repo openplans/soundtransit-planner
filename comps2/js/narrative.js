@@ -21,7 +21,7 @@ OTP.Narrative = function(_root, _map) {
         var interval = duration - (hours * msecondsPerHour);
         var minutes = Math.floor(interval / msecondsPerMinute);
 
-        var hourString = (hours > 0) ? ((hours == 1) ? hours + " hour, " : hours + " hours, ") : false;
+        var hourString = (hours > 0) ? ((hours === 1) ? hours + " hour, " : hours + " hours, ") : false;
         var minuteString = minutes + " min";
 
         if(hourString) {
@@ -43,11 +43,11 @@ OTP.Narrative = function(_root, _map) {
     }
 
     function metersToFeet(meters) {
-        return parseInt(meters * 3.2808);
+        return parseInt(meters * 3.2808, 10);
     }
       
     function prettyDistance(meters) {
-        if (meters == null || typeof meters == 'undefined') {
+        if (meters === null || typeof meters === 'undefined') {
             return "";
         }
 
@@ -82,6 +82,10 @@ OTP.Narrative = function(_root, _map) {
         return hours + ":" + minutes + amOrPm;
     }
 
+    function sentenceCase(string) {
+        return string.toLowerCase().replace(/(^\s*\w|[\.\!\?]\s*\w)/g,function(c){return c.toUpperCase();});
+    }
+
     function makeTripRequest() {
 		// First, add the planning spinner and text
 		root.find('#trip-data')
@@ -104,13 +108,13 @@ OTP.Narrative = function(_root, _map) {
                 optimize: root.find("#trippriority").val(),
                 maxWalkDistance: root.find("#maxwalk").val(),
                 wheelchair: (root.find("#accessible").checked === true),
-                toPlace: "47.6615, -122.3123", //jQuery("#to").val(),
-                fromPlace: "47.6687,-122.3757", //jQuery("#from").val(),
+                toPlace: root.find("#to").val(),
+                fromPlace: root.find("#from").val(),
                 intermediatePlaces: ""
             },
             beforeSend: function() {
             },
-            success: function(data) {              
+            success: function(data) {    
                 // TODO:determine whether we need to disambiguate a to or from location (or both)
                 if (false) {
                     var resultSet = {'from': ['array','of','options'], 'to': ['array','of','options']};
@@ -120,26 +124,22 @@ OTP.Narrative = function(_root, _map) {
                         .fadeOut("fast")
                         .empty();
                     
+                    map.reset();
+
                     processResults(data);
+                    addNarrativeUIBehavior();
                     
                     root.find('#trip-data')
                         .fadeIn("fast");
                 }
             },
             error:function(x,e){
-                    if(x.status==0){
-                    alert('You are offline!!\n Please Check Your Network.');
-                    }else if(x.status==404){
-                    alert('Requested URL not found.');
-                    }else if(x.status==500){
-                    alert('Internal Server Error.');
-                    }else if(e=='parsererror'){
-                    alert('Error.\nParsing JSON Request failed.');
-                    }else if(e=='timeout'){
-                    alert('Request Time out.');
-                    }else {
-                    alert('Unknown Error.\n'+x.responseText);
-                    }
+                root.find("#trip-data")
+                    .html(
+                        '<div id="no-results">' + 
+                        '<h3>We\'re sorry!</h3>' + 
+                        '<p>Something went wrong when trying to plan your trip&mdash;try again in a few minutes.</p>' + 
+                        '</div>');
             }
         });
     }
@@ -165,22 +165,22 @@ OTP.Narrative = function(_root, _map) {
         jQuery.each(data.plan.itineraries, function(_, trip) {
             var tripNumber = tripIndex + 1;
             var tripModes = [];
-            var tripDuration = 0;
-            var transfers = trip.legs.leg.length - 1;
-            
-						var studentFare = "";
-						var seniorFare = "";
-						var regularFare = "";
+            var transfers = Math.floor(trip.legs.leg.length / 2) - 1;
 
-						// Awkward, but I'm not sure how to otherwise navigate the returned JSON
-						jQuery(this.fare.fare.entry).each(function(legIndex) {
-							if (this.key == "student") {studentFare = parseInt(this.value.cents);}
-							if (this.key == "senior") {seniorFare = parseInt(this.value.cents);}
-							if (this.key == "regular") {regularFare = parseInt(this.value.cents);}
+            var studentFare = "";
+            var seniorFare = "";
+            var regularFare = "";
+            jQuery(this.fare.fare.entry).each(function(legIndex) {
+                if (this.key == "student") {studentFare = parseInt(this.value.cents, 10);}
+                if (this.key == "senior") {seniorFare = parseInt(this.value.cents, 10);}
+                if (this.key == "regular") {regularFare = parseInt(this.value.cents, 10);}
             });
 
             var itineraryMarkup = jQuery('<ul class="trip-stepbystep"></ul>');
 
+            var startTime = null;
+            var endTime = null;
+            var tripDuration = 0;
             jQuery.each(trip.legs.leg, function(legIndex, leg) {
                 var modeText = '<img src="img/' + leg["@mode"].toLowerCase() + '16x16.png" alt="' + leg["@mode"] + '" /> ';
 
@@ -188,57 +188,81 @@ OTP.Narrative = function(_root, _map) {
                     modeText += '<strong>' + leg["@route"] + '</strong> ';
                 }
 
+                // trip options header
                 tripModes.push(modeText);
-                itineraryMarkup.append((leg.@mode === "WALK") ? formatWalkLeg(legIndex, leg) : formatTransitLeg(legIndex, leg));
-                // add polyline to map
-				        map.addLeg(leg.@mode, leg.legGeometry.points);
-				
-                tripDuration += leg.duration;
-            });
 
+                // trip detail
+                itineraryMarkup.append((leg["@mode"] === "WALK") ? formatWalkLeg(legIndex, leg) : formatTransitLeg(legIndex, leg));
+
+                // add leg to map
+                map.addLeg(leg["@mode"], leg.legGeometry.points);
+
+                // end time, start time, duration across this trip
+                if(! isNaN(leg.duration) && typeof leg.duration !== 'undefined') {
+                    try {
+                        tripDuration += parseInt(leg.duration, 10);
+                    } catch(e) {}
+                }
+
+                if(typeof leg.startTime !== 'undefined' && leg.startTime !== null) {
+                    var legStartTime = new Date(leg.startTime);
+                    if(startTime === null || legStartTime < startTime) {
+                        startTime = legStartTime;
+                    }                    
+                }
+
+                if(typeof leg.endTime !== 'undefined' && leg.endTime !== null) {
+                    var legEndTime = new Date(leg.endTime);
+                    if(endTime === null || legEndTime > endTime) {
+                        endTime = legEndTime;
+                    }                    
+                }
+            });
+            
             // move to a standalone function
             var activeClass = (tripNumber === 1) ? "active" : "";
-            
+
             jQuery('<tr id="trip' + tripNumber + '-summary" class="'+ activeClass + '">' +
                     '<td class="trip-id">' + tripNumber + '</td>' +
-                    '<td>1 hour 38 min <em>6:15PM-7:28PM</em></td>' + 
-                    '<td>$9.50</td>' + 
+                    '<td>' + millisecondsToString(tripDuration) + '<em>' + ((startTime !== null) ? prettyTime(startTime) : "Unknown") + ' - ' + ((endTime !== null) ? prettyTime(endTime) : "Unknown") + '</em></td>' + 
+                    '<td>$' + centsToDollars(regularFare) + '</td>' + 
                     '<td class="trip-modes">' + tripModes.join("<em>›</em> ") + '</td>' + 
                     '</tr>')
                     .appendTo(tripSummariesMarkup.children('tbody'));
 
             // move to a standalone function
             jQuery('<table class="trip-prices">' + 
-                    '<thead><tr><th><h3>Trip ' + tripNumber + '</h3></th><th colspan="2">' + millisecondsToString(tripDuration) + ', ' + transfers + ' Transfers</th></tr></thead>' + 
+                    '<thead><tr><th><h3>Trip ' + tripNumber + '</h3></th><th colspan="2">' + millisecondsToString(tripDuration) + ', ' + transfers + ' Transfer' + ((transfers === 1) ? "" : "s") + '</th></tr></thead>' + 
                     '<tbody>' + 
-                    '<tr><th scope="row">Adult</th><td>$' + centsToDollars(regularFare) + ' Cash</td><td>$7.75 <a href="#">ORCA</a></td></tr>' +
-                    '<tr><th scope="row">Youth</th><td>$' + centsToDollars(studentFare) + ' Cash</td><td>$7.75 <a href="#">ORCA</a></td></tr>' + 
-                    '<tr><th scope="row">Senior / Disabled</th><td>$' + centsToDollars(seniorFare) + ' Cash</td><td>$5.75 <a href="#">ORCA</a></td></tr>' + 
+                    '<tr><th scope="row">Adult</th><td>$' + centsToDollars(regularFare) + ' Cash</td><td>$---- <a href="#">ORCA</a></td></tr>' +
+                    '<tr><th scope="row">Youth</th><td>$' + centsToDollars(studentFare) + ' Cash</td><td>$---- <a href="#">ORCA</a></td></tr>' + 
+                    '<tr><th scope="row">Senior / Disabled</th><td>$' + centsToDollars(seniorFare) + ' Cash</td><td>$---- <a href="#">ORCA</a></td></tr>' + 
                     '</tbody></table>')
                     .appendTo(root.find("#trip-data"));
 
             jQuery(itineraryMarkup).appendTo(root.find("#trip-data"));
-        }); // each tripIndex
+
+            tripIndex++;
+        }); // each trip
         
         jQuery(tripSummariesMarkup).prependTo(root.find("#trip-data"));
-        
+
         map.zoomToPlannedRoute();
-        
-        tripIndex++;
     }
 
     function formatWalkLeg(legIndex, leg) {
-        return jQuery('<li class="' + leg.@mode.toLowerCase() + ' leg-' + legIndex + '"></li>').html(
-                    '<img class="mode-icon" src="img/walk16x16.png" alt="' + leg.@mode + '" />' +
+        return jQuery('<li class="' + leg["@mode"].toLowerCase() + ' leg-' + legIndex + '"></li>').html(
+                    '<img class="mode-icon" src="img/walk16x16.png" alt="' + leg["@mode"] + '" />' +
                     'Walk from <strong>' + ((typeof leg.startPlace !== 'undefined' && leg.startPlace !== null) ? leg.startPlace : "Unknown") + '</strong> to <strong>' + ((typeof leg.endPlace !== 'undefined' && leg.endPlace !== null) ? leg.endPlace : "Unknown") + '</strong>' + 
                     '<div class="stepmeta">' + millisecondsToString(leg.duration) + ' (' + prettyDistance(leg.distance) + ')</div>');
     }
 
     function formatTransitLeg(legIndex, leg) {
-        return jQuery('<li class="' + leg.@mode.toLowerCase() + ' leg-' + legIndex + '"></li>').html(
-                    '<img class="mode-icon" src="img/' + leg.@mode.toLowerCase() + '16x16.png" alt="' + leg.@mode + '" /><table class="substeps"><tbody>' + 
-                    '<tr><td>' + prettyTime(new Date(leg.startTime)) + '</td><td>Depart ' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '<div class="stepmeta">' + millisecondsToString(leg.duration) + ' (6 stops)<br />Previous stop is Puyllup station</div></td></tr>' + 
-                    '<tr><td>' + prettyTime(new Date(leg.endTime)) + '</td><td>Arrive ' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + '<div class="stepmeta">Previous stop is Puyllup station</div></td></tr>' + 
+        return jQuery('<li class="' + leg["@mode"].toLowerCase() + ' leg-' + legIndex + '"></li>').html(
+                    '<img class="mode-icon" src="img/' + leg["@mode"].toLowerCase() + '16x16.png" alt="' + leg["@mode"] + '" />' + sentenceCase(leg["@mode"]) + ' - <strong>' + leg["@route"] + '</strong>' + 
+                    '<table class="substeps"><tbody>' + 
+                    '<tr><td>' + prettyTime(new Date(leg.startTime)) + '</td><td>Depart ' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '<div class="stepmeta">' + millisecondsToString(leg.duration) + ' (-- stops)<br />Previous stop is ----</div></td></tr>' + 
+                    '<tr><td>' + prettyTime(new Date(leg.endTime)) + '</td><td>Arrive ' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + '<div class="stepmeta">Previous stop is ----</div></td></tr>' + 
                     '</tbody></table>');
     }
 
@@ -264,7 +288,7 @@ OTP.Narrative = function(_root, _map) {
 
     function addFormUIBehavior() {
         var setBlankClassIfEmpty = function(element) { 
-            if(jQuery(element).val() == "") {
+            if(jQuery(element).val() === "") {
                 jQuery(element).addClass('blank');
             } else {
                 jQuery(element).removeClass('blank');
@@ -285,6 +309,8 @@ OTP.Narrative = function(_root, _map) {
                 
             root.find('#disambiguation, #trip-data')
                 .fadeOut('slow');
+                
+            map.reset();
         });
   
         // to/from
@@ -356,8 +382,7 @@ OTP.Narrative = function(_root, _map) {
 
         // form submit action
         root.find("form#trip-plan-form").submit(function(e) {
-            e.preventDefault();
-            
+            e.preventDefault();     
             makeTripRequest();
         });
 
@@ -379,18 +404,13 @@ OTP.Narrative = function(_root, _map) {
                 .slideUp()
                 .removeClass("active");
         });
-  
     }
         
     // constructor
     addFormUIBehavior();
     addNarrativeUIBehavior();
     
-    
     // public methods
     return {
-        
-
-    
     };
 };
