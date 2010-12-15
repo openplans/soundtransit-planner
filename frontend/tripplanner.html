@@ -25,48 +25,13 @@
 	<script src="js/openlayers/OpenLayers.js"></script>
 	<script type="text/javascript" src="js/narrative.js"></script>
 	<script type="text/javascript" src="js/map.js"></script>
-    
-    <script type="text/javascript">
-        jQuery(document).ready(function() {
-            var map = OTP.Map(document.getElementById("map"));
-			var narrative = OTP.Narrative(document.getElementById("plannerpanel"), map);
-        
-		    jQuery("#base-road").click(function() {
-          map.showLayer('Road');
-          map.hideLayer('Aerial With Labels');
-          map.hideLayer('Aerial');
-          $(this).addClass("active");
-          $("#base-aerial").removeClass("active");
-          return false;
-        });
-        
-        jQuery("#base-aerial").click(function() {
-          map.showLayer('Aerial With Labels');
-          map.hideLayer('Aerial');
-          map.hideLayer('Road');
-          $(this).addClass("active");
-          $("#base-road").removeClass("active");
-          return false;
-        });
-        
-        jQuery("#toggle-fares").click(function() {
-          map.toggleLayer('Fare Outlets');
-          return false;
-        });
-
-        jQuery("#toggle-parking").click(function() {
-          map.toggleLayer('Park and Ride');
-          return false;
-        });
-
-        /* FIXME what is supposed to be showing in this layer? */
-        jQuery("#toggle-location").click(function() {
-          map.toggleLayer('Stops');
-          return false;
-        });
+  <script type="text/javascript">
+    jQuery(document).ready(function() {
+      var map = OTP.Map(document.getElementById("map"));
+      var narrative = OTP.Narrative(document.getElementById("plannerpanel"), map);
     });
         
-    </script>
+  </script>
 </head>
 
 <body>
@@ -82,11 +47,11 @@
       <div id="tofrom-area">
         <div class="ui-widget">
           <label for="from"><img class="tripflag" src="img/a-flag.png" alt="A" /> <strong>Start</strong> Address, intersection, or landmark</label>
-          <input id="from" type="text" value="Seattle, WA" />
+          <input id="from" type="text" value="47.606710285347,-122.33158569335" />
         </div>
         <div class="ui-widget">
           <label for="to"><img class="tripflag" src="img/b-flag.png" alt="B" /> <strong>End</strong> Address, intersection, or landmark</label>
-          <input id="to" type="text" value="Tacoma, WA" />
+          <input id="to" type="text" value="47.612265358141,-122.19974975586" />
         </div>
         <a id="tofromtoggle" href="#">toggle</a>
       </div>

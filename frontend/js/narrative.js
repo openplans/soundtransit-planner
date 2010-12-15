@@ -404,10 +404,48 @@ OTP.Narrative = function(_root, _map) {
                 .removeClass("active");
         });
     }
+
+		function addMapUIBehavior() {
+		    jQuery("#base-road").click(function() {
+		        map.showLayer('Road');
+		        map.hideLayer('Aerial With Labels');
+		        map.hideLayer('Aerial');
+		        $(this).addClass("active");
+		        $("#base-aerial").removeClass("active");
+		        return false;
+		    });
+
+		    jQuery("#base-aerial").click(function() {
+		        map.showLayer('Aerial With Labels');
+		        map.hideLayer('Aerial');
+		        map.hideLayer('Road');
+		        $(this).addClass("active");
+		        $("#base-road").removeClass("active");
+		        return false;
+		    });
+
+		    jQuery("#toggle-fares").click(function() {
+		        map.toggleLayer('Fare Outlets');
+		        return false;
+		    });
+
+		    jQuery("#toggle-parking").click(function() {
+		        map.toggleLayer('Park and Ride');
+		        return false;
+		    });
+
+		    jQuery("#toggle-location").click(function() {
+		        map.toggleLayer('Stops');
+		        return false;
+		    });
+
+		}    
+
         
     // constructor
     addFormUIBehavior();
     addNarrativeUIBehavior();
+    addMapUIBehavior();
     
     // public methods
     return {
