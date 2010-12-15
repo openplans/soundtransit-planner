@@ -75,6 +75,12 @@ text-align: right;
 
 #base-layers {
 position: absolute;
+left: 409px;
+top: 4px;
+}
+
+.fullsize #base-layers {
+position: absolute;
 left: 4px;
 top: 4px;
 }
@@ -84,6 +90,38 @@ text-decoration: none;
 color: #4a4a4a;
 font-weight: bold;
 }
+
+#toggle-layers a {
+text-align: left;
+width: 26px;
+min-height: 28px;
+display: -moz-inline-stack;
+display: inline-block;
+vertical-align: middle;
+zoom: 1;
+*display: inline; /*IE 6 & 7*/
+overflow: hidden;
+text-indent: -9999em;
+background-position: 0 0;
+background-repeat: no-repeat;
+}
+
+#toggle-layers a:hover {
+background-position: 0 -28px;
+}
+
+#toggle-layers a#toggle-fares {
+background-image: url(../img/fares-modal-icon.png);
+}
+
+#toggle-layers a#toggle-parking {
+background-image: url(../img/parking-modal-icon.png);
+}
+
+#toggle-layers a#toggle-location {
+background-image: url(../img/location-modal-icon.png);
+}
+
 
 /* - */
 #tripplanner-wrap {
