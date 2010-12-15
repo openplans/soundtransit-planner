@@ -165,7 +165,7 @@ OTP.Narrative = function(_root, _map) {
         jQuery.each(data.plan.itineraries, function(_, trip) {
             var tripNumber = tripIndex + 1;
             var tripModes = [];
-            var transfers = trip.legs.leg.length - 1;
+            var transfers = Math.floor(trip.legs.leg.length / 2) - 1;
 
             var studentFare = "";
             var seniorFare = "";
@@ -232,7 +232,7 @@ OTP.Narrative = function(_root, _map) {
 
             // move to a standalone function
             jQuery('<table class="trip-prices">' + 
-                    '<thead><tr><th><h3>Trip ' + tripNumber + '</h3></th><th colspan="2">' + millisecondsToString(tripDuration) + ', ' + transfers + ' Transfers</th></tr></thead>' + 
+                    '<thead><tr><th><h3>Trip ' + tripNumber + '</h3></th><th colspan="2">' + millisecondsToString(tripDuration) + ', ' + transfers + ' Transfer' + ((transfers === 1) ? "" : "s") + '</th></tr></thead>' + 
                     '<tbody>' + 
                     '<tr><th scope="row">Adult</th><td>$' + centsToDollars(regularFare) + ' Cash</td><td>$---- <a href="#">ORCA</a></td></tr>' +
                     '<tr><th scope="row">Youth</th><td>$' + centsToDollars(studentFare) + ' Cash</td><td>$---- <a href="#">ORCA</a></td></tr>' + 
