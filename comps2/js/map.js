@@ -140,7 +140,7 @@ OTP.Map = function(_root) {
     var plannedRoute = new OpenLayers.Layer.Vector("Planned Route");
     map.addLayer(plannedRoute);
 
-
+/*
     // add bing baselayers
       var shaded = new OpenLayers.Layer.VirtualEarth("Shaded", {
           type: VEMapStyle.Shaded,
@@ -159,8 +159,7 @@ OTP.Map = function(_root) {
       });
 
      	map.addLayers([shaded, hybrid, aerial]);
-
-/*    
+*/
     // add bing baselayers
     var road = new OpenLayers.Layer.Bing({ 
         key: "AgszXQ8Q5lbiJFYujII-Lcie9XQ-1DK3a2X7xWJmfSeipw8BAAF0ETX8AJ4K-PDm", 
@@ -181,7 +180,7 @@ OTP.Map = function(_root) {
     });
 
     map.addLayers([road, aerial, hybrid]);
-*/
+
 
     // context menu
     OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {                
