@@ -7,7 +7,7 @@ position: relative;
 }
 
 #map-controls {
-width: 958px;
+width: 966px;
 }
 
 body {
@@ -65,14 +65,21 @@ color: #4a4a4a;
 position: relative;
 border-bottom: 5px solid rgba(0,0,0,0.25);
 z-index: 5;
-padding: 4px;
 }
 
 #map-controls-wrap {
 background: #f4f4f3;
+padding: 4px 4px 0 4px;
+text-align: right;
 }
 
-#map-controls a.active {
+#base-layers {
+position: absolute;
+left: 4px;
+top: 4px;
+}
+
+#base-layers a.active {
 text-decoration: none;
 color: #4a4a4a;
 font-weight: bold;
