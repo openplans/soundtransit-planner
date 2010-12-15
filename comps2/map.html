@@ -28,15 +28,28 @@
   <script type="text/javascript">
       jQuery(document).ready(function() {
         var map = OTP.Map(document.getElementById("map"));
-		    jQuery("#tester").click(function() {
-          map.toggleLayer('soundtransit:parkandride');
+		    jQuery("#base-road").click(function() {
+          map.showLayer('Shaded');
+          map.hideLayer('Hybrid');
+          map.hideLayer('Aerial');
+          $(this).addClass("active");
+          $("#base-aerial").removeClass("active");
+          return false;
+        });
+        jQuery("#base-aerial").click(function() {
+          map.showLayer('Hybrid');
+          map.hideLayer('Aerial');
+          map.hideLayer('Shaded');
+          $(this).addClass("active");
+          $("#base-road").removeClass("active");
+          return false;
         });
       });
   </script>
 </head>
 
 <body>
-  <div id="map-controls"><a id="tester" href="#">Toggle</a></div>
+  <div id="map-controls"><div id="map-controls-wrap"><div id="base-layers"><strong>View:</strong> <a id="base-road" class="active" href="#">Road</a> | <a id="base-aerial" href="#">Aerial</a></div></div></div>
 <div id="tripplanner-wrap" class="fullsize">
   <div id="map"></div>
 </div><!-- /#tripplanner-wrap -->

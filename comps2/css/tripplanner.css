@@ -6,6 +6,10 @@ background: #fff;
 position: relative;
 }
 
+#map-controls {
+width: 958px;
+}
+
 body {
 background: url(../img/fake-chrome.png) 0 0 no-repeat;
 padding: 160px 0 300px 85px;
@@ -55,6 +59,32 @@ background-repeat: repeat-x;
 }
 
 /* - */
+
+#map-controls {
+color: #4a4a4a;
+position: relative;
+border-bottom: 5px solid rgba(0,0,0,0.25);
+z-index: 5;
+padding: 4px;
+}
+
+#map-controls-wrap {
+background: #f4f4f3;
+}
+
+#map-controls a.active {
+text-decoration: none;
+color: #4a4a4a;
+font-weight: bold;
+}
+
+/* - */
+#tripplanner-wrap {
+background: #fff;
+position: relative;
+top: -5px;
+z-index: 4;
+}
 
 #plannerpanel {
 position: absolute;

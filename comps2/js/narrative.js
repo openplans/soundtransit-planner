@@ -294,7 +294,7 @@ OTP.Narrative = function(_root, _map) {
             }
         }
         var zeroPad = function(value) { 
-            return (parseInt(value, 10) < 10) ? ("0" + value) : value;
+            return (parseInt(value) < 10) ? ("0" + value.toString()) : value;
         }
 
         // clear button behavior
