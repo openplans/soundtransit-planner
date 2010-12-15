@@ -146,7 +146,8 @@ OTP.Map = function(_root) {
         layer: "Road", 
         name: "Road",
         isBaseLayer: true,
-  		sphericalMercator: true           
+  		sphericalMercator: true,          
+        maxExtent: new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34)
     });
     
     var aerial = new OpenLayers.Layer.Bing({ 
@@ -154,7 +155,8 @@ OTP.Map = function(_root) {
         layer: "Aerial", 
         name: "Aerial", 
         isBaseLayer: true,
-  		sphericalMercator: true
+  		sphericalMercator: true,
+        maxExtent: new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34)  		
     });
     
     var hybrid = new OpenLayers.Layer.Bing({ 
@@ -162,7 +164,8 @@ OTP.Map = function(_root) {
         layer: "AerialWithLabels", 
         name: "Aerial With Labels", 
         isBaseLayer: true,
-  		sphericalMercator: true
+  		sphericalMercator: true,
+        maxExtent: new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34)  		
     });
 
     map.addLayers([road, aerial, hybrid]);
