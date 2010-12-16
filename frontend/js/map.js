@@ -13,6 +13,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     var plannedRoute = null;
     var markers = null;
     var markersDragControl = null;
+    var dataLayers = [];
 
     // private methods
     function decodePolyline(encoded) {
@@ -210,7 +211,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
             visibility: false
         });
 
-        map.addLayers([routes, stops, parkandride, fareoutlets]);        
+        dataLayers = [routes, stops, parkandride, fareoutlets];
+        map.addLayers(dataLayers);        
     }
 
     function addPlannedRouteLayers() {
@@ -316,6 +318,25 @@ OTP.Map = function(_root, _controlsRoot, options) {
             });
     }
 
+    function addGetFeatureInfoBehavior() {
+        for(var i = 0; i < dataLayers.length; i++) {
+            var getFeatureInfoControl = new OpenLayers.Control.GetFeature({
+                 protocol: new OpenLayers.Protocol.WFS.v1_1_0({
+                     url: "http://sea.dev.openplans.org/geoserver/wfs",
+                     featureType: "stops",
+                     featureNS: "soundtransit",
+                     outputFormat: "json"
+                 }),
+                 click: true
+            });
+            getFeatureInfoControl.events.register("featureselected", this, function(e) {
+                  debugger;
+            });
+            map.addControl(getFeatureInfoControl);
+            getFeatureInfoControl.activate();            
+        }
+    }
+
     function addContextMenuBehavior() {
         var showContextMenuWrapper = function(e) {
                 // (all the below position stuff is for IE, from http://www.quirksmode.org/js/events_properties.html)
@@ -358,20 +379,28 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
     // event handlers
     function onCompleteMarkerMove(feature) {
-            if(feature) {       
-                    var point = new OpenLayers.LonLat(feature.geometry.x, feature.geometry.y);
-                    var proj = new OpenLayers.Projection("EPSG:4326");
+        if(feature) {       
+            var point = new OpenLayers.LonLat(feature.geometry.x, feature.geometry.y);
+            var proj = new OpenLayers.Projection("EPSG:4326");
 
-                    if(feature.attributes.type === "start") {
-                        if(typeof options.updateFromLocationFunction === 'function') {
-                            options.updateFromLocationFunction(point.transform(map.getProjectionObject(), proj), true);                            
-                        }
-                    } else if(feature.attributes.type === "end") {
-                        if(typeof options.updateToLocationFunction === 'function') {
-                            options.updateToLocationFunction(point.transform(map.getProjectionObject(), proj), true);                            
-                        }                        
-                    }
+            if(feature.attributes.type === "start") {
+                if(typeof options.updateFromLocationFunction === 'function') {
+                    options.updateFromLocationFunction(point.transform(map.getProjectionObject(), proj), true);                            
+                }
+            } else if(feature.attributes.type === "end") {
+                if(typeof options.updateToLocationFunction === 'function') {
+                    options.updateToLocationFunction(point.transform(map.getProjectionObject(), proj), true);                            
+                }                        
             }
+
+            if(markersDragControl !== null) {
+                markersDragControl.deactivate();
+            }
+        }
+    }
+
+    function onGetFeatureResponse(event) {
+        debugger;
     }
 
     // constructor
@@ -391,10 +420,12 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
     // setup map 
     addBaseLayers();
-    addDataLayers();
     addPlannedRouteLayers();
+    addDataLayers();
+
     addContextMenuBehavior();
     addMapLayerChooserBehavior();
+    addGetFeatureInfoBehavior();
 
     // center on seattle metro area
     var point = new OpenLayers.LonLat(-122.30, 47.45);

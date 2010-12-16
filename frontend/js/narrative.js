@@ -157,7 +157,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     
                     map.reset();
 
-                    processResults(data);
+                    updateNarrative(data);
                     addNarrativeUIBehavior();
                     
                     root.find('#trip-data')
@@ -189,7 +189,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         return (route.toUpperCase() === "M599");
     }
 
-    function processResults(data) {
+    function updateNarrative(data) {
         if (typeof data === 'undefined' || data.plan.itineraries.itinerary.legs.leg.length === 0) {
             root.find("#trip-data")
                 .html(
@@ -276,7 +276,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             if(tripNumber === 1) {
                 activeClass = "active";
 
-                showTripOnMap(data, tripIndex);
+                updateMap(data, tripIndex);
             }
 
             // trip options header
@@ -304,12 +304,10 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         }); // each trip
         
         jQuery(tripSummariesMarkup).prependTo(root.find("#trip-data"));
-
-        map.zoomToPlannedRoute();
     }
 
     // updates map to display given trip option
-    function showTripOnMap(data, targetTripIndex) {
+    function updateMap(data, targetTripIndex) {
         if(data === null) {
             return;
         }
@@ -317,27 +315,27 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         // draw each leg on map
         var tripIndex = 0;
         jQuery.each(data.plan.itineraries, function(_, trip) {
-            if(tripIndex !== targetTripIndex) {
-                return;
+            if(tripIndex === targetTripIndex) {
+                jQuery.each(trip.legs.leg, function(legIndex, leg) {
+                    // add each travel leg to map
+                    if(isSounder(leg["@route"])) {
+                        map.addLegToPlannedRoute(leg.legGeometry.points, "SOUNDER");
+                    } else if(isTheLink(leg["@route"])) {
+                        map.addLegToPlannedRoute(leg.legGeometry.points, "LINK");
+                    } else {
+                        map.addLegToPlannedRoute(leg.legGeometry.points, leg["@mode"]);
+                    }
+
+                    // add start finish icons to map
+                    if(trip.legs.leg.length - 1 === legIndex) {
+                        map.setEndPoint(leg.legGeometry.points);
+                    } else if(legIndex === 0) {
+                        map.setStartPoint(leg.legGeometry.points);
+                    }
+                });
+
+                map.zoomToPlannedRoute();
             }
-
-            jQuery.each(trip.legs.leg, function(legIndex, leg) {
-                // add each travel leg to map
-                if(isSounder(leg["@route"])) {
-                    map.addLegToPlannedRoute(leg.legGeometry.points, "SOUNDER");
-                } else if(isTheLink(leg["@route"])) {
-                    map.addLegToPlannedRoute(leg.legGeometry.points, "LINK");
-                } else {
-                    map.addLegToPlannedRoute(leg.legGeometry.points, leg["@mode"]);
-                }
-
-                // add start finish icons to map
-                if(trip.legs.leg.length - 1 === legIndex) {
-                    map.setEndPoint(leg.legGeometry.points);
-                } else if(legIndex === 0) {
-                    map.setStartPoint(leg.legGeometry.points);
-                }
-            });
             
             tripIndex++;
         });
