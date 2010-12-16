@@ -190,7 +190,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             visibility: false
     	});
 
-        var parkandride = new OpenLayers.Layer.WMS("Park and Ride", "http://sea.dev.openplans.org/geoserver/gwc/service/wms", {
+        var parkandride = new OpenLayers.Layer.WMS("Park and Rides", "http://sea.dev.openplans.org/geoserver/gwc/service/wms", {
         	layers: 'soundtransit:parkandrides',
         	format: 'image/png'
         },
@@ -230,13 +230,18 @@ OTP.Map = function(_root, _controlsRoot, options) {
         var layerArray = map.layers;
         for (var i=0;i<layerArray.length;i++) {
             if (map.layers[i].name === name) {
-                if(visible === null) {
-                    map.layers[i].setVisibility(!map.layers[i].getVisibility());
-                } else {
-                    map.layers[i].setVisibility(visible);
-                }
-          }
+                map.layers[i].setVisibility(visible);
+            }
         }
+    }
+    
+    function getLayerVisibility(name) {
+        var layerArray = map.layers;
+        for (var i=0;i<layerArray.length;i++) {
+            if (map.layers[i].name === name) {
+                return map.layers[i].getVisibility();
+            }
+        }        
     }
 
     // behaviors
@@ -244,9 +249,11 @@ OTP.Map = function(_root, _controlsRoot, options) {
         // base layer links
         controlsRoot.find("#base-road")
             .click(function() {
-                $(this).addClass("active");
-                controlsRoot.find("#base-aerial")
+                controlsRoot.find("#base-layers")
+                    .find("a")
                     .removeClass("active");
+
+                jQuery(this).addClass("active");
 
                 setLayerVisibility('Road', true);
                 setLayerVisibility('Aerial With Labels', false);
@@ -256,9 +263,11 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
         controlsRoot.find("#base-aerial")
             .click(function() {
-                $(this).addClass("active");
-                controlsRoot.find("#base-road")
+                controlsRoot.find("#base-layers")
+                    .find("a")
                     .removeClass("active");
+
+                jQuery(this).addClass("active");
 
                 setLayerVisibility('Aerial With Labels', true);
                 setLayerVisibility('Aerial', false);
@@ -269,19 +278,40 @@ OTP.Map = function(_root, _controlsRoot, options) {
         // data layer links
         controlsRoot.find("#toggle-fares")
             .click(function() {
-                setLayerVisibility('Fare Outlets', null); // null=toggle
+                var layerName = 'Fare Outlets';
+                if(getLayerVisibility(layerName) === true) {
+                    setLayerVisibility(layerName, false);
+                    jQuery(this).removeClass("active");                    
+                } else {
+                    setLayerVisibility(layerName, true);
+                    jQuery(this).addClass("active");
+                }
                 return false;
             });
 
         controlsRoot.find("#toggle-parking")
             .click(function() {
-                setLayerVisibility('Park and Ride', null); // null=toggle
+                var layerName = 'Park and Rides';
+                if(getLayerVisibility(layerName) === true) {
+                    setLayerVisibility(layerName, false);
+                    jQuery(this).removeClass("active");                    
+                } else {
+                    setLayerVisibility(layerName, true);
+                    jQuery(this).addClass("active");
+                }
                 return false;
             });
 
         controlsRoot.find("#toggle-location")
             .click(function() {
-                setLayerVisibility('Stops', null); // null=toggle
+                var layerName = 'Stops';
+                if(getLayerVisibility(layerName) === true) {
+                    setLayerVisibility(layerName, false);
+                    jQuery(this).removeClass("active");                    
+                } else {
+                    setLayerVisibility(layerName, true);
+                    jQuery(this).addClass("active");
+                }
                 return false;
             });
     }
@@ -351,7 +381,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
         controls: [
             new OpenLayers.Control.Navigation(),
             new OpenLayers.Control.KeyboardDefaults(),
-            new OpenLayers.Control.PanZoomBar({zoomWorldIcon:false})
+            new OpenLayers.Control.PanZoomBar({zoomWorldIcon:false}),
+            new OpenLayers.Control.Scale()
         ]
     });
 
@@ -467,15 +498,27 @@ OTP.Map = function(_root, _controlsRoot, options) {
             if(type === "WALK") {
                 style = {
                          strokeColor: "#666666",
-                         strokeOpacity: 0.75,
+                         strokeOpacity: 0.80,
                          strokeWidth: 4
                 };
             } else if(type === "BUS") {
                 style = {
                          strokeColor: "#02305E",
-                         strokeOpacity: 0.75,
+                         strokeOpacity: 0.80,
                          strokeWidth: 4
                 };                
+            } else if(type === "SOUNDER") {
+                style = {
+                         strokeColor: "#448768",
+                         strokeOpacity: 0.80,
+                         strokeWidth: 4
+                };                                
+            } else if(type === "LINK") {
+                style = {
+                         strokeColor: "#228791",
+                         strokeOpacity: 0.80,
+                         strokeWidth: 4
+                };                                
             }
 
             var polyline = new OpenLayers.Geometry.LineString(points);

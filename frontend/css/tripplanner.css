@@ -76,13 +76,13 @@ text-align: right;
 #base-layers {
 position: absolute;
 left: 409px;
-top: 4px;
+top: 8px;
 }
 
 .fullsize #base-layers {
 position: absolute;
-left: 4px;
-top: 4px;
+left: 5px;
+top: 7px;
 }
 
 #base-layers a.active {
@@ -106,6 +106,7 @@ background-position: 0 0;
 background-repeat: no-repeat;
 }
 
+#toggle-layers a.active,
 #toggle-layers a:hover {
 background-position: 0 -28px;
 }
@@ -121,7 +122,6 @@ background-image: url(../img/parking-modal-icon.png);
 #toggle-layers a#toggle-location {
 background-image: url(../img/location-modal-icon.png);
 }
-
 
 /* - */
 #tripplanner-wrap {
@@ -304,6 +304,10 @@ font-weight: bold;
 #how-to-plan h4 {
 font-weight: bold;
 font-size: 18px;
+}
+
+#trip-data {
+    width: 345px;
 }
 
 /* - */

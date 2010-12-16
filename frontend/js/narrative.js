@@ -31,9 +31,8 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         }
     }
     
-    // break out these into a separate utils class? 
     function centsToDollars(num) {
-        num = isNaN(num) || num === '' || num === null ? 0.00 : num;
+        num = ((isNaN(num) || num === '' || num === null) ? 0.00 : num);
         return parseFloat(num/100).toFixed(2);
     }
       
@@ -82,7 +81,8 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         return hours + ":" + minutes + amOrPm;
     }
 
-    function makeSentenceCase(string) {
+    function prettyCase(string) {
+        // make sentence case
         return string.toLowerCase().replace(/(^\s*\w|[\.\!\?]\s*\w)/g,function(c){return c.toUpperCase();});
     }
 
@@ -109,7 +109,8 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 wheelchair: (root.find("#accessible").checked === true),
                 toPlace: root.find("#to").val(),
                 fromPlace: root.find("#from").val(),
-                intermediatePlaces: ""
+                intermediatePlaces: "",
+                mode: "TRANSIT,WALK"
             },
             success: function(data) {    
                 // TODO:determine whether we need to disambiguate a to or from location (or both)
@@ -141,6 +142,21 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         });
     }
 
+    // test functions to see if a given route is a given "special" mode of travel
+    function isSounder(route) {
+        if(route === null) {
+            return false;
+        }
+        return (route.toUpperCase() === "MSOUNDER");
+    }
+
+    function isTheLink(route) {
+        if(route === null) {
+            return false;
+        }
+        return (route.toUpperCase() === "M599");
+    }
+
     function processResults(data) {
         if (typeof data === 'undefined' || data.plan.itineraries.itinerary.legs.leg.length === 0) {
             root.find("#trip-data")
@@ -151,6 +167,8 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     '<p>You might try to:</p>' + 
                     '<ul><li>Double check your spelling</li><li>Change the starting or end point of the trip by selecting them on the map</li><li>Look up schedules</li></ul>' + 
                     '</div>');
+                    
+            return;
         }
 
         var tripSummariesMarkup = jQuery('<table id="tripresult-summaries">' + 
@@ -164,6 +182,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             var tripModes = [];
             var transfers = Math.floor(trip.legs.leg.length / 2) - 1;
 
+            // fares
             var studentFare = "";
             var seniorFare = "";
             var regularFare = "";
@@ -179,26 +198,23 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             var endTime = null;
             var tripDuration = 0;
             jQuery.each(trip.legs.leg, function(legIndex, leg) {
-                var modeText = '<img src="img/' + leg["@mode"].toLowerCase() + '16x16.png" alt="' + leg["@mode"] + '" /> ';
+                // trip header: leg items/icons
+                if(isSounder(leg["@route"])) {
+                    tripModes.push('<img src="img/sounder16x16.png" alt="Sounder" /> <strong>Sounder</strong> ');
+                } else if(isTheLink(leg["@route"])) {
+                    tripModes.push('<img src="img/link16x16.png" alt="Link" /> <strong>Link</strong> ');
+                } else {
+                    var modeText = '<img src="img/' + leg["@mode"].toLowerCase() + '16x16.png" alt="' + leg["@mode"] + '" /> ';
 
-                if(leg["@mode"] !== "WALK" && leg["@route"] !== "") {
-                    modeText += formatRoute(leg["@route"], false) + ' ';
+                    if(leg["@mode"] !== "WALK") {
+                        modeText += formatRoute(leg["@route"], false) + ' ';
+                    }
+                    
+                    tripModes.push(modeText);                    
                 }
-
-                // trip options header
-                tripModes.push(modeText);
 
                 // trip detail
                 itineraryMarkup.append((leg["@mode"] === "WALK") ? formatWalkLeg(legIndex, leg) : formatTransitLeg(legIndex, leg));
-
-                // add leg to map
-                map.addLegToPlannedRoute(leg.legGeometry.points, leg["@mode"]);
-
-                if(trip.legs.leg.length - 1 === legIndex) {
-                    map.setEndPoint(leg.legGeometry.points);
-                } else if(legIndex === 0) {
-                    map.setStartPoint(leg.legGeometry.points);
-                }
 
                 // end time, start time, duration across this trip
                 if(! isNaN(leg.duration) && typeof leg.duration !== 'undefined') {
@@ -222,8 +238,14 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 }
             });
             
-            var activeClass = (tripNumber === 1) ? "active" : "";
+            // set initial selection class/map display
+            var activeClass = "";
+            if(tripNumber === 1) {
+                activeClass = "active";
+                updateMap(data, tripIndex);
+            }
 
+            // trip header
             jQuery('<tr id="trip' + tripNumber + '-summary" class="'+ activeClass + '">' +
                     '<td class="trip-id">' + tripNumber + '</td>' +
                     '<td>' + millisecondsToString(tripDuration) + '<em>' + ((startTime !== null) ? prettyTime(startTime) : "Unknown") + ' - ' + ((endTime !== null) ? prettyTime(endTime) : "Unknown") + '</em></td>' + 
@@ -232,7 +254,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     '</tr>')
                     .appendTo(tripSummariesMarkup.children('tbody'));
 
-            // move to a standalone function
+            // trip summary
             jQuery('<table class="trip-prices">' + 
                     '<thead><tr><th><h3>Trip ' + tripNumber + '</h3></th><th colspan="2">' + millisecondsToString(tripDuration) + ', ' + transfers + ' Transfer' + ((transfers === 1) ? "" : "s") + '</th></tr></thead>' + 
                     '<tbody>' + 
@@ -252,10 +274,6 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         map.zoomToPlannedRoute();
     }
 
-    function isSounder(string) {
-        return (/^[0-9]{3,4}$/.test(string));
-    }
-
     // removes agency prefix from route name and replaces with agency full name
     function formatRoute(route, includeAgencyName) {
         if(route === null) {
@@ -264,9 +282,13 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
 
         var agencyName = "Unknown Agency";
 
-        // sounder results are all digits
         if(isSounder(route)) {
             agencyName = '<a href="#">Sounder</a>';
+            route = "";
+
+        } else if(isTheLink(route)) {
+                agencyName = '<a href="#">Link Light Rail</a>';
+                route = "";
             
         // light rail/bus routes have a letter prefix identifying operating agency
         } else {
@@ -289,6 +311,40 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         return ((includeAgencyName === true) ? agencyName + ' ' : '') + '<strong>' + route + '</strong>';
     }
 
+    function updateMap(data, targetTripIndex) {
+        if(data === null) {
+            return;
+        }
+
+        // draw each leg on map
+        var tripIndex = 0;
+        jQuery.each(data.plan.itineraries, function(_, trip) {
+            if(tripIndex !== targetTripIndex) {
+                return;
+            }
+
+            jQuery.each(trip.legs.leg, function(legIndex, leg) {
+                // add each travel leg to map
+                if(isSounder(leg["@route"])) {
+                    map.addLegToPlannedRoute(leg.legGeometry.points, "SOUNDER");
+                } else if(isTheLink(leg["@route"])) {
+                    map.addLegToPlannedRoute(leg.legGeometry.points, "LINK");
+                } else {
+                    map.addLegToPlannedRoute(leg.legGeometry.points, leg["@mode"]);
+                }
+
+                // add start finish icons to map
+                if(trip.legs.leg.length - 1 === legIndex) {
+                    map.setEndPoint(leg.legGeometry.points);
+                } else if(legIndex === 0) {
+                    map.setStartPoint(leg.legGeometry.points);
+                }
+            });
+            
+            tripIndex++;
+        });
+    }
+
     function formatWalkLeg(legIndex, leg) {
         return jQuery('<li class="' + leg["@mode"].toLowerCase() + ' leg-' + legIndex + '"></li>').html(
                     '<img class="mode-icon" src="img/walk16x16.png" alt="' + leg["@mode"] + '" />' +
@@ -297,8 +353,17 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     }
 
     function formatTransitLeg(legIndex, leg) {
-        return jQuery('<li class="' + leg["@mode"].toLowerCase() + ' leg-' + legIndex + '"></li>').html(
-                    '<img class="mode-icon" src="img/' + leg["@mode"].toLowerCase() + '16x16.png" alt="' + leg["@mode"] + '" />' + makeSentenceCase(leg["@mode"]) + ' - ' + formatRoute(leg["@route"], true) + 
+        var effectiveMode = "";
+        if(isSounder(leg["@route"])) {
+            effectiveMode = 'sounder';
+        } else if(isTheLink(leg["@route"])) {
+            effectiveMode = 'link';
+        } else {
+            effectiveMode = leg["@mode"];
+        }
+        
+        return jQuery('<li class="' + effectiveMode.toLowerCase() + ' leg-' + legIndex + '"></li>').html(
+                    '<img class="mode-icon" src="img/' + effectiveMode.toLowerCase() + '16x16.png" alt="' + effectiveMode + '" />' + prettyCase(leg["@mode"]) + ' - ' + formatRoute(leg["@route"], true) + 
                     '<table class="substeps"><tbody>' + 
                     '<tr><td>' + prettyTime(new Date(leg.startTime)) + '</td><td>Depart ' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '<div class="stepmeta">' + millisecondsToString(leg.duration) + ' (-- stops)<br />Previous stop is ----</div></td></tr>' + 
                     '<tr><td>' + prettyTime(new Date(leg.endTime)) + '</td><td>Arrive ' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + '<div class="stepmeta">Previous stop is ----</div></td></tr>' + 
@@ -441,6 +506,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     .removeClass('active');
             } else {
                 root.find('#moreoptions').show();
+                addMoreOptionsBehavior();
 
                 jQuery(this).html('Fewer Options<span></span>')
                     .addClass('active');
@@ -454,6 +520,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         });
     }
     
+    // called after narrative is updated
     function addNarrativeUIBehavior() {
         // table row focus
         root.find('#tripresult-summaries tbody tr').click(function() {
@@ -471,7 +538,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 .removeClass("active");
         });
     }
-        
+
     // constructor
     map = OTP.Map(
         _map, 
