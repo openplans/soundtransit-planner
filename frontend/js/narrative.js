@@ -45,7 +45,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     function metersToFeet(meters) {
         return parseInt(meters * 3.2808, 10);
     }
-      
+
     function prettyDistance(meters) {
         if (meters === null || typeof meters === 'undefined') {
             return "";
@@ -182,7 +182,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 var modeText = '<img src="img/' + leg["@mode"].toLowerCase() + '16x16.png" alt="' + leg["@mode"] + '" /> ';
 
                 if(leg["@mode"] !== "WALK" && leg["@route"] !== "") {
-                    modeText += '<strong>' + leg["@route"] + '</strong> ';
+                    modeText += formatRoute(leg["@route"], false) + ' ';
                 }
 
                 // trip options header
@@ -252,35 +252,41 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         map.zoomToPlannedRoute();
     }
 
-    function isAllNumbers(string) {
-        return (/\D/.test(string) === false);
+    function isSounder(string) {
+        return (/\D{4}/.test(string));
     }
 
-    function formatRoute(route) {
+    // removes agency prefix from route name and replaces with agency full name
+    function formatRoute(route, includeAgencyName) {
         if(route === null) {
             return null;
         }
 
-        // sounder results are all digits
-        if(isAllNumbers(route)) {
-            return '<a href="#">Sounder</a> ' + route;
+        var agencyName = "Unknown Agency";
 
+        // sounder results are all digits
+        if(isSounder(route)) {
+            agencyName = '<a href="#">Sounder</a>';
+            
         // light rail/bus routes have a letter prefix identifying operating agency
         } else {
-            var agencyIdentifier = route.toUpperCase().charAt(0);
-            var routeWithoutAgencyIdentifier = route.substring(agencyIdentifier.length);
+            var agencyIdentifier = (route + '').toUpperCase().match("^[M|P|CT]\d*");
 
-            var agency = "Unknown (" + agencyIdentifier + ")";
-            if(agencyIdentifier === "M") {
-                agency = '<a href="#">King County Metro</a>';
-            } else if(agencyIdentifier === "P") {
-                agency = '<a href="#">Pierce Transit</a>';
-            } else if(agencyIdentifier === "CT") {
-                agency = '<a href="#">Community Transit</a>';
+            if(agencyIdentifier !== null && typeof agencyIdentifier[0] !== 'undefined') {
+                agencyIdentifier = agencyIdentifier[0];
+                route = route.substring(agencyIdentifier.length);
+
+                if(agencyIdentifier === "M") {
+                    agencyName = '<a href="#">King County Metro</a>';
+                } else if(agencyIdentifier === "P") {
+                    agencyName = '<a href="#">Pierce Transit</a>';
+                } else if(agencyIdentifier === "CT") {
+                    agencyName = '<a href="#">Community Transit</a>';
+                }
             }
-
-            return agency + ' ' + '<strong>' + routeWithoutAgencyIdentifier + '</strong>';
         }
+
+        return ((includeAgencyName === true) ? agencyName + ' ' : '') + '<strong>' + route + '</strong>';
     }
 
     function formatWalkLeg(legIndex, leg) {
@@ -292,7 +298,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
 
     function formatTransitLeg(legIndex, leg) {
         return jQuery('<li class="' + leg["@mode"].toLowerCase() + ' leg-' + legIndex + '"></li>').html(
-                    '<img class="mode-icon" src="img/' + leg["@mode"].toLowerCase() + '16x16.png" alt="' + leg["@mode"] + '" />' + makeSentenceCase(leg["@mode"]) + ' - ' + formatRoute(leg["@route"]) + 
+                    '<img class="mode-icon" src="img/' + leg["@mode"].toLowerCase() + '16x16.png" alt="' + leg["@mode"] + '" />' + makeSentenceCase(leg["@mode"]) + ' - ' + formatRoute(leg["@route"], true) + 
                     '<table class="substeps"><tbody>' + 
                     '<tr><td>' + prettyTime(new Date(leg.startTime)) + '</td><td>Depart ' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '<div class="stepmeta">' + millisecondsToString(leg.duration) + ' (-- stops)<br />Previous stop is ----</div></td></tr>' + 
                     '<tr><td>' + prettyTime(new Date(leg.endTime)) + '</td><td>Arrive ' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + '<div class="stepmeta">Previous stop is ----</div></td></tr>' + 
