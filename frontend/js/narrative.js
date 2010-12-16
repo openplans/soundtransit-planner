@@ -253,7 +253,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     }
 
     function isSounder(string) {
-        return (/\D{4}/.test(string));
+        return (/[0-9]{3,4}/.test(string));
     }
 
     // removes agency prefix from route name and replaces with agency full name
