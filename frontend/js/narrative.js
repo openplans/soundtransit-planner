@@ -1,12 +1,12 @@
 var OTP = window.OTP || {};
 
-OTP.Narrative = function(_root, _map) {
+OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     if(typeof _root === 'undefined' || _root === null) {
         return null;
     }
-    
+
     var root = jQuery(_root);
-    var map = _map;
+    var map = null;
 
     // private methods
     function millisecondsToString(duration) {
@@ -30,7 +30,7 @@ OTP.Narrative = function(_root, _map) {
             return minuteString;
         }
     }
-      
+    
     // break out these into a separate utils class? 
     function centsToDollars(num) {
         num = isNaN(num) || num === '' || num === null ? 0.00 : num;
@@ -82,12 +82,12 @@ OTP.Narrative = function(_root, _map) {
         return hours + ":" + minutes + amOrPm;
     }
 
-    function sentenceCase(string) {
+    function makeSentenceCase(string) {
         return string.toLowerCase().replace(/(^\s*\w|[\.\!\?]\s*\w)/g,function(c){return c.toUpperCase();});
     }
 
     function makeTripRequest() {
-		// First, add the planning spinner and text
+		// planning spinner and text
 		root.find('#trip-data')
 		    .fadeOut("fast", function() {
 		        $(this)
@@ -110,8 +110,6 @@ OTP.Narrative = function(_root, _map) {
                 toPlace: root.find("#to").val(),
                 fromPlace: root.find("#from").val(),
                 intermediatePlaces: ""
-            },
-            beforeSend: function() {
             },
             success: function(data) {    
                 // TODO:determine whether we need to disambiguate a to or from location (or both)
@@ -194,7 +192,13 @@ OTP.Narrative = function(_root, _map) {
                 itineraryMarkup.append((leg["@mode"] === "WALK") ? formatWalkLeg(legIndex, leg) : formatTransitLeg(legIndex, leg));
 
                 // add leg to map
-                map.addLeg(leg["@mode"], leg.legGeometry.points);
+                map.addLegToPlannedRoute(leg.legGeometry.points, leg["@mode"]);
+
+                if(trip.legs.leg.length - 1 === legIndex) {
+                    map.setEndPoint(leg.legGeometry.points);
+                } else if(legIndex === 0) {
+                    map.setStartPoint(leg.legGeometry.points);
+                }
 
                 // end time, start time, duration across this trip
                 if(! isNaN(leg.duration) && typeof leg.duration !== 'undefined') {
@@ -218,7 +222,6 @@ OTP.Narrative = function(_root, _map) {
                 }
             });
             
-            // move to a standalone function
             var activeClass = (tripNumber === 1) ? "active" : "";
 
             jQuery('<tr id="trip' + tripNumber + '-summary" class="'+ activeClass + '">' +
@@ -258,7 +261,7 @@ OTP.Narrative = function(_root, _map) {
 
     function formatTransitLeg(legIndex, leg) {
         return jQuery('<li class="' + leg["@mode"].toLowerCase() + ' leg-' + legIndex + '"></li>').html(
-                    '<img class="mode-icon" src="img/' + leg["@mode"].toLowerCase() + '16x16.png" alt="' + leg["@mode"] + '" />' + sentenceCase(leg["@mode"]) + ' - <strong>' + leg["@route"] + '</strong>' + 
+                    '<img class="mode-icon" src="img/' + leg["@mode"].toLowerCase() + '16x16.png" alt="' + leg["@mode"] + '" />' + makeSentenceCase(leg["@mode"]) + ' - <strong>' + leg["@route"] + '</strong>' + 
                     '<table class="substeps"><tbody>' + 
                     '<tr><td>' + prettyTime(new Date(leg.startTime)) + '</td><td>Depart ' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '<div class="stepmeta">' + millisecondsToString(leg.duration) + ' (-- stops)<br />Previous stop is ----</div></td></tr>' + 
                     '<tr><td>' + prettyTime(new Date(leg.endTime)) + '</td><td>Arrive ' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + '<div class="stepmeta">Previous stop is ----</div></td></tr>' + 
@@ -283,6 +286,34 @@ OTP.Narrative = function(_root, _map) {
 
         root.find("#trip-data")
             .html(disambiguateMarkup.append(disambiguateToMarkup + disambiguateFromMarkup));
+    }
+
+    // (called by the map when the user uses the context menu or drags the marker)
+    function updateToLocation(point, isDrag) {
+        if(point !== null) {
+            root.find("#to")
+                .val(point.lat + "," + point.lon)
+                .removeClass('blank');
+
+            if(isDrag === true) {
+               root.find("form#trip-plan-form")
+                    .submit();
+            }
+        }
+    }
+
+    // (called by the map when the user uses the context menu or drags the marker)    
+    function updateFromLocation(point, isDrag) {
+        if(point !== null) {
+            root.find("#from")
+                .val(point.lat + "," + point.lon)
+                .removeClass('blank');            
+
+            if(isDrag === true) {
+               root.find("form#trip-plan-form")
+                    .submit();
+            }
+        }        
     }
 
     function addFormUIBehavior() {
@@ -348,7 +379,7 @@ OTP.Narrative = function(_root, _map) {
             });
 	
         root.find('#leavehour')
-            .val(zeroPad(now.getHours() > 12) ? (now.getHours() -12) : ((now.getHours() == 0) ? 12 : now.getHours()));
+            .val((now.getHours() > 12) ? (now.getHours() - 12) : ((now.getHours() == 0) ? 12 : now.getHours()));
 
 		root.find('#leaveminute')
             .val(zeroPad(now.getMinutes()))
@@ -384,7 +415,6 @@ OTP.Narrative = function(_root, _map) {
             e.preventDefault();     
             makeTripRequest();
         });
-
     }
     
     function addNarrativeUIBehavior() {
@@ -406,10 +436,18 @@ OTP.Narrative = function(_root, _map) {
     }
         
     // constructor
+    map = OTP.Map(
+        _map, 
+        _mapControlsRoot,
+        { 
+            updateToLocationFunction: updateToLocation, 
+            updateFromLocationFunction: updateFromLocation 
+        }
+    );
+    
     addFormUIBehavior();
     addNarrativeUIBehavior();
     
     // public methods
-    return {
-    };
+    return {};
 };

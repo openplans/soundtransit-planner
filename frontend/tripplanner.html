@@ -28,51 +28,14 @@
     
     <script type="text/javascript">
         jQuery(document).ready(function() {
-            var map = OTP.Map(document.getElementById("map"));
-			var narrative = OTP.Narrative(document.getElementById("plannerpanel"), map);
-        
-		    jQuery("#base-road").click(function() {
-          map.showLayer('Road');
-          map.hideLayer('Aerial With Labels');
-          map.hideLayer('Aerial');
-          $(this).addClass("active");
-          $("#base-aerial").removeClass("active");
-          return false;
-        });
-        
-        jQuery("#base-aerial").click(function() {
-          map.showLayer('Aerial With Labels');
-          map.hideLayer('Aerial');
-          map.hideLayer('Road');
-          $(this).addClass("active");
-          $("#base-road").removeClass("active");
-          return false;
-        });
-        
-        jQuery("#toggle-fares").click(function() {
-          map.toggleLayer('Fare Outlets');
-          return false;
-        });
-
-        jQuery("#toggle-parking").click(function() {
-          map.toggleLayer('Park and Ride');
-          return false;
-        });
-
-        /* FIXME what is supposed to be showing in this layer? */
-        jQuery("#toggle-location").click(function() {
-          map.toggleLayer('Stops');
-          return false;
-        });
-    });
-        
+			OTP.Narrative(document.getElementById("plannerpanel"), document.getElementById("map"), document.getElementById("map-controls"));
+    	});
     </script>
 </head>
 
 <body>
- <div id="map-controls"><div id="map-controls-wrap"><div id="base-layers"><strong>View:</strong> <a id="base-road" class="active" href="#">Road</a> | <a id="base-aerial" href="#">Aerial</a></div><div id="toggle-layers"><strong>Show on map:</strong> <a id="toggle-fares" href="#">Fares</a><a id="toggle-parking" href="#">Parking</a><a id="toggle-location" href="#">Locations</a></div></div></div>
+<div id="map-controls"><div id="map-controls-wrap"><div id="base-layers"><strong>View:</strong> <a id="base-road" class="active" href="#">Road</a> | <a id="base-aerial" href="#">Aerial</a></div><div id="toggle-layers"><strong>Show on map:</strong> <a id="toggle-fares" href="#">Fares</a><a id="toggle-parking" href="#">Parking</a><a id="toggle-location" href="#">Locations</a></div></div></div>
 <div id="tripplanner-wrap">
-
   <div id="plannerpanel">
     <div class="form-meta">
       <a id="clear" href="#">Clear</a> <a href="#">Help</a>
@@ -138,11 +101,8 @@
         <p>Right-click on the map to set the Start and End locations, then select "Plan Trip".</p>
       </div>
     </div><!-- /#trip-data -->
-
   </div><!-- /#plannerpanel --> 
-  
   <div id="map"></div>
-
 </div><!-- /#tripplanner-wrap -->
 </body>
 </html>
