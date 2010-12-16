@@ -86,6 +86,39 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         return string.toLowerCase().replace(/(^\s*\w|[\.\!\?]\s*\w)/g,function(c){return c.toUpperCase();});
     }
 
+    function prettyRoute(route, includeAgencyName) {
+        if(route === null) {
+            return null;
+        }
+
+        var agencyName = "Unknown Agency";
+
+        if(isSounder(route)) {
+            agencyName = '<a href="#">Sounder</a>';
+            route = "";
+        } else if(isTheLink(route)) {
+            agencyName = '<a href="#">Link Light Rail</a>';
+            route = "";
+        } else {
+            var agencyIdentifier = (route + '').toUpperCase().match("^[M|P|CT]\d*");
+
+            if(agencyIdentifier !== null && typeof agencyIdentifier[0] !== 'undefined') {
+                agencyIdentifier = agencyIdentifier[0];
+                route = route.substring(agencyIdentifier.length);
+
+                if(agencyIdentifier === "M") {
+                    agencyName = '<a href="#">King County Metro</a>';
+                } else if(agencyIdentifier === "P") {
+                    agencyName = '<a href="#">Pierce Transit</a>';
+                } else if(agencyIdentifier === "CT") {
+                    agencyName = '<a href="#">Community Transit</a>';
+                }
+            }
+        }
+
+        return ((includeAgencyName === true) ? agencyName + ' ' : '') + '<strong>' + route + '</strong>';
+    }
+
     function makeTripRequest() {
 		// planning spinner and text
 		root.find('#trip-data')
@@ -142,7 +175,6 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         });
     }
 
-    // test functions to see if a given route is a given "special" mode of travel
     function isSounder(route) {
         if(route === null) {
             return false;
@@ -180,6 +212,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         jQuery.each(data.plan.itineraries, function(_, trip) {
             var tripNumber = tripIndex + 1;
             var tripModes = [];
+
             var transfers = Math.floor(trip.legs.leg.length / 2) - 1;
 
             // fares
@@ -198,7 +231,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             var endTime = null;
             var tripDuration = 0;
             jQuery.each(trip.legs.leg, function(legIndex, leg) {
-                // trip header: leg items/icons
+                // trip options header: leg items/icons
                 if(isSounder(leg["@route"])) {
                     tripModes.push('<img src="img/sounder16x16.png" alt="Sounder" /> <strong>Sounder</strong> ');
                 } else if(isTheLink(leg["@route"])) {
@@ -207,7 +240,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     var modeText = '<img src="img/' + leg["@mode"].toLowerCase() + '16x16.png" alt="' + leg["@mode"] + '" /> ';
 
                     if(leg["@mode"] !== "WALK") {
-                        modeText += formatRoute(leg["@route"], false) + ' ';
+                        modeText += prettyRoute(leg["@route"], false) + ' ';
                     }
                     
                     tripModes.push(modeText);                    
@@ -216,7 +249,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 // trip detail
                 itineraryMarkup.append((leg["@mode"] === "WALK") ? formatWalkLeg(legIndex, leg) : formatTransitLeg(legIndex, leg));
 
-                // end time, start time, duration across this trip
+                // end time, start time, duration across this trip for use in trip header 
                 if(! isNaN(leg.duration) && typeof leg.duration !== 'undefined') {
                     try {
                         tripDuration += parseInt(leg.duration, 10);
@@ -242,10 +275,11 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             var activeClass = "";
             if(tripNumber === 1) {
                 activeClass = "active";
-                updateMap(data, tripIndex);
+
+                showTripOnMap(data, tripIndex);
             }
 
-            // trip header
+            // trip options header
             jQuery('<tr id="trip' + tripNumber + '-summary" class="'+ activeClass + '">' +
                     '<td class="trip-id">' + tripNumber + '</td>' +
                     '<td>' + millisecondsToString(tripDuration) + '<em>' + ((startTime !== null) ? prettyTime(startTime) : "Unknown") + ' - ' + ((endTime !== null) ? prettyTime(endTime) : "Unknown") + '</em></td>' + 
@@ -254,7 +288,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     '</tr>')
                     .appendTo(tripSummariesMarkup.children('tbody'));
 
-            // trip summary
+            // trip detail: prices
             jQuery('<table class="trip-prices">' + 
                     '<thead><tr><th><h3>Trip ' + tripNumber + '</h3></th><th colspan="2">' + millisecondsToString(tripDuration) + ', ' + transfers + ' Transfer' + ((transfers === 1) ? "" : "s") + '</th></tr></thead>' + 
                     '<tbody>' + 
@@ -274,44 +308,8 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         map.zoomToPlannedRoute();
     }
 
-    // removes agency prefix from route name and replaces with agency full name
-    function formatRoute(route, includeAgencyName) {
-        if(route === null) {
-            return null;
-        }
-
-        var agencyName = "Unknown Agency";
-
-        if(isSounder(route)) {
-            agencyName = '<a href="#">Sounder</a>';
-            route = "";
-
-        } else if(isTheLink(route)) {
-                agencyName = '<a href="#">Link Light Rail</a>';
-                route = "";
-            
-        // light rail/bus routes have a letter prefix identifying operating agency
-        } else {
-            var agencyIdentifier = (route + '').toUpperCase().match("^[M|P|CT]\d*");
-
-            if(agencyIdentifier !== null && typeof agencyIdentifier[0] !== 'undefined') {
-                agencyIdentifier = agencyIdentifier[0];
-                route = route.substring(agencyIdentifier.length);
-
-                if(agencyIdentifier === "M") {
-                    agencyName = '<a href="#">King County Metro</a>';
-                } else if(agencyIdentifier === "P") {
-                    agencyName = '<a href="#">Pierce Transit</a>';
-                } else if(agencyIdentifier === "CT") {
-                    agencyName = '<a href="#">Community Transit</a>';
-                }
-            }
-        }
-
-        return ((includeAgencyName === true) ? agencyName + ' ' : '') + '<strong>' + route + '</strong>';
-    }
-
-    function updateMap(data, targetTripIndex) {
+    // updates map to display given trip option
+    function showTripOnMap(data, targetTripIndex) {
         if(data === null) {
             return;
         }
@@ -363,7 +361,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         }
         
         return jQuery('<li class="' + effectiveMode.toLowerCase() + ' leg-' + legIndex + '"></li>').html(
-                    '<img class="mode-icon" src="img/' + effectiveMode.toLowerCase() + '16x16.png" alt="' + effectiveMode + '" />' + prettyCase(leg["@mode"]) + ' - ' + formatRoute(leg["@route"], true) + 
+                    '<img class="mode-icon" src="img/' + effectiveMode.toLowerCase() + '16x16.png" alt="' + effectiveMode + '" />' + prettyCase(leg["@mode"]) + ' - ' + prettyRoute(leg["@route"], true) + 
                     '<table class="substeps"><tbody>' + 
                     '<tr><td>' + prettyTime(new Date(leg.startTime)) + '</td><td>Depart ' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '<div class="stepmeta">' + millisecondsToString(leg.duration) + ' (-- stops)<br />Previous stop is ----</div></td></tr>' + 
                     '<tr><td>' + prettyTime(new Date(leg.endTime)) + '</td><td>Arrive ' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + '<div class="stepmeta">Previous stop is ----</div></td></tr>' + 
