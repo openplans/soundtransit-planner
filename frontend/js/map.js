@@ -50,9 +50,23 @@ OTP.Map = function(_root, _controlsRoot, options) {
         return array;
     }
 
+    function hideContextMenu() {
+        if(menu !== null) {
+            menu.remove();
+        }
+            
+        if(markersDragControl !== null) {
+            markersDragControl.activate();
+        }                 
+    }
+    
     function showContextMenu(point) {
         if(menu !== null) {
             menu.remove();
+        }
+
+        if(markersDragControl !== null) {
+            markersDragControl.deactivate();
         }
 
         menu = jQuery("<ul></ul>");
@@ -126,39 +140,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 .append(menu);
     }
 
-    function addContextMenuBehavior() {
-        OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
-           initialize: function() {
-               OpenLayers.Control.prototype.initialize.apply(this, null);
-
-               this.handler = new OpenLayers.Handler.Click(
-                    this, 
-                    {
-                       'click': onMapClick
-                    },
-                    {
-                      'single': true,
-                      'double': false,
-                      'pixelTolerance': 0,
-                      'stopSingle': false,
-                      'stopDouble': false
-                    }
-                );
-            }
-        });
-
-        var clickControl = new OpenLayers.Control.Click();
-        map.addControl(clickControl);
-        clickControl.activate();
-
-        // (contextmenu event for FF)
-        jQuery(map.layerContainerDiv)
-            .get(0).oncontextmenu = function(e) {
-                onMapClick(e);
-                return false; 
-            };
-    }
-
+    // layer stuff
     function addBaseLayers() {
         var road = new OpenLayers.Layer.Bing({ 
             key: "AgszXQ8Q5lbiJFYujII-Lcie9XQ-1DK3a2X7xWJmfSeipw8BAAF0ETX8AJ4K-PDm", 
@@ -231,6 +213,19 @@ OTP.Map = function(_root, _controlsRoot, options) {
         map.addLayers([routes, stops, parkandride, fareoutlets]);        
     }
 
+    function addPlannedRouteLayers() {
+        plannedRoute = new OpenLayers.Layer.Vector("Planned Route");
+        // (these are in a separate layer because they are draggable, the route is not)
+        markers = new OpenLayers.Layer.Vector("Planned Route Markers");
+
+        map.addLayers([plannedRoute, markers]);
+
+        // listener for drag events on markers
+        var markersDragControl = new OpenLayers.Control.DragFeature(markers, { onComplete: onCompleteMarkerMove });
+        map.addControl(markersDragControl);
+        markersDragControl.activate();
+    }
+
 	function setLayerVisibility(name, visible) {
         var layerArray = map.layers;
         for (var i=0;i<layerArray.length;i++) {
@@ -244,6 +239,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }
     }
 
+    // behaviors
     function addMapLayerChooserBehavior() {
         // base layer links
         controlsRoot.find("#base-road")
@@ -290,43 +286,47 @@ OTP.Map = function(_root, _controlsRoot, options) {
             });
     }
 
-    function addPlannedRouteLayers() {
-        plannedRoute = new OpenLayers.Layer.Vector("Planned Route");
-        // (these are in a separate layer because they are draggable, the route is not)
-        markers = new OpenLayers.Layer.Vector("Planned Route Markers");
+    function addContextMenuBehavior() {
+        var showContextMenuWrapper = function(e) {
+                // (all the below position stuff is for IE, from http://www.quirksmode.org/js/events_properties.html)
+                var posx, posy = null;
+                if (e.pageX || e.pageY) {
+                    posx = e.pageX;
+                    posy = e.pageY;
+                } else if (e.clientX || e.clientY) 	{
+                    posx = e.clientX + document.body.scrollLeft
+                        + document.documentElement.scrollLeft;
+                    posy = e.clientY + document.body.scrollTop
+                        + document.documentElement.scrollTop;
+                }
 
-        map.addLayers([plannedRoute, markers]);
+                var offsets = jQuery(map.div).offset();
+                position = new OpenLayers.Pixel(posx - offsets.left,  posy - offsets.top);
 
-        // listener for drag events on markers
-        var markersDragControl = new OpenLayers.Control.DragFeature(markers, { onComplete: onCompleteMarkerMove });
-        map.addControl(markersDragControl);
-        markersDragControl.activate();
+                showContextMenu(position);
+        };
+
+        // click inside map
+        jQuery(map.div).bind("click", function(e) {
+            if(e.button === 2 || (e.button === 0 && e.altKey === true)) {
+                showContextMenuWrapper(e);
+            } else {
+                hideContextMenu();
+            }
+        });
+
+        jQuery(map.div).bind("contextmenu", function(e) {  
+            showContextMenuWrapper(e);
+            return false;
+        });       
+
+        // click outside map
+        jQuery(document).mousedown(function(e) {
+            hideContextMenu();
+        });         
     }
 
     // event handlers
-    function onMapClick(event) {
-        if(event.button === 2 || (event.button === 0 && event.altKey === true)) {
-            if(markersDragControl !== null) {
-                markersDragControl.deactivate();
-            }
-            
-            var position = event.xy;            
-            if(typeof event.xy === 'undefined') {
-                position = new OpenLayers.Pixel(event.layerX, event.layerY);
-            }
-            
-            showContextMenu(position);
-        } else {
-             if(menu !== null) {
-                 menu.remove();
-                 
-                 if(markersDragControl !== null) {
-                     markersDragControl.activate();
-                 }                 
-             }
-        }
-    }
-
     function onCompleteMarkerMove(feature) {
             if(feature) {       
                     var point = new OpenLayers.LonLat(feature.geometry.x, feature.geometry.y);
@@ -410,6 +410,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                              graphicHeight: 30,
                              graphicXOffset: 0,
                              graphicYOffset: -30,
+                             graphicTitle: "Drag To Change Route",
                              cursor: "move"
                          };
 
@@ -437,6 +438,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                              graphicHeight: 30,
                              graphicXOffset: 0,
                              graphicYOffset: -30,
+                             graphicTitle: "Drag To Change Route",
                              cursor: "move"
                          };
 

@@ -252,6 +252,37 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         map.zoomToPlannedRoute();
     }
 
+    function isAllNumbers(string) {
+        return (/\D/.test(string) === false);
+    }
+
+    function formatRoute(route) {
+        if(route === null) {
+            return null;
+        }
+
+        // sounder results are all digits
+        if(isAllNumbers(route)) {
+            return '<a href="#">Sounder</a> ' + route;
+
+        // light rail/bus routes have a letter prefix identifying operating agency
+        } else {
+            var agencyIdentifier = route.toUpperCase().charAt(0);
+            var routeWithoutAgencyIdentifier = route.substring(agencyIdentifier.length);
+
+            var agency = "Unknown (" + agencyIdentifier + ")";
+            if(agencyIdentifier === "M") {
+                agency = '<a href="#">King County Metro</a>';
+            } else if(agencyIdentifier === "P") {
+                agency = '<a href="#">Pierce Transit</a>';
+            } else if(agencyIdentifier === "CT") {
+                agency = '<a href="#">Community Transit</a>';
+            }
+
+            return agency + ' ' + '<strong>' + routeWithoutAgencyIdentifier + '</strong>';
+        }
+    }
+
     function formatWalkLeg(legIndex, leg) {
         return jQuery('<li class="' + leg["@mode"].toLowerCase() + ' leg-' + legIndex + '"></li>').html(
                     '<img class="mode-icon" src="img/walk16x16.png" alt="' + leg["@mode"] + '" />' +
@@ -261,7 +292,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
 
     function formatTransitLeg(legIndex, leg) {
         return jQuery('<li class="' + leg["@mode"].toLowerCase() + ' leg-' + legIndex + '"></li>').html(
-                    '<img class="mode-icon" src="img/' + leg["@mode"].toLowerCase() + '16x16.png" alt="' + leg["@mode"] + '" />' + makeSentenceCase(leg["@mode"]) + ' - <strong>' + leg["@route"] + '</strong>' + 
+                    '<img class="mode-icon" src="img/' + leg["@mode"].toLowerCase() + '16x16.png" alt="' + leg["@mode"] + '" />' + makeSentenceCase(leg["@mode"]) + ' - ' + formatRoute(leg["@route"]) + 
                     '<table class="substeps"><tbody>' + 
                     '<tr><td>' + prettyTime(new Date(leg.startTime)) + '</td><td>Depart ' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '<div class="stepmeta">' + millisecondsToString(leg.duration) + ' (-- stops)<br />Previous stop is ----</div></td></tr>' + 
                     '<tr><td>' + prettyTime(new Date(leg.endTime)) + '</td><td>Arrive ' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + '<div class="stepmeta">Previous stop is ----</div></td></tr>' + 
