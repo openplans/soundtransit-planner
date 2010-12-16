@@ -324,7 +324,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                  protocol: new OpenLayers.Protocol.WFS.v1_1_0({
                      url: "http://sea.dev.openplans.org/geoserver/wfs",
                      featureType: "stops",
-                     featureNS: "soundtransit",
+                     featurePrefix: "soundtransit",
                      outputFormat: "json"
                  }),
                  click: true
