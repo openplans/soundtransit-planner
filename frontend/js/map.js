@@ -10,10 +10,10 @@ OTP.Map = function(_root, _controlsRoot, options) {
     var map = null;
     var menu = null;
     
-    var plannedRoute = null;
-    var markers = null;
+    var plannedRouteLayer = null;
+    var markersLayer = null;
     var markersDragControl = null;
-    var dataLayers = [];
+    var queryableLayers = [];
 
     // private methods
     function decodePolyline(encoded) {
@@ -148,7 +148,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             layer: "Road", 
             name: "Road",
             isBaseLayer: true,
-      		sphericalMercator: true
+            sphericalMercator: true
         });
 
         var aerial = new OpenLayers.Layer.Bing({ 
@@ -164,7 +164,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             layer: "AerialWithLabels", 
             name: "Aerial With Labels", 
             isBaseLayer: true,
-      		sphericalMercator: true
+            sphericalMercator: true
         });
 
         map.addLayers([road, aerial, hybrid]); 
@@ -172,58 +172,60 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
     function addDataLayers() {
         var routes = new OpenLayers.Layer.WMS("Routes", "http://sea.dev.openplans.org/geoserver/gwc/service/wms", {
-    		layers: 'soundtransit:routes',
-    		format: 'image/png'
-    	},
-    	{ 
-    		tileSize: new OpenLayers.Size(256,256), 
-    		isBaseLayer: false,
+            layers: 'soundtransit:routes',
+            format: 'image/png'
+        },
+        {
+            tileSize: new OpenLayers.Size(256,256),
+            isBaseLayer: false,
             visibility: false
-    	});
+        });
 
         var stops = new OpenLayers.Layer.WMS("Stops", "http://sea.dev.openplans.org/geoserver/gwc/service/wms", {
-    		layers: 'soundtransit:stops',
-    		format: 'image/png'
-    	},
-    	{ 
-    		tileSize: new OpenLayers.Size(256,256), 
-    		isBaseLayer: false,
+            layers: 'soundtransit:stops',
+            format: 'image/png'
+        },
+        {
+            tileSize: new OpenLayers.Size(256,256),
+            isBaseLayer: false,
             visibility: false
-    	});
+        });
 
         var parkandride = new OpenLayers.Layer.WMS("Park and Rides", "http://sea.dev.openplans.org/geoserver/gwc/service/wms", {
-        	layers: 'soundtransit:parkandrides',
-        	format: 'image/png'
+            layers: 'soundtransit:parkandrides',
+            format: 'image/png'
         },
-        { 
-        	tileSize: new OpenLayers.Size(256,256), 
-        	isBaseLayer: false,
+        {
+            tileSize: new OpenLayers.Size(256,256),
+            isBaseLayer: false,
             visibility: false
         });
 
         var fareoutlets = new OpenLayers.Layer.WMS("Fare Outlets", "http://sea.dev.openplans.org/geoserver/gwc/service/wms", {
-        	layers: 'soundtransit:fareoutlets',
-        	format: 'image/png'
+            layers: 'soundtransit:fareoutlets',
+            format: 'image/png'
         },
-        { 
-        	tileSize: new OpenLayers.Size(256,256), 
-        	isBaseLayer: false,
+        {
+            tileSize: new OpenLayers.Size(256,256),
+            isBaseLayer: false,
             visibility: false
         });
 
-        dataLayers = [routes, stops, parkandride, fareoutlets];
-        map.addLayers(dataLayers);        
+        map.addLayers([routes, stops, parkandride, fareoutlets]);
+
+        // (will have popups associated with them when clicked on)
+        queryableLayers = [stops, parkandride, fareoutlets];
     }
 
     function addPlannedRouteLayers() {
-        plannedRoute = new OpenLayers.Layer.Vector("Planned Route");
-        // (these are in a separate layer because they are draggable, the route is not)
-        markers = new OpenLayers.Layer.Vector("Planned Route Markers");
+        // (markers are in a separate layer because they are draggable, the route is not)
+        plannedRouteLayer = new OpenLayers.Layer.Vector("Planned Route");
+        markersLayer = new OpenLayers.Layer.Vector("Planned Route Markers");
 
-        map.addLayers([plannedRoute, markers]);
+        map.addLayers([plannedRouteLayer, markersLayer]);
 
         // listener for drag events on markers
-        var markersDragControl = new OpenLayers.Control.DragFeature(markers, { onComplete: onCompleteMarkerMove });
+        var markersDragControl = new OpenLayers.Control.DragFeature(markersLayer, { onComplete: onCompleteMarkerMove });
         map.addControl(markersDragControl);
         markersDragControl.activate();
     }
@@ -318,26 +320,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
             });
     }
 
-    function addGetFeatureInfoBehavior() {
-        for(var i = 0; i < dataLayers.length; i++) {
-            var getFeatureInfoControl = new OpenLayers.Control.GetFeature({
-                 protocol: new OpenLayers.Protocol.WFS.v1_1_0({
-                     url: "http://sea.dev.openplans.org/geoserver/wfs",
-                     featureType: "stops",
-                     featureNS: "soundtransit",
-                     featurePrefix: "soundtransit",
-                     outputFormat: "json"
-                 }),
-                 click: true
-            });
-            getFeatureInfoControl.events.register("featureselected", this, function(e) {
-                  debugger;
-            });
-            map.addControl(getFeatureInfoControl);
-            getFeatureInfoControl.activate();            
-        }
-    }
-
     function addContextMenuBehavior() {
         var showContextMenuWrapper = function(e) {
                 // (all the below position stuff is for IE, from http://www.quirksmode.org/js/events_properties.html)
@@ -378,6 +360,58 @@ OTP.Map = function(_root, _controlsRoot, options) {
         });         
     }
 
+    function addDataLayerQueryBehavior() {
+        if(queryableLayers === null || queryableLayers.length === 0) {
+            return;
+        }
+        
+        OpenLayers.Control.GetFeatureInfoWithJSONP = OpenLayers.Class(OpenLayers.Control, {               
+            initialize: function() {
+                OpenLayers.Control.prototype.initialize.apply(this, null); 
+
+                this.handler = new OpenLayers.Handler.Click(
+                    this,
+                    {
+                        'click': this.trigger
+                    },
+                    {
+                        'single': true,
+                        'double': false
+                    }
+                );
+            },
+            trigger: function(e) {
+                var lonlat = map.getLonLatFromViewPortPx(e.xy);
+                var bounds = new OpenLayers.Bounds(lonlat.lon - 100, lonlat.lat - 100, lonlat.lon + 100, lonlat.lat + 100);
+
+                for(var i = 0; i < queryableLayers.length; i++) {
+                    if(queryableLayers[i].getVisibility() === true) {
+                        var callbackFunction = "getFeatureInfoCallback" + Math.floor(Math.random() * 1000000000);
+                        jQuery.ajax({
+                                url: "http://sea.dev.openplans.org/geoserver/wfs",
+                                dataType: "jsonp",
+                                jsonpCallback: callbackFunction,
+                                data: {
+                                    request: "GetFeature",
+                                    outputFormat: "json",
+                                    format_options: "callback:" + callbackFunction,
+                                    typeName: queryableLayers[i].params.LAYERS,
+                                    bbox: bounds.toBBOX(6, false) + "," + queryableLayers[i].projection
+                                },
+                                success: function(data) {    
+                                    onGetFeatureResponse(data);
+                                }
+                        });
+                    }
+                }
+            }
+        });
+
+        var getFeatureInfoControl = new OpenLayers.Control.GetFeatureInfoWithJSONP();
+        map.addControl(getFeatureInfoControl);
+        getFeatureInfoControl.activate();
+    }
+
     // event handlers
     function onCompleteMarkerMove(feature) {
         if(feature) {       
@@ -400,8 +434,10 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }
     }
 
-    function onGetFeatureResponse(event) {
-        debugger;
+    function onGetFeatureResponse(data) {
+        // TODO: popup code
+        
+//        debugger;
     }
 
     // constructor
@@ -426,7 +462,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
     addContextMenuBehavior();
     addMapLayerChooserBehavior();
-    addGetFeatureInfoBehavior();
+    addDataLayerQueryBehavior();
 
     // center on seattle metro area
     var point = new OpenLayers.LonLat(-122.30, 47.45);
@@ -436,22 +472,24 @@ OTP.Map = function(_root, _controlsRoot, options) {
     // public methods    
     return {
         reset: function() {
-            if(plannedRoute !== null) {
-                plannedRoute.removeAllFeatures();
+            if(plannedRouteLayer !== null) {
+                plannedRouteLayer.removeAllFeatures();
             }
 
-            if(markers !== null) {
-                markers.removeAllFeatures();
+            if(markersLayer !== null) {
+                markersLayer.removeAllFeatures();
             }
         },
         
         zoomToPlannedRoute: function() {
-            if(plannedRoute !== null) {
-                var bounds = plannedRoute.getDataExtent();
+            if(plannedRouteLayer !== null) {
+                var bounds = plannedRouteLayer.getDataExtent();
                 map.zoomToExtent(bounds);
             }
         },
-        
+ 
+        // FIXME: we have to pass an encoded polyline into here because we 
+        // don't have access to just the start/end points for some leg types. Change API?
         setStartPoint: function(encodedPolyline) {
             if(encodedPolyline === null) {
                 return;
@@ -477,9 +515,11 @@ OTP.Map = function(_root, _controlsRoot, options) {
                              cursor: "move"
                          };
 
-            markers.addFeatures([icon]);
+            markersLayer.addFeatures([icon]);
         },
         
+        // FIXME: we have to pass an encoded polyline into here because we 
+        // don't have access to just the start/end points for some leg types. Change API?
         setEndPoint: function(encodedPolyline) {
             if(encodedPolyline === null) {
                 return;
@@ -505,7 +545,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                              cursor: "move"
                          };
 
-            markers.addFeatures([icon]);
+            markersLayer.addFeatures([icon]);
         },
         
         addLegToPlannedRoute: function(encodedPolyline, type) {
@@ -555,7 +595,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
             var polyline = new OpenLayers.Geometry.LineString(points);
             var lineFeature = new OpenLayers.Feature.Vector(polyline, null, style);
-            plannedRoute.addFeatures([lineFeature]);
+            plannedRouteLayer.addFeatures([lineFeature]);
         }
     };
 };

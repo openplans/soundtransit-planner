@@ -63,13 +63,13 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     function prettyTime(dateObj) {
         var minutes = dateObj.getMinutes();
         minutes = (minutes < 10) ? "0" + minutes : "" + minutes;
-    
-        var hours = dateObj.getHours();            
+
+        var hours = dateObj.getHours();
         var amOrPm = "";
-        
+
         if(hours >= 12) {
             if(hours > 12) {
-                hours = hours - 12;        	            	
+                hours = hours - 12;
             }
             amOrPm = "pm";
         } else {
@@ -110,6 +110,8 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     agencyName = '<a href="#">King County Metro</a>';
                 } else if(agencyIdentifier === "P") {
                     agencyName = '<a href="#">Pierce Transit</a>';
+                } else if(agencyIdentifier === "ST") {
+                    agencyName = '<a href="#">Sound Transit</a>';
                 } else if(agencyIdentifier === "CT") {
                     agencyName = '<a href="#">Community Transit</a>';
                 }
@@ -246,7 +248,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     tripModes.push(modeText);                    
                 }
 
-                // trip detail
+                // trip detail: trip legs
                 itineraryMarkup.append((leg["@mode"] === "WALK") ? formatWalkLeg(legIndex, leg) : formatTransitLeg(legIndex, leg));
 
                 // end time, start time, duration across this trip for use in trip header 
@@ -516,7 +518,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         });
     }
     
-    // called after narrative is updated
+    // (called after narrative is updated)
     function addNarrativeUIBehavior() {
         // table row focus
         root.find('#tripresult-summaries tbody tr').click(function() {
@@ -544,10 +546,10 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             updateFromLocationFunction: updateFromLocation 
         }
     );
-    
+
     addFormUIBehavior();
     addNarrativeUIBehavior();
-    
+
     // public methods
     return {};
 };
