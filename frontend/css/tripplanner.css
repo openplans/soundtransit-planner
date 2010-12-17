@@ -722,3 +722,16 @@ height: 563px;
 .fullsize #map {
 width: 100%;
 }
+
+/* context menu */
+.ui-menu .ui-menu-item a {
+    font-size: 11px;
+    color: #656565;
+}
+
+.ui-menu .ui-menu-item.separator {
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+    border-bottom: 1px solid #C0C0C0;    
+}
+

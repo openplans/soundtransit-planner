@@ -9,6 +9,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     var controlsRoot = jQuery(_controlsRoot);
     var map = null;
     var menu = null;
+    var infoWindow = null;
     
     var plannedRouteLayer = null;
     var markersLayer = null;
@@ -87,6 +88,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         menu.append(startTripHere);
 
         var endTripHere = jQuery('<li></li>')
+                            .addClass("separator")
                             .append('<a href="#">End Trip Here</a>')
                             .click(function(e) {
                                 var proj = new OpenLayers.Projection("EPSG:4326");
@@ -141,6 +143,10 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 .append(menu);
     }
 
+    function getInfoWindowContent(featureData, layer) {
+        return "<P>Test</p>";
+    }
+
     // layer stuff
     function addBaseLayers() {
         var road = new OpenLayers.Layer.Bing({ 
@@ -156,15 +162,17 @@ OTP.Map = function(_root, _controlsRoot, options) {
             layer: "Aerial", 
             name: "Aerial", 
             isBaseLayer: true,
-            sphericalMercator: true
+            sphericalMercator: true,
+            visibility: false
         });
 
         var hybrid = new OpenLayers.Layer.Bing({ 
             key: "AgszXQ8Q5lbiJFYujII-Lcie9XQ-1DK3a2X7xWJmfSeipw8BAAF0ETX8AJ4K-PDm", 
             layer: "AerialWithLabels", 
-            name: "Aerial With Labels", 
+            name: "Hybrid", 
             isBaseLayer: true,
-            sphericalMercator: true
+            sphericalMercator: true,
+            visibility: false
         });
 
         map.addLayers([road, aerial, hybrid]); 
@@ -260,8 +268,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 jQuery(this).addClass("active");
 
                 setLayerVisibility('Road', true);
-                setLayerVisibility('Aerial With Labels', false);
-                setLayerVisibility('Aerial', false);
+                setLayerVisibility('Hybrid', false);
                 return false;
             });
 
@@ -273,8 +280,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
                 jQuery(this).addClass("active");
 
-                setLayerVisibility('Aerial With Labels', true);
-                setLayerVisibility('Aerial', false);
+                setLayerVisibility('Hybrid', true);
                 setLayerVisibility('Road', false);
                 return false;
             });
@@ -367,7 +373,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         
         OpenLayers.Control.GetFeatureInfoWithJSONP = OpenLayers.Class(OpenLayers.Control, {               
             initialize: function() {
-                OpenLayers.Control.prototype.initialize.apply(this, null); 
+                OpenLayers.Control.prototype.initialize.apply(this, arguments);
 
                 this.handler = new OpenLayers.Handler.Click(
                     this,
@@ -382,10 +388,12 @@ OTP.Map = function(_root, _controlsRoot, options) {
             },
             trigger: function(e) {
                 var lonlat = map.getLonLatFromViewPortPx(e.xy);
-                var bounds = new OpenLayers.Bounds(lonlat.lon - 100, lonlat.lat - 100, lonlat.lon + 100, lonlat.lat + 100);
+                // FIXME: 300m buffer at *all* zoom levels?
+                var bounds = new OpenLayers.Bounds(lonlat.lon - 300, lonlat.lat - 300, lonlat.lon + 300, lonlat.lat + 300);
 
                 for(var i = 0; i < queryableLayers.length; i++) {
                     if(queryableLayers[i].getVisibility() === true) {
+                        var activeLayer = queryableLayers[i];
                         var callbackFunction = "getFeatureInfoCallback" + Math.floor(Math.random() * 1000000000);
                         jQuery.ajax({
                                 url: "http://sea.dev.openplans.org/geoserver/wfs",
@@ -395,11 +403,11 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                     request: "GetFeature",
                                     outputFormat: "json",
                                     format_options: "callback:" + callbackFunction,
-                                    typeName: queryableLayers[i].params.LAYERS,
-                                    bbox: bounds.toBBOX(6, false) + "," + queryableLayers[i].projection
+                                    typeName: activeLayer.params.LAYERS,
+                                    bbox: bounds.toBBOX(6, false) + "," + activeLayer.projection
                                 },
                                 success: function(data) {    
-                                    onGetFeatureResponse(data);
+                                    onGetFeatureResponse(data, activeLayer);
                                 }
                         });
                     }
@@ -434,10 +442,50 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }
     }
 
-    function onGetFeatureResponse(data) {
-        // TODO: popup code
+    function onGetFeatureResponse(featureData, layer) {
+        if(featureData.features.length === 0) {
+            return;
+        }
         
-//        debugger;
+        var feature = featureData.features[0];        
+
+        // location
+        var wgsLonlat = new OpenLayers.LonLat(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
+        var proj = new OpenLayers.Projection("EPSG:4326");
+        var lonlat = wgsLonlat.transform(proj, map.getProjectionObject());
+
+        var contentWrapper = jQuery("<div></div>")
+                                .appendTo(map.viewPortDiv); // append to document to calculate its size
+
+        // header
+        var header = jQuery("<div></div>")
+                            .addClass("header")
+                            .append('<strong>Header</strong>')
+                            .append('<a href="#">Close</a>');
+
+        header.find("a").click(function(e) {
+            if(infoWindow !== null) {
+                infoWindow.hide();
+            }            
+            return false; 
+        });
+
+        contentWrapper.append(header);
+        contentWrapper.append(getInfoWindowContent(featureData, layer));
+             
+        // hide any already open info windows
+        if(infoWindow !== null) {
+            infoWindow.hide();
+        }
+
+        infoWindow = new OpenLayers.Popup(
+                            null,
+                            lonlat,
+                            new OpenLayers.Size(200, contentWrapper.height()),
+                            contentWrapper.html(),
+                            false);
+
+        map.addPopup(infoWindow);
     }
 
     // constructor
@@ -447,8 +495,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         controls: [
             new OpenLayers.Control.Navigation(),
             new OpenLayers.Control.KeyboardDefaults(),
-            new OpenLayers.Control.PanZoomBar({zoomWorldIcon:false}),
-            new OpenLayers.Control.Scale()
+            new OpenLayers.Control.PanZoomBar({zoomWorldIcon:false})
         ]
     });
 
@@ -575,19 +622,19 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 };
             } else if(type === "BUS") {
                 style = {
-                         strokeColor: "#02305E",
+                         strokeColor: "#5380B0",
                          strokeOpacity: 0.80,
                          strokeWidth: 4
                 };                
             } else if(type === "SOUNDER") {
                 style = {
-                         strokeColor: "#448768",
+                         strokeColor: "#0B9140",
                          strokeOpacity: 0.80,
                          strokeWidth: 4
                 };                                
             } else if(type === "LINK") {
                 style = {
-                         strokeColor: "#228791",
+                         strokeColor: "#41B1C1",
                          strokeOpacity: 0.80,
                          strokeWidth: 4
                 };                                
