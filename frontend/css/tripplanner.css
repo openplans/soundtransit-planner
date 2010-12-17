@@ -735,3 +735,10 @@ width: 100%;
     border-bottom: 1px solid #C0C0C0;    
 }
 
+/* theme overrides */
+.ui-widget,
+.ui-widget select,
+.ui-widget input {
+    color: #656565;
+    font-family: inherit;
+}

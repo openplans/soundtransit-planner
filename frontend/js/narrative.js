@@ -504,7 +504,6 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     .removeClass('active');
             } else {
                 root.find('#moreoptions').show();
-                addMoreOptionsBehavior();
 
                 jQuery(this).html('Fewer Options<span></span>')
                     .addClass('active');
