@@ -82,7 +82,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                 if(typeof options.updateFromLocationFunction === 'function') {
                                     options.updateFromLocationFunction(lonlat.transform(map.getProjectionObject(), proj), false);
                                 }
-                                menu.remove();
+                                hideContextMenu();
                                 return false;
                             });
         menu.append(startTripHere);
@@ -95,7 +95,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                 if(typeof options.updateToLocationFunction === 'function') {
                                     options.updateToLocationFunction(lonlat.transform(map.getProjectionObject(), proj), false);
                                 }
-                                menu.remove();
+                                hideContextMenu();
                                 return false;
                             });
         menu.append(endTripHere);
@@ -107,7 +107,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                 if(map.isValidZoomLevel(zoom)) {                                    
                                     map.setCenter(lonlat, zoom);
                                 }
-                                menu.remove();
+                                hideContextMenu();
                                 return false;
                             });
         menu.append(zoomInHere);
@@ -119,7 +119,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                 if(map.isValidZoomLevel(zoom)) {                                    
                                     map.setCenter(lonlat, zoom);
                                 }
-                                menu.remove();
+                                hideContextMenu();
                                 return false;
                             });
         menu.append(zoomOutHere);
@@ -128,7 +128,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                             .append('<a href="#">Center Map Here</a>')
                             .click(function(e) {
                                 map.centerLayerContainer(lonlat);
-                                menu.remove();
+                                hideContextMenu();
                                 return false;
                             });
         menu.append(centerMapHere);
@@ -478,11 +478,12 @@ OTP.Map = function(_root, _controlsRoot, options) {
             infoWindow.hide();
         }
 
-        infoWindow = new OpenLayers.Popup(
+        infoWindow = new OpenLayers.Popup.FramedCloud(
                             null,
                             lonlat,
                             new OpenLayers.Size(200, contentWrapper.height()),
                             contentWrapper.html(),
+                            null,
                             false);
 
         map.addPopup(infoWindow);
