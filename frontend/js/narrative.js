@@ -9,11 +9,42 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     var map = null;
 
     // private methods
+    function ISO8601StringToDate(str) {
+        if(str === null) {
+            return null;
+        }
+        
+        // from http://anentropic.wordpress.com/2009/06/25/javascript-iso8601-parser-and-pretty-dates/
+        var parts = str.split('T'),
+        dateParts = parts[0].split('-'),
+        timeParts = parts[1].split('Z'),
+        timeSubParts = timeParts[0].split(':'),
+        timeSecParts = timeSubParts[2].split('.'),
+        timeHours = Number(timeSubParts[0]),
+
+        _date = new Date;
+        _date.setUTCFullYear(Number(dateParts[0]));
+        _date.setUTCMonth(Number(dateParts[1])-1);
+        _date.setUTCDate(Number(dateParts[2]));
+        _date.setUTCHours(Number(timeHours));
+        _date.setUTCMinutes(Number(timeSubParts[1]));
+        _date.setUTCSeconds(Number(timeSecParts[0]));
+        if (timeSecParts[1]) _date.setUTCMilliseconds(Number(timeSecParts[1]));
+
+        return _date;
+    }
+
     function millisecondsToString(duration) {
         var msecondsPerMinute = 1000 * 60;
         var msecondsPerHour = msecondsPerMinute * 60;
 
-        if(isNaN(duration)) {
+        try {
+            duration = parseFloat(duration);
+            
+            if(isNaN(duration)) {
+                return "Unknown";
+            }
+        } catch(e) {
             return "Unknown";
         }
 
@@ -31,23 +62,33 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         }
     }
     
-    function centsToDollars(num) {
-        num = ((isNaN(num) || num === '' || num === null) ? 0.00 : num);
-        return parseFloat(num/100).toFixed(2);
+    function centsToDollars(n) {
+        try {
+            return parseFloat(n/100).toFixed(2);
+        } catch(e) {
+            return null;
+        }
     }
       
-    function metersToMiles (n, p) {
-        var miles = n / 1609.344;
-        return miles.toFixed(1);
+    function metersToMiles (n) {
+        try {
+            return parseFloat(n / 1609.344).toFixed(1);
+        } catch(e) {
+            return null;
+        }
     }
 
     function metersToFeet(meters) {
-        return parseInt(meters * 3.2808, 10);
+        try {
+            return parseInt(meters * 3.2808, 10);
+        } catch(e) {
+            return "Unknown";
+        }
     }
 
     function prettyDistance(meters) {
         if (meters === null || typeof meters === 'undefined') {
-            return "";
+            return "Unknown";
         }
 
         var miles = metersToMiles(meters);
@@ -60,11 +101,15 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         }
     }
       
-    function prettyTime(dateObj) {
-        var minutes = dateObj.getMinutes();
+    function prettyTime(dateObject) {
+        if(dateObject === null) {
+            return null;
+        }
+        
+        var minutes = dateObject.getMinutes();
         minutes = (minutes < 10) ? "0" + minutes : "" + minutes;
 
-        var hours = dateObj.getHours();
+        var hours = dateObject.getHours();
         var amOrPm = "";
 
         if(hours >= 12) {
@@ -134,14 +179,14 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             url: "http://sea.dev.openplans.org:8080/translatis-api/ws/planP",
             dataType: "jsonp",
             data: {
-                from: "",
-                to: "",
                 arriveBy: (root.find("#leavetype").val() === "Arrive By"),
                 date: root.find("#leaveday").val(),
                 time: root.find("#leavehour").val() + ":" + root.find("#leaveminute").val() + " " + root.find("#leaveampm").val(),
                 optimize: root.find("#trippriority").val(),
                 maxWalkDistance: root.find("#maxwalk").val(),
                 wheelchair: (root.find("#accessible").checked === true),
+                from: root.find("#from").val(),
+                to: root.find("#to").val(),
                 toPlace: root.find("#to").val(),
                 fromPlace: root.find("#from").val(),
                 intermediatePlaces: "",
@@ -233,7 +278,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             var endTime = null;
             var tripDuration = 0;
             jQuery.each(trip.legs.leg, function(legIndex, leg) {
-                // trip options header: leg items/icons
+                // trip options header: leg icons
                 if(isSounder(leg["@route"])) {
                     tripModes.push('<img src="img/sounder16x16.png" alt="Sounder" /> <strong>Sounder</strong> ');
                 } else if(isTheLink(leg["@route"])) {
@@ -248,7 +293,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     tripModes.push(modeText);                    
                 }
 
-                // trip detail: trip legs
+                // trip detail: trip leg descriptions
                 itineraryMarkup.append((leg["@mode"] === "WALK") ? formatWalkLeg(legIndex, leg) : formatTransitLeg(legIndex, leg));
 
                 // end time, start time, duration across this trip for use in trip header 
@@ -259,14 +304,14 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 }
 
                 if(typeof leg.startTime !== 'undefined' && leg.startTime !== null) {
-                    var legStartTime = new Date(leg.startTime);
+                    var legStartTime = ISO8601StringToDate(leg.startTime);
                     if(startTime === null || legStartTime < startTime) {
                         startTime = legStartTime;
                     }                    
                 }
 
                 if(typeof leg.endTime !== 'undefined' && leg.endTime !== null) {
-                    var legEndTime = new Date(leg.endTime);
+                    var legEndTime = ISO8601StringToDate(leg.endTime);
                     if(endTime === null || legEndTime > endTime) {
                         endTime = legEndTime;
                     }                    
@@ -281,7 +326,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 updateMap(data, tripIndex);
             }
 
-            // trip options header
+            // trip options header: duration, price, etc.
             jQuery('<tr id="trip' + tripNumber + '-summary" class="'+ activeClass + '">' +
                     '<td class="trip-id">' + tripNumber + '</td>' +
                     '<td>' + millisecondsToString(tripDuration) + '<em>' + ((startTime !== null) ? prettyTime(startTime) : "Unknown") + ' - ' + ((endTime !== null) ? prettyTime(endTime) : "Unknown") + '</em></td>' + 
@@ -290,7 +335,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     '</tr>')
                     .appendTo(tripSummariesMarkup.children('tbody'));
 
-            // trip detail: prices
+            // trip detail: price header
             jQuery('<table class="trip-prices">' + 
                     '<thead><tr><th><h3>Trip ' + tripNumber + '</h3></th><th colspan="2">' + millisecondsToString(tripDuration) + ', ' + transfers + ' Transfer' + ((transfers === 1) ? "" : "s") + '</th></tr></thead>' + 
                     '<tbody>' + 
@@ -351,20 +396,18 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     }
 
     function formatTransitLeg(legIndex, leg) {
-        var effectiveMode = "";
+        var displayMode = leg["@mode"];
         if(isSounder(leg["@route"])) {
-            effectiveMode = 'sounder';
+            displayMode = 'sounder';
         } else if(isTheLink(leg["@route"])) {
-            effectiveMode = 'link';
-        } else {
-            effectiveMode = leg["@mode"];
+            displayMode = 'link';
         }
         
-        return jQuery('<li class="' + effectiveMode.toLowerCase() + ' leg-' + legIndex + '"></li>').html(
-                    '<img class="mode-icon" src="img/' + effectiveMode.toLowerCase() + '16x16.png" alt="' + effectiveMode + '" />' + prettyCase(leg["@mode"]) + ' - ' + prettyRoute(leg["@route"], true) + 
+        return jQuery('<li class="' + displayMode.toLowerCase() + ' leg-' + legIndex + '"></li>').html(
+                    '<img class="mode-icon" src="img/' + displayMode.toLowerCase() + '16x16.png" alt="' + displayMode + '" />' + prettyCase(leg["@mode"]) + ' - ' + prettyRoute(leg["@route"], true) + 
                     '<table class="substeps"><tbody>' + 
-                    '<tr><td>' + prettyTime(new Date(leg.startTime)) + '</td><td>Depart ' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '<div class="stepmeta">' + millisecondsToString(leg.duration) + ' (-- stops)<br />Previous stop is ----</div></td></tr>' + 
-                    '<tr><td>' + prettyTime(new Date(leg.endTime)) + '</td><td>Arrive ' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + '<div class="stepmeta">Previous stop is ----</div></td></tr>' + 
+                    '<tr><td>' + prettyTime(ISO8601StringToDate(leg.startTime)) + '</td><td>Depart ' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '<div class="stepmeta">' + millisecondsToString(leg.duration) + ' (-- stops)<br />Previous stop is ----</div></td></tr>' + 
+                    '<tr><td>' + prettyTime(ISO8601StringToDate(leg.endTime)) + '</td><td>Arrive ' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + '<div class="stepmeta">Previous stop is ----</div></td></tr>' + 
                     '</tbody></table>');
     }
 
@@ -482,11 +525,11 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             .val((now.getHours() > 12) ? (now.getHours() - 12) : ((now.getHours() == 0) ? 12 : now.getHours()));
 
 		root.find('#leaveminute')
-            .val(zeroPad(now.getMinutes()))
             .bind('change', function(event, ui) {
                 this.value = zeroPad(this.value);
             })
-            .spinner({ min: 0, max: 59, increment: 'fast' });
+            .spinner({ min: 0, max: 59, increment: 'fast' })
+            .val(zeroPad(now.getMinutes()));
 
         if (now.getHours() > 12) {
             root.find('#leaveampm option[value="pm"]')

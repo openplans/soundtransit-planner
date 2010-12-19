@@ -157,15 +157,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
             sphericalMercator: true
         });
 
-        var aerial = new OpenLayers.Layer.Bing({ 
-            key: "AgszXQ8Q5lbiJFYujII-Lcie9XQ-1DK3a2X7xWJmfSeipw8BAAF0ETX8AJ4K-PDm", 
-            layer: "Aerial", 
-            name: "Aerial", 
-            isBaseLayer: true,
-            sphericalMercator: true,
-            visibility: false
-        });
-
         var hybrid = new OpenLayers.Layer.Bing({ 
             key: "AgszXQ8Q5lbiJFYujII-Lcie9XQ-1DK3a2X7xWJmfSeipw8BAAF0ETX8AJ4K-PDm", 
             layer: "AerialWithLabels", 
@@ -175,7 +166,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             visibility: false
         });
 
-        map.addLayers([road, aerial, hybrid]); 
+        map.addLayers([road, hybrid]); 
     }
 
     function addDataLayers() {
@@ -328,22 +319,22 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
     function addContextMenuBehavior() {
         var showContextMenuWrapper = function(e) {
-                // (all the below position stuff is for IE, from http://www.quirksmode.org/js/events_properties.html)
-                var posx, posy = null;
-                if (e.pageX || e.pageY) {
-                    posx = e.pageX;
-                    posy = e.pageY;
-                } else if (e.clientX || e.clientY) 	{
-                    posx = e.clientX + document.body.scrollLeft
-                        + document.documentElement.scrollLeft;
-                    posy = e.clientY + document.body.scrollTop
-                        + document.documentElement.scrollTop;
-                }
+            // (all the below position stuff is for IE, from http://www.quirksmode.org/js/events_properties.html)
+            var posx, posy = null;
+            if (e.pageX || e.pageY) {
+                posx = e.pageX;
+                posy = e.pageY;
+            } else if (e.clientX || e.clientY) {
+                posx = e.clientX + document.body.scrollLeft
+                    + document.documentElement.scrollLeft;
+                posy = e.clientY + document.body.scrollTop
+                    + document.documentElement.scrollTop;
+            }
 
-                var offsets = jQuery(map.div).offset();
-                position = new OpenLayers.Pixel(posx - offsets.left,  posy - offsets.top);
+            var offsets = jQuery(map.div).offset();
+            position = new OpenLayers.Pixel(posx - offsets.left,  posy - offsets.top);
 
-                showContextMenu(position);
+            showContextMenu(position);
         };
 
         // click inside map
