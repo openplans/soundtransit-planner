@@ -743,3 +743,13 @@ width: 100%;
     border-bottom: 1px solid #C0C0C0;    
 }
 
+/* - */
+.olControlAttribution {
+    left: 5px;
+    bottom: 5px;
+}
+
+.olBingAttribution {
+    font-size: 10px;
+    color: #666666;
+}

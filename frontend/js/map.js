@@ -149,24 +149,21 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
     // layer stuff
     function addBaseLayers() {
-        var road = new OpenLayers.Layer.Bing({ 
-            key: "AgszXQ8Q5lbiJFYujII-Lcie9XQ-1DK3a2X7xWJmfSeipw8BAAF0ETX8AJ4K-PDm", 
-            layer: "Road", 
-            name: "Road",
-            isBaseLayer: true,
-            sphericalMercator: true
+        var apiKey = "AgszXQ8Q5lbiJFYujII-Lcie9XQ-1DK3a2X7xWJmfSeipw8BAAF0ETX8AJ4K-PDm";
+
+        var road = new OpenLayers.Layer.Bing({
+            key: apiKey,
+            type: "Road",
+            name: "Road"
         });
 
-        var hybrid = new OpenLayers.Layer.Bing({ 
-            key: "AgszXQ8Q5lbiJFYujII-Lcie9XQ-1DK3a2X7xWJmfSeipw8BAAF0ETX8AJ4K-PDm", 
-            layer: "AerialWithLabels", 
-            name: "Hybrid", 
-            isBaseLayer: true,
-            sphericalMercator: true,
-            visibility: false
+        var hybrid = new OpenLayers.Layer.Bing({
+            key: apiKey,
+            type: "AerialWithLabels",
+            name: "Hybrid"
         });
 
-        map.addLayers([road, hybrid]); 
+        map.addLayers([road, hybrid]);
     }
 
     function addDataLayers() {
@@ -229,6 +226,15 @@ OTP.Map = function(_root, _controlsRoot, options) {
         markersDragControl.activate();
     }
 
+    function setBaseLayer(name) {
+        var layerArray = map.layers;
+        for (var i=0;i<layerArray.length;i++) {
+            if (map.layers[i].name === name && map.layers[i].isBaseLayer === true) {
+                map.setBaseLayer(map.layers[i]);
+            }
+        }  
+    }
+
 	function setLayerVisibility(name, visible) {
         var layerArray = map.layers;
         for (var i=0;i<layerArray.length;i++) {
@@ -258,8 +264,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
                 jQuery(this).addClass("active");
 
-                setLayerVisibility('Road', true);
-                setLayerVisibility('Hybrid', false);
+                setBaseLayer("Road");
                 return false;
             });
 
@@ -271,8 +276,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
                 jQuery(this).addClass("active");
 
-                setLayerVisibility('Hybrid', true);
-                setLayerVisibility('Road', false);
+                setBaseLayer("Hybrid");
                 return false;
             });
 
@@ -325,10 +329,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 posx = e.pageX;
                 posy = e.pageY;
             } else if (e.clientX || e.clientY) {
-                posx = e.clientX + document.body.scrollLeft
-                    + document.documentElement.scrollLeft;
-                posy = e.clientY + document.body.scrollTop
-                    + document.documentElement.scrollTop;
+                posx = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+                posy = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
             }
 
             var offsets = jQuery(map.div).offset();
@@ -487,7 +489,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
         controls: [
             new OpenLayers.Control.Navigation(),
             new OpenLayers.Control.KeyboardDefaults(),
-            new OpenLayers.Control.PanZoomBar({zoomWorldIcon:false})
+            new OpenLayers.Control.PanZoomBar({zoomWorldIcon:false}),
+            new OpenLayers.Control.Attribution()
         ]
     });
 
