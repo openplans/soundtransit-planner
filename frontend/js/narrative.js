@@ -7,7 +7,8 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
 
     var root = jQuery(_root);
     var map = null;
-
+    var tripData = null;
+    
     // private methods
     function ISO8601StringToDate(str) {
         if(str === null) {
@@ -201,9 +202,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     root.find('#trip-data')
                         .fadeOut("fast")
                         .empty();
-                    
-                    map.reset();
-
+                        
                     updateNarrative(data);
                     addNarrativeUIBehavior();
                     
@@ -237,7 +236,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     }
 
     function updateNarrative(data) {
-        if (typeof data === 'undefined' || data.plan.itineraries.itinerary.legs.leg.length === 0) {
+        if (typeof data === 'undefined' || data.plan.itineraries.itinerary.length === 0) {
             root.find("#trip-data")
                 .html(
                     '<div id="no-results">' + 
@@ -256,7 +255,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                                             '</table>');
 
         var tripIndex = 0;
-        jQuery.each(data.plan.itineraries, function(_, trip) {
+        jQuery.each(data.plan.itineraries.itinerary, function(_, trip) {
             var tripNumber = tripIndex + 1;
             var tripModes = [];
 
@@ -272,6 +271,10 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 if (this.key == "regular") {regularFare = parseInt(this.value.cents, 10);}
             });
 
+            var tripWrapper = jQuery("<div></div>")
+                            .addClass("results")
+                            .attr("id", "trip" + tripNumber + "-results");
+                            
             var itineraryMarkup = jQuery('<ul class="trip-stepbystep"></ul>');
 
             var startTime = null;
@@ -322,8 +325,9 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             var activeClass = "";
             if(tripNumber === 1) {
                 activeClass = "active";
+                tripWrapper.addClass("active");
 
-                updateMap(data, tripIndex);
+                updateMap(data, tripNumber);
             }
 
             // trip options header: duration, price, etc.
@@ -343,26 +347,33 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     '<tr><th scope="row">Youth</th><td>$' + centsToDollars(studentFare) + ' Cash</td><td>$---- <a href="#">ORCA</a></td></tr>' + 
                     '<tr><th scope="row">Senior / Disabled</th><td>$' + centsToDollars(seniorFare) + ' Cash</td><td>$---- <a href="#">ORCA</a></td></tr>' + 
                     '</tbody></table>')
-                    .appendTo(root.find("#trip-data"));
+                    .appendTo(tripWrapper);
 
-            jQuery(itineraryMarkup).appendTo(root.find("#trip-data"));
+            jQuery(itineraryMarkup).appendTo(tripWrapper);
+            
+            tripWrapper.appendTo(root.find("#trip-data"));
 
             tripIndex++;
         }); // each trip
         
         jQuery(tripSummariesMarkup).prependTo(root.find("#trip-data"));
+
+        // (save map data for later calls to updateMap)
+        tripData = data;
     }
 
     // updates map to display given trip option
-    function updateMap(data, targetTripIndex) {
+    function updateMap(data, targetTripNumber) {
         if(data === null) {
             return;
         }
 
+        map.reset();
+
         // draw each leg on map
-        var tripIndex = 0;
-        jQuery.each(data.plan.itineraries, function(_, trip) {
-            if(tripIndex === targetTripIndex) {
+        var tripNumber = 1;
+        jQuery.each(data.plan.itineraries.itinerary, function(_, trip) {
+            if(tripNumber === targetTripNumber) {
                 jQuery.each(trip.legs.leg, function(legIndex, leg) {
                     // add each travel leg to map
                     if(isSounder(leg["@route"])) {
@@ -384,7 +395,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 map.zoomToPlannedRoute();
             }
             
-            tripIndex++;
+            tripNumber++;
         });
     }
 
@@ -566,7 +577,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         root.find('#tripresult-summaries tbody tr').click(function() {
             root.find('#tripresult-summaries tr')
                 .removeClass("active");
-                
+            
             jQuery(this).addClass("active");
 
             root.find('#' + (this.id).split('-')[0] + '-results')
@@ -576,6 +587,9 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             root.find('.results').not('#' + (this.id).split('-')[0] + '-results')
                 .slideUp()
                 .removeClass("active");
+                
+            var tripIndex = parseInt((this.id).split('-')[0].match(/([0-9]*)$/ig)[0]);
+            updateMap(tripData, tripIndex);
         });
     }
 
