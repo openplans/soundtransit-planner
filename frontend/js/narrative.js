@@ -272,8 +272,8 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             });
 
             var tripWrapper = jQuery("<div></div>")
-                            .addClass("results")
-                            .attr("id", "trip" + tripNumber + "-results");
+                                .addClass("results")
+                                .attr("id", "trip" + tripNumber + "-results");
                             
             var itineraryMarkup = jQuery('<ul class="trip-stepbystep"></ul>');
 
@@ -349,14 +349,17 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     '</tbody></table>')
                     .appendTo(tripWrapper);
 
-            jQuery(itineraryMarkup).appendTo(tripWrapper);
-            
-            tripWrapper.appendTo(root.find("#trip-data"));
+            jQuery(itineraryMarkup)
+                .appendTo(tripWrapper);
+
+            tripWrapper
+                .appendTo(root.find("#trip-data"));
 
             tripIndex++;
         }); // each trip
         
-        jQuery(tripSummariesMarkup).prependTo(root.find("#trip-data"));
+        jQuery(tripSummariesMarkup)
+            .prependTo(root.find("#trip-data"));
 
         // (save map data for later calls to updateMap)
         tripData = data;
@@ -580,16 +583,17 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             
             jQuery(this).addClass("active");
 
-            root.find('#' + (this.id).split('-')[0] + '-results')
+            var tripNumber = parseInt((this.id).split('-')[0].match(/([0-9]*)$/ig)[0]);
+
+            root.find('#trip' + tripNumber + '-results')
                 .slideDown()
                 .addClass("active");            
 
-            root.find('.results').not('#' + (this.id).split('-')[0] + '-results')
+            root.find('.results').not('#trip' + tripNumber + '-results')
                 .slideUp()
                 .removeClass("active");
                 
-            var tripIndex = parseInt((this.id).split('-')[0].match(/([0-9]*)$/ig)[0]);
-            updateMap(tripData, tripIndex);
+            updateMap(tripData, tripNumber);
         });
     }
 
