@@ -3,36 +3,40 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<title>Tripplanner Start</title>
+	<title>Interactive System Map</title>
+
+    <!--INCLUDE ALL OF THESE FILES IN A PRODUCTION DEPLOYMENT, IN THIS ORDER-->
 	<link type="text/css" href="css/screen-reset.css" rel="stylesheet" media="screen, projection" />
 	<link type="text/css" href="css/print-reset.css" rel="stylesheet" media="print" />
-    <!--[if lt IE 8]><link rel="stylesheet" href="css/ie.css" type="text/css" media="screen, projection"><![endif]-->
-  
-    <link type="text/css" href="css/jquery/ui.combobox.css" rel="stylesheet" media="screen, projection" />
 	<link type="text/css" href="css/jquery/ui-custom/jquery-ui-1.8.6.custom.css" rel="stylesheet" media="screen, projection" />
+    <link type="text/css" href="css/jquery/ui.combobox.css" rel="stylesheet" media="screen, projection" />
 	<link type="text/css" href="css/jquery/ui.spinner.css" rel="stylesheet" media="screen, projection" />
 	<link type="text/css" href="css/jquery/ui.combobox.css" rel="stylesheet" media="screen, projection" />
-	
-	
-	<link type="text/css" href="css/tripplanner.css" rel="stylesheet" media="screen, projection" />
+	<link type="text/css" href="css/otp.css" rel="stylesheet" media="screen, projection" />
+    <!--[if lt IE 8]><link rel="stylesheet" href="css/ie.css" type="text/css" media="screen, projection"><![endif]-->  
 
+    <!--DO NOT INCLUDE THE FILE BELOW IN A PRODUCTION DEPLOYMENT - FOR DEMO ONLY-->
+	<link type="text/css" href="css/demo.css" rel="stylesheet" media="screen, projection" />
+
+    <!--INCLUDE ALL OF THESE FILES IN A PRODUCTION DEPLOYMENT, IN THIS ORDER-->
 	<script type="text/javascript" src="js/jquery/jquery-1.4.2.min.js"></script>
 	<script type="text/javascript" src="js/jquery/jquery-ui-1.8.6.custom.min.js"></script>
 	<script type="text/javascript" src="js/jquery/jquery-combobox-support.min.js"></script>
 	<script type="text/javascript" src="js/jquery/jquery-ui-spinner.min.js"></script>
-
-	<script src="js/openlayers/OpenLayers.js"></script>
+	<script type="text/javascript" src="js/openlayers/OpenLayers.js"></script>
+	<script type="text/javascript" src="js/narrativeForm.js"></script>
 	<script type="text/javascript" src="js/narrative.js"></script>
-	<script type="text/javascript" src="js/map.js"></script>
+	<script type="text/javascript" src="js/map.js"></script>		
 	
+    <!--THE BLOCK BELOW IS SPECIFIC TO THIS PAGE AND USE CASE-->
   	<script type="text/javascript">
       jQuery(document).ready(function() {
         OTP.Map(document.getElementById("map"), document.getElementById("map-controls"));
       });
-  </script>
+    </script>
 </head>
 
-<body>
+<body class="map">
 <div id="map-controls" class="fullsize"><div id="map-controls-wrap"><div id="base-layers"><strong>View:</strong> <a id="base-road" class="active" href="#">Road</a> | <a id="base-aerial" href="#">Aerial</a></div><div id="toggle-layers"><strong>Show on map:</strong> <a id="toggle-fares" href="#">Fares</a><a id="toggle-parking" href="#">Parking</a><a id="toggle-location" href="#">Locations</a></div></div></div>
 <div id="tripplanner-wrap" class="fullsize">
   <div id="map"></div>

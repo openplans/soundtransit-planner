@@ -1,0 +1,14 @@
+body.map {
+background: url(../img/fpo_map.jpg) 0 0 no-repeat;
+padding: 160px 0 300px 85px;
+}
+
+body.tripplanner {
+background: url(../img/fpo_tripplanner.jpg) 0 0 no-repeat;
+padding: 160px 0 300px 85px;
+}
+
+body.home {
+background: url(../img/fpo_home.jpg) 0 0 no-repeat;
+padding: 130px 0 300px 105px;
+}

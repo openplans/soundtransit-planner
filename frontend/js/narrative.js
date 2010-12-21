@@ -641,5 +641,98 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     addNarrativeUIBehavior();
 
     // public methods
-    return {};
+    return {
+        setFrom: function(v) {
+            root.find('#from')
+                .val(v)
+                .trigger("change");
+        },
+
+        setTo: function(v) {
+            root.find('#to')
+                .val(v)
+                .trigger("change");
+        },
+
+        setLeaveType: function(v) {  
+            root.find('#leavetype')
+                .val(v);
+        },
+        
+        setDay: function(v) {
+            root.find('#leaveday')
+                .val(v);
+        },
+                
+        setHour: function(v) {
+            root.find('#leavehour')
+                .val(v);
+        },
+
+        setMinute: function(v) {
+            root.find('#leaveminute')
+                .val(v)
+                .trigger("change");
+        },
+
+        setAmPm: function(v) {
+            var realSelect = root.find('#leaveampm-wrap select');
+            var styledSelect = root.find('#leaveampm-wrap input');
+
+            realSelect.children().each(function(_, option) {
+               if(option.value === v) {
+                   styledSelect.val(option.text);
+                   return;
+               } 
+            });
+        },
+
+        setTripPriority: function(v) {
+            root.find('#moreoptions').show();            
+
+            root.find('a#optionstoggle').html('Fewer Options<span></span>')
+                .addClass('active');
+ 
+            var realSelect = root.find('#trippriority-wrap select');
+            var styledSelect = root.find('#trippriority-wrap input');
+
+            realSelect.children().each(function(_, option) {
+                if(option.value === v) {
+                   styledSelect.val(option.text);
+                   return;
+               } 
+            });
+        },
+
+        setMaxWalk: function(v) {
+            root.find('#moreoptions').show();
+
+            root.find('a#optionstoggle').html('Fewer Options<span></span>')
+                .addClass('active');
+                            
+            var realSelect = root.find('#maxwalk-wrap select');
+            var styledSelect = root.find('#maxwalk-wrap input');
+
+            realSelect.children().each(function(_, option) { 
+               if(option.value === v) {
+                   styledSelect.val(option.text);
+                   return;
+               } 
+            });
+        },
+        
+        setAccessible: function(v) {
+            root.find('#moreoptions').show();
+
+            root.find('a#optionstoggle').html('Fewer Options<span></span>')
+                .addClass('active');
+
+            root.find('accessible')
+                .attr('checked', v);
+        },
+
+        planTrip: function() {
+            root.find("form#trip-plan-form").submit();
+        }
+    };
 };

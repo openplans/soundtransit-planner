@@ -10,11 +10,6 @@ position: relative;
 width: 966px;
 }
 
-body {
-background: url(../img/fake-chrome.png) 0 0 no-repeat;
-padding: 160px 0 300px 85px;
-}
-
 /* - */
 
 body {
@@ -80,7 +75,7 @@ text-align: right;
 
 #base-layers {
 position: absolute;
-left: 409px;
+left: 399px;
 top: 8px;
 }
 
@@ -136,6 +131,14 @@ top: -5px;
 z-index: 4;
 }
 
+#plannerform {
+width: 355px;
+padding: 15px;
+padding-right: 20px;
+padding-left: 20px;
+
+}
+
 #plannerpanel {
 position: absolute;
 top: 0;
@@ -158,6 +161,7 @@ text-decoration: none;
 margin-left: 10px;
 }
 
+#plannerform h2,
 #plannerpanel h2 {
 color: #2b376e;
 font-size: 18px;
