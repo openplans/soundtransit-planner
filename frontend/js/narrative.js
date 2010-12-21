@@ -266,8 +266,17 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                                             '<tbody></tbody>' + 
                                             '</table>');
 
+        var itineraryCollection = null;
+        if(typeof data.plan.itineraries.itinerary.duration !== 'undefined') {
+            // is single itinerary
+            itineraryCollection = [data.plan.itineraries.itinerary];
+        } else {
+            // is multiple
+            itineraryCollection = data.plan.itineraries.itinerary;
+        }
+
         var tripIndex = 0;
-        jQuery.each(data.plan.itineraries.itinerary, function(_, trip) {
+        jQuery.each(itineraryCollection, function(_, trip) {
             var tripNumber = tripIndex + 1;
             var tripModes = [];
 
@@ -292,7 +301,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             var startTime = null;
             var endTime = null;
             var tripDuration = 0;
-            jQuery.each(trip.legs.leg, function(legIndex, leg) {
+            jQuery.each(trip.legs.leg, function(legIndex, leg) {                  
                 // trip options header: leg icons
                 if(isSounder(leg["@route"])) {
                     tripModes.push('<img src="img/sounder16x16.png" alt="Sounder" /> <strong>Sounder</strong> ');
@@ -386,8 +395,17 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         map.reset();
 
         // draw each leg on map
+        var itineraryCollection = null;
+        if(typeof data.plan.itineraries.itinerary.duration !== 'undefined') {
+            // is single itinerary
+            itineraryCollection = [data.plan.itineraries.itinerary];
+        } else {
+            // is multiple
+            itineraryCollection = data.plan.itineraries.itinerary;
+        }
+        
         var tripNumber = 1;
-        jQuery.each(data.plan.itineraries.itinerary, function(_, trip) {
+        jQuery.each(itineraryCollection, function(_, trip) {
             if(tripNumber === targetTripNumber) {
                 jQuery.each(trip.legs.leg, function(legIndex, leg) {
                     // add each travel leg to map
