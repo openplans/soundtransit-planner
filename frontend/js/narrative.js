@@ -236,7 +236,19 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     }
 
     function updateNarrative(data) {
-        if (typeof data === 'undefined' || data.plan.itineraries.itinerary.length === 0) {
+        // error returned
+        if(typeof data.error !== 'undefined') {
+            root.find("#trip-data")
+                .html(
+                    '<div id="no-results">' + 
+                    '<h3>We\'re sorry!</h3>' + 
+                    '<p>Something went wrong when trying to plan your trip&mdash;the system reported \"' + data.error.msg + '\"</p>' + 
+                    '</div>');
+            
+            return;
+
+        // successful response, but no itineraries found (FIXME: is this different from above?)
+        } else if (typeof data === 'undefined' || data.plan.itineraries.itinerary.length === 0) {
             root.find("#trip-data")
                 .html(
                     '<div id="no-results">' + 
