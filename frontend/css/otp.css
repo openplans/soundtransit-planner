@@ -104,6 +104,7 @@ overflow: hidden;
 text-indent: -9999em;
 background-position: 0 0;
 background-repeat: no-repeat;
+position: relative;
 }
 
 #toggle-layers a.active,
@@ -122,6 +123,23 @@ background-image: url(../img/parking-modal-icon.png);
 #toggle-layers a#toggle-location {
 background-image: url(../img/location-modal-icon.png);
 }
+
+#toggle-layers a#toggle-bus {
+background-image: url(../img/bus-modal-icon.png);
+}
+
+#toggle-layers a#toggle-sounder {
+background-image: url(../img/sounder-modal-icon.png);
+}
+
+#toggle-layers a#toggle-link {
+background-image: url(../img/link-modal-icon.png);
+}
+
+#toggle-layers a#toggle-ferry {
+background-image: url(../img/ferry-modal-icon.png);
+}
+
 
 /* - */
 #tripplanner-wrap {
@@ -756,4 +774,123 @@ width: 100%;
 .olBingAttribution {
     font-size: 10px;
     color: #666666;
+}
+
+/* - */
+.layer-popout {
+    top: 32px;
+    position: absolute;
+    background-image: url(../img/bubble-top-callout.png);
+    background-position: 50% 0;
+    padding-top: 11px;
+    background-repeat: no-repeat;
+}
+
+.layer-popout .content {
+    background-color: #FFFFFF;
+    border: 1px solid #bababa;
+    border-top: none;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.layer-chooser {
+    display: none;
+    position: relative;
+}
+
+.layer-chooser .close {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    text-indent: -9999px;
+    background-image: url(../img/close.png);
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    height: 19px;
+    width: 19px;
+}
+
+.layer-chooser .header {
+    margin-top: 5px;
+    margin-right: 20px;
+    margin-bottom: 5px;
+    padding-left: 30px;
+    height: 26px;
+    background-repeat: no-repeat;
+    background-position: 0 0;
+}
+
+.layer-chooser.WSF .header {
+    background-image: url(../img/ferry-modal-icon.png);
+}
+
+.layer-chooser.link .header {
+    background-image: url(../img/link-modal-icon.png);
+}
+
+.layer-chooser.sounder .header {
+    background-image: url(../img/sounder-modal-icon.png);
+}
+
+.layer-chooser.bus .header {
+    background-image: url(../img/bus-modal-icon.png);
+}
+
+.layer-chooser .header p {
+    padding-top: 4px;
+    padding-left: 4px;
+    white-space: nowrap;
+}
+
+.layer-chooser form label {
+    display: block;
+    padding-bottom: 2px;
+    padding-top: 2px;
+}
+
+.layer-chooser form label .small {
+    font-weight: normal;
+    display: block;
+    font-size: 75%;
+    line-height: 75%;
+    padding-left: 25px;
+}
+
+/* - */
+.info-window {
+    position: absolute;
+    background-image: url(../img/bubble-bottom-callout.png);
+    background-position: 50% 100%;
+    padding-bottom: 11px;
+    background-repeat: no-repeat;
+    z-index: 10000000;
+}
+
+.info-window .content {
+    background-color: #FFFFFF;
+    border: 1px solid #bababa;
+    border-bottom: none;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 40px;
+    position: relative;
+}
+
+.info-window .content .header {
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.info-window .content .close {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    text-indent: -9999px;
+    background-image: url(../img/close.png);
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    height: 19px;
+    width: 19px;
 }

@@ -76,7 +76,20 @@
 </head>
 
 <body class="tripplanner">
-<div id="map-controls"><div id="map-controls-wrap"><div id="base-layers"><strong>View:</strong> <a id="base-road" class="active" href="#">Road</a> | <a id="base-aerial" href="#">Aerial</a></div><div id="toggle-layers"><strong>Show on map:</strong> <a id="toggle-fares" href="#">Fares</a><a id="toggle-parking" href="#">Parking</a><a id="toggle-location" href="#">Locations</a></div></div></div>
+<div id="map-controls" class="fullsize">
+    <div id="map-controls-wrap">
+        <div id="base-layers">
+            <strong>View:</strong> <a id="base-road" class="active" href="#">Road</a> | <a id="base-aerial" href="#">Aerial</a>
+        </div>
+        <div id="toggle-layers">
+            <strong>Show on map:</strong> 
+            
+            <a id="toggle-fares" href="#">Fares</a>
+            <a id="toggle-parking" href="#">Parking</a>
+            <a id="toggle-location" href="#">Locations</a>
+        </div>
+    </div>
+</div>
 <div id="tripplanner-wrap">
   <div id="plannerpanel">
     <div class="form-meta">

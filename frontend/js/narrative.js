@@ -7,14 +7,15 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
 
     var root = jQuery(_root);
     var map = null;
-    var tripData = null;
+
+    var plannerResponse = null;
     
     // private methods
     function ISO8601StringToDate(str) {
         if(str === null) {
-            return null;
+            return str;
         }
-        
+
         // from http://anentropic.wordpress.com/2009/06/25/javascript-iso8601-parser-and-pretty-dates/
         var parts = str.split('T'),
         dateParts = parts[0].split('-'),
@@ -83,7 +84,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         try {
             return parseInt(meters * 3.2808, 10);
         } catch(e) {
-            return "Unknown";
+            return null;
         }
     }
 
@@ -94,9 +95,19 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
 
         var miles = metersToMiles(meters);
 
+        if(miles === null) {
+            return "Unknown";
+        }
+
         // Display distances < 0.1 miles in feet
         if (miles < 0.1) {
-            return metersToFeet(meters) + " ft";
+            var feet = metersToFeet(meters);
+            
+            if(feet === null) {
+                return "Unknown";
+            }
+            
+            return feet + " ft";
         } else {
             return miles + " mi";
         }
@@ -140,10 +151,10 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         var agencyName = "Unknown Agency";
 
         if(isSounder(route)) {
-            agencyName = '<a href="#">Sounder</a>';
+            agencyName = '<a href="http://www.soundtransit.org/sounder">Sounder</a>';
             route = "";
         } else if(isTheLink(route)) {
-            agencyName = '<a href="#">Link Light Rail</a>';
+            agencyName = '<a href="http://www.soundtransit.org/link">Link Light Rail</a>';
             route = "";
         } else {
             var agencyIdentifier = (route + '').toUpperCase().match("^[M|P|CT]\d*");
@@ -153,13 +164,13 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 route = route.substring(agencyIdentifier.length);
 
                 if(agencyIdentifier === "M") {
-                    agencyName = '<a href="#">King County Metro</a>';
+                    agencyName = '<a href="http://metro.kingcounty.gov/">King County Metro</a>';
                 } else if(agencyIdentifier === "P") {
-                    agencyName = '<a href="#">Pierce Transit</a>';
+                    agencyName = '<a href="http://www.piercetransit.org/">Pierce Transit</a>';
                 } else if(agencyIdentifier === "ST") {
-                    agencyName = '<a href="#">Sound Transit</a>';
+                    agencyName = '<a href="http://www.soundtransit.org">Sound Transit</a>';
                 } else if(agencyIdentifier === "CT") {
-                    agencyName = '<a href="#">Community Transit</a>';
+                    agencyName = '<a href="http://www.commtrans.org/">Community Transit</a>';
                 }
             }
         }
@@ -191,6 +202,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 toPlace: root.find("#to").val(),
                 fromPlace: root.find("#from").val(),
                 intermediatePlaces: "",
+                showIntermediateStops: true,
                 mode: "TRANSIT,WALK"
             },
             success: function(data) {    
@@ -261,6 +273,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             return;
         }
 
+        // trip options header
         var tripSummariesMarkup = jQuery('<table id="tripresult-summaries">' + 
                                             '<thead><tr><th>Trip</th><th>Travel Time</th><th>Cash</th><th>Route &amp; Transfers</th><tr></thead>' + 
                                             '<tbody></tbody>' + 
@@ -268,10 +281,8 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
 
         var itineraryCollection = null;
         if(typeof data.plan.itineraries.itinerary.duration !== 'undefined') {
-            // is single itinerary
             itineraryCollection = [data.plan.itineraries.itinerary];
         } else {
-            // is multiple
             itineraryCollection = data.plan.itineraries.itinerary;
         }
 
@@ -351,7 +362,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 updateMap(data, tripNumber);
             }
 
-            // trip options header: duration, price, etc.
+            // trip options header
             jQuery('<tr id="trip' + tripNumber + '-summary" class="'+ activeClass + '">' +
                     '<td class="trip-id">' + tripNumber + '</td>' +
                     '<td>' + millisecondsToString(tripDuration) + '<em>' + ((startTime !== null) ? prettyTime(startTime) : "Unknown") + ' - ' + ((endTime !== null) ? prettyTime(endTime) : "Unknown") + '</em></td>' + 
@@ -382,8 +393,8 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         jQuery(tripSummariesMarkup)
             .prependTo(root.find("#trip-data"));
 
-        // (save map data for later calls to updateMap)
-        tripData = data;
+        // (save map data for later calls to updateMap HACK)
+        plannerResponse = data;
     }
 
     // updates map to display given trip option
@@ -394,16 +405,14 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
 
         map.reset();
 
-        // draw each leg on map
         var itineraryCollection = null;
         if(typeof data.plan.itineraries.itinerary.duration !== 'undefined') {
-            // is single itinerary
             itineraryCollection = [data.plan.itineraries.itinerary];
         } else {
-            // is multiple
             itineraryCollection = data.plan.itineraries.itinerary;
         }
         
+        // draw each leg on map
         var tripNumber = 1;
         jQuery.each(itineraryCollection, function(_, trip) {
             if(tripNumber === targetTripNumber) {
@@ -623,7 +632,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 .slideUp()
                 .removeClass("active");
                 
-            updateMap(tripData, tripNumber);
+            updateMap(plannerResponse, tripNumber);
         });
     }
 
@@ -643,39 +652,67 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     // public methods
     return {
         setFrom: function(v) {
+            if(v === null || v === "") {
+                return;
+            }
+                
             root.find('#from')
                 .val(v)
                 .trigger("change");
         },
 
         setTo: function(v) {
+            if(v === null || v === "") {
+                return;
+            }
+                
             root.find('#to')
                 .val(v)
                 .trigger("change");
         },
 
         setLeaveType: function(v) {  
+            if(v === null || v === "") {
+                return;
+            }
+                
             root.find('#leavetype')
                 .val(v);
         },
         
         setDay: function(v) {
+            if(v === null || v === "") {
+                return;
+            }
+
             root.find('#leaveday')
                 .val(v);
         },
                 
         setHour: function(v) {
+            if(v === null || v === "") {
+                return;
+            }
+
             root.find('#leavehour')
                 .val(v);
         },
 
         setMinute: function(v) {
+            if(v === null || v === "") {
+                return;
+            }
+                
             root.find('#leaveminute')
                 .val(v)
                 .trigger("change");
         },
 
         setAmPm: function(v) {
+            if(v === null || v === "") {
+                return;
+            }
+            
             var realSelect = root.find('#leaveampm-wrap select');
             var styledSelect = root.find('#leaveampm-wrap input');
 
@@ -688,6 +725,10 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         },
 
         setTripPriority: function(v) {
+            if(v === null || v === "") {
+                return;
+            }
+            
             root.find('#moreoptions').show();            
 
             root.find('a#optionstoggle').html('Fewer Options<span></span>')
@@ -705,6 +746,10 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         },
 
         setMaxWalk: function(v) {
+            if(v === null || v === "") {
+                return;
+            }
+            
             root.find('#moreoptions').show();
 
             root.find('a#optionstoggle').html('Fewer Options<span></span>')
@@ -722,6 +767,10 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         },
         
         setAccessible: function(v) {
+            if(v === null || v === "") {
+                return;
+            }
+            
             root.find('#moreoptions').show();
 
             root.find('a#optionstoggle').html('Fewer Options<span></span>')
