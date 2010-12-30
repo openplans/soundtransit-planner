@@ -880,6 +880,9 @@ width: 100%;
 
 .info-window .content .header {
     font-weight: bold;
+}
+
+.info-window .content p {
     white-space: nowrap;
 }
 

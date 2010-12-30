@@ -75,7 +75,7 @@
           <div id="moreoptions" class="ui-widget">
             <span id="trippriority-wrap">
               <select id="trippriority" name="trippriority">
-            		<option value="QUICK">Fewest Transfers</option>
+          		    <option value="TRANSFERS">Fewest Transfers</option>
             		<option value="QUICK">Fastest Trip</option>
             	</select>
           	</span>

@@ -9,54 +9,37 @@
     <Name>fareoutlets</Name>
     <UserStyle>
       <FeatureTypeStyle>      
-        <Rule>
-          <MinScaleDenominator>0</MinScaleDenominator>
-          <MaxScaleDenominator>20000</MaxScaleDenominator>
-          <PointSymbolizer>
-            <Graphic>
-              <ExternalGraphic>
-                <OnlineResource
-                  xlink:type="simple"
-                  xlink:href="http://sea.dev.openplans.org/frontend/img/fares-icon.png" />
-                <Format>image/png</Format>
-              </ExternalGraphic>
-              <Size>25</Size>
-            </Graphic>
-          </PointSymbolizer>
-        </Rule>
-        
-        <Rule>
-          <MinScaleDenominator>20000</MinScaleDenominator>
-          <MaxScaleDenominator>100000</MaxScaleDenominator>
-          <PointSymbolizer>
-            <Graphic>
-              <ExternalGraphic>
-                <OnlineResource
-                  xlink:type="simple"
-                  xlink:href="http://sea.dev.openplans.org/frontend/img/fares-icon.png" />
-                <Format>image/png</Format>
-              </ExternalGraphic>
-              <Size>20</Size>
-            </Graphic>
-          </PointSymbolizer>
-        </Rule>
-        
-        <Rule>
-          <MinScaleDenominator>100000</MinScaleDenominator>
-          <MaxScaleDenominator>1500000</MaxScaleDenominator>
-          <PointSymbolizer>
-            <Graphic>
-              <ExternalGraphic>
-                <OnlineResource
-                  xlink:type="simple"
-                  xlink:href="http://sea.dev.openplans.org/frontend/img/fares-icon.png" />
-                <Format>image/png</Format>
-              </ExternalGraphic>
-              <Size>15</Size>
-            </Graphic>
-          </PointSymbolizer>
-        </Rule>
+          <Rule>
+            <MinScaleDenominator>0</MinScaleDenominator>
+            <MaxScaleDenominator>50000</MaxScaleDenominator>
+            <PointSymbolizer>
+              <Graphic>
+                <ExternalGraphic>
+                  <OnlineResource
+                    xlink:type="simple"
+                    xlink:href="http://sea.dev.openplans.org/img/fares-icon.png" />
+                  <Format>image/png</Format>
+                </ExternalGraphic>
+                <Size>25</Size>
+              </Graphic>
+            </PointSymbolizer>
+          </Rule>
 
+          <Rule>
+            <MinScaleDenominator>50000</MinScaleDenominator>
+            <MaxScaleDenominator>9999999999999</MaxScaleDenominator>
+            <PointSymbolizer uom="http://www.opengeospatial.org/se/units/metre">
+              <Graphic>
+                <ExternalGraphic>
+                  <OnlineResource
+                    xlink:type="simple"
+                    xlink:href="http://sea.dev.openplans.org/img/fares-icon.png" />
+                  <Format>image/png</Format>
+                </ExternalGraphic>
+                <Size>500</Size>
+              </Graphic>
+            </PointSymbolizer>
+          </Rule>
       </FeatureTypeStyle>
     </UserStyle>
   </NamedLayer>

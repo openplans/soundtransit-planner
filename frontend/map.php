@@ -127,12 +127,14 @@
                 <form>
                     <select id="ferry">
                         <option value="Select route">Select route</option>
-                        <option value="TEST">Seattle - Bainbridge Island</option>
-                        <option value="TEST2">Seattle - Bremerton</option>
-                        <option value="TEST3">Seattle - Vashon - Southwort</option>
-                        <option value="TEST4">Point Definance - Talequah</option>
-                        <option value="TEST5">Edmonds - Kingston</option>
-                        <option value="TEST6">Mukilteo - Clinton</option>
+                        <option value="MWSF-5">Seattle - Bainbridge Island</option>
+                        <option value="MWSF-3I">Seattle - Bremerton</option>
+                        <option value="MWSF-13I">Fauntleroy-Southworth</option>
+                        <option value="MWSF-1I">Point Definance - Talequah</option>
+                        <option value="MWSF-6I">Edmonds - Kingston</option>
+                        <option value="MWSF-7I">Mukilteo - Clinton</option>
+                        <option value="MWSF-14I">Fauntleroy - Vashon</option>
+                        <option value="MWSF-15I">Vashon - Southworth</option>
                     </select>
                 </form>
             </div>

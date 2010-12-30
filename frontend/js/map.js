@@ -21,6 +21,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
     var markersLayer = null;
     var markersDragControl = null;
 
+    var routeLayer = null;
+    var routeLayerCriteria = {};
+
     function decodePolyline(encoded) {
         var len = encoded.length;
         var index = 0;
@@ -193,6 +196,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }        
     }
 
+    // FIXME
     function getInfoWindowContentForFeature(featureProperties, layer) {
         var content = jQuery("<div></div>");
 
@@ -214,6 +218,11 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }
         
         content.append(header);
+
+        for(k in featureProperties) {
+            var v = featureProperties[k];            
+            content.append("<p>" + k + ":" + v + "</p>");
+        }
 
         return content;
     }
@@ -309,40 +318,40 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 }
                 
                 var lonlat = map.getLonLatFromViewPortPx(e.xy); 
-                var metersPerPixel = (1/map.getResolution());
+                var metersPerPixel = map.getResolution();
                 var bounds = new OpenLayers.Bounds(lonlat.lon - (iconSize.w * metersPerPixel), 
                                                     lonlat.lat - (iconSize.h * metersPerPixel), 
                                                     lonlat.lon + (iconSize.w * metersPerPixel), 
                                                     lonlat.lat + (iconSize.h * metersPerPixel));
 
+                var activeLayers = [];
                 for(var i = 0; i < queryableLayers.length; i++) {
-                    var activeLayers = [];
                     if(queryableLayers[i].getVisibility() === true) {
                         var activeLayer = queryableLayers[i];
                         activeLayers.push(activeLayer.params.LAYERS);
                     }
-
-                    if(activeLayers.length === 0) {
-                        return;
-                    }
-
-                    var callbackFunction = "getFeatureInfoCallback" + Math.floor(Math.random() * 1000000000);
-                    jQuery.ajax({
-                            url: "http://sea.dev.openplans.org/geoserver/wfs",
-                            dataType: "jsonp",
-                            jsonpCallback: callbackFunction,
-                            data: {
-                                request: "GetFeature",
-                                outputFormat: "json",
-                                format_options: "callback:" + callbackFunction,
-                                typeName: activeLayers.join(","),
-                                bbox: bounds.toBBOX(6, false) + "," + map.getProjection()
-                            },
-                            success: function(data) {    
-                                onGetFeatureResponse(data, activeLayer);
-                            }
-                    });
                 }
+                
+                if(activeLayers.length === 0) {
+                    return;
+                }
+
+                var callbackFunction = "getFeatureInfoCallback" + Math.floor(Math.random() * 1000000000);
+                jQuery.ajax({
+                        url: "http://sea.dev.openplans.org/geoserver/wfs",
+                        dataType: "jsonp",
+                        jsonpCallback: callbackFunction,
+                        data: {
+                            request: "GetFeature",
+                            outputFormat: "json",
+                            format_options: "callback:" + callbackFunction,
+                            typeName: activeLayers.join(","),
+                            bbox: bounds.toBBOX(6, false) + "," + map.getProjection()
+                        },
+                        success: function(data) {    
+                            onGetFeatureResponse(data, activeLayer);
+                        }
+                });
             }
         });
 
@@ -370,18 +379,36 @@ OTP.Map = function(_root, _controlsRoot, options) {
         map.addLayers([road, hybrid]);
     }
 
-    function addRouteLayers() {
-        var routes = new OpenLayers.Layer.WMS("Routes", "http://sea.dev.openplans.org/geoserver/gwc/service/wms", {
+    function updateRouteLayer() {
+        if(routeLayer !== null) {
+            map.removeLayer(routeLayer);
+            routeLayer.destroy();
+        }
+
+        var cql = "";
+        for(mode in routeLayerCriteria) {
+            var v = routeLayerCriteria[mode];
+            
+            if(cql.length > 0) {
+                cql += "AND ";
+            }
+            
+            cql += "designator LIKE '" + v + "'";
+        }
+        
+        routeLayer = new OpenLayers.Layer.WMS("Routes", "http://sea.dev.openplans.org/geoserver/gwc/service/wms", {
             layers: 'soundtransit:routes',
-            format: 'image/png'
+            format: 'image/png',
+            cql_filter: cql,
+            transparent: true
         },
         {
             tileSize: new OpenLayers.Size(256,256),
             isBaseLayer: false,
-            visibility: false
+            visibility: true
         });
 
-        map.addLayers([routes]);        
+        map.addLayers([routeLayer]);        
     }
 
     function addDataLayers() {
@@ -522,7 +549,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
         showLayerButtonPopout(element, chooserUI, function(content) {
             content.find("#ferry")
                 .change(function(e) {
-                    
+                    routeLayerCriteria.ferry = jQuery(this).val();
+                    updateRouteLayer();
                 });
         });
     }
@@ -701,7 +729,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
     // setup map 
     addBaseLayers();
     addPlannedRouteLayers();
-    addRouteLayers();
     addDataLayers();
 
     addContextMenuBehavior();

@@ -10,16 +10,16 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
 
     var plannerResponse = null;
     
-    // private methods
+    // data formatting 
     function ISO8601StringToDate(str) {
         if(str === null) {
-            return str;
+            return null;
         }
-
+        
         // from http://anentropic.wordpress.com/2009/06/25/javascript-iso8601-parser-and-pretty-dates/
         var parts = str.split('T'),
         dateParts = parts[0].split('-'),
-        timeParts = parts[1].split('Z'),
+        timeParts = parts[1].split(/-|Z/i),
         timeSubParts = timeParts[0].split(':'),
         timeSecParts = timeSubParts[2].split('.'),
         timeHours = Number(timeSubParts[0]),
@@ -115,7 +115,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
       
     function prettyTime(dateObject) {
         if(dateObject === null) {
-            return null;
+            return "Unknown";
         }
         
         var minutes = dateObject.getMinutes();
@@ -145,7 +145,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
 
     function prettyRoute(route, includeAgencyName) {
         if(route === null) {
-            return null;
+            return "Unknown";
         }
 
         var agencyName = "Unknown Agency";
@@ -178,6 +178,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         return ((includeAgencyName === true) ? agencyName + ' ' : '') + '<strong>' + route + '</strong>';
     }
 
+    // narrative logic
     function makeTripRequest() {
 		// planning spinner and text
 		root.find('#trip-data')
@@ -186,7 +187,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
 		            .html('<div id="trip-spinner">Planning your trip</div>')
 	                .fadeIn("fast");
 		        });
-              
+          
         jQuery.ajax({
             url: "http://sea.dev.openplans.org:8080/translatis-api/ws/planP",
             dataType: "jsonp",
@@ -196,7 +197,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 time: root.find("#leavehour").val() + ":" + root.find("#leaveminute").val() + " " + root.find("#leaveampm").val(),
                 optimize: root.find("#trippriority").val(),
                 maxWalkDistance: root.find("#maxwalk").val(),
-                wheelchair: (root.find("#accessible").checked === true),
+                wheelchair: (root.find("#accessible").attr("checked") === true),
                 from: root.find("#from").val(),
                 to: root.find("#to").val(),
                 toPlace: root.find("#to").val(),
@@ -233,6 +234,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         });
     }
 
+    // FIXME: better system for handling special route formatting cases? e.g. color, icons, etc.?
     function isSounder(route) {
         if(route === null) {
             return false;
@@ -279,6 +281,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                                             '<tbody></tbody>' + 
                                             '</table>');
 
+        // HACK: OTP API changes return structure depending on whether there is more than one result returned--fix that?
         var itineraryCollection = null;
         if(typeof data.plan.itineraries.itinerary.duration !== 'undefined') {
             itineraryCollection = [data.plan.itineraries.itinerary];
@@ -297,10 +300,16 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             var studentFare = "";
             var seniorFare = "";
             var regularFare = "";
+            var studentFareORCA = "";
+            var seniorFareORCA = "";
+            var regularFareORCA = "";
             jQuery(this.fare.fare.entry).each(function(legIndex) {
                 if (this.key == "student") {studentFare = parseInt(this.value.cents, 10);}
                 if (this.key == "senior") {seniorFare = parseInt(this.value.cents, 10);}
                 if (this.key == "regular") {regularFare = parseInt(this.value.cents, 10);}
+                if (this.key == "farecard_student") {studentFareORCA = parseInt(this.value.cents, 10);}
+                if (this.key == "farecard_senior") {seniorFareORCA = parseInt(this.value.cents, 10);}
+                if (this.key == "farecard_regular") {regularFareORCA = parseInt(this.value.cents, 10);}
             });
 
             var tripWrapper = jQuery("<div></div>")
@@ -375,9 +384,9 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             jQuery('<table class="trip-prices">' + 
                     '<thead><tr><th><h3>Trip ' + tripNumber + '</h3></th><th colspan="2">' + millisecondsToString(tripDuration) + ', ' + transfers + ' Transfer' + ((transfers === 1) ? "" : "s") + '</th></tr></thead>' + 
                     '<tbody>' + 
-                    '<tr><th scope="row">Adult</th><td>$' + centsToDollars(regularFare) + ' Cash</td><td>$---- <a href="#">ORCA</a></td></tr>' +
-                    '<tr><th scope="row">Youth</th><td>$' + centsToDollars(studentFare) + ' Cash</td><td>$---- <a href="#">ORCA</a></td></tr>' + 
-                    '<tr><th scope="row">Senior / Disabled</th><td>$' + centsToDollars(seniorFare) + ' Cash</td><td>$---- <a href="#">ORCA</a></td></tr>' + 
+                    '<tr><th scope="row">Adult</th><td>$' + centsToDollars(regularFare) + ' Cash</td><td>$' + centsToDollars(regularFareORCA) + ' <a href="http://www.orcacard.com/">ORCA</a></td></tr>' +
+                    '<tr><th scope="row">Youth</th><td>$' + centsToDollars(studentFare) + ' Cash</td><td>$' + centsToDollars(studentFareORCA) + ' <a href="http://www.orcacard.com/">ORCA</a></td></tr>' + 
+                    '<tr><th scope="row">Senior / Disabled</th><td>$' + centsToDollars(seniorFare) + ' Cash</td><td>$' + centsToDollars(seniorFareORCA) + ' <a href="http://www.orcacard.com/">ORCA</a></td></tr>' + 
                     '</tbody></table>')
                     .appendTo(tripWrapper);
 
@@ -397,7 +406,6 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         plannerResponse = data;
     }
 
-    // updates map to display given trip option
     function updateMap(data, targetTripNumber) {
         if(data === null) {
             return;
@@ -449,18 +457,35 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     }
 
     function formatTransitLeg(legIndex, leg) {
+        // determine mode that will be used to display icons, etc.
         var displayMode = leg["@mode"];
         if(isSounder(leg["@route"])) {
             displayMode = 'sounder';
         } else if(isTheLink(leg["@route"])) {
             displayMode = 'link';
         }
+
+        // previous stop at end point
+        var stopsPassed = 0;
+        var previousToStop = "unknown";
         
+        var intermediateLegs = null;
+        if(typeof leg.intermediateStops.stop.name !== 'undefined') {
+            intermediateLegs = [leg.intermediateStops.stop];
+        } else {
+            intermediateLegs = leg.intermediateStops.stop;
+        }
+        
+        if(intermediateLegs.length >= 1) {
+            previousToStop = intermediateLegs[intermediateLegs.length - 1].name;
+            stopsPassed = intermediateLegs.length;
+        }
+    
         return jQuery('<li class="' + displayMode.toLowerCase() + ' leg-' + legIndex + '"></li>').html(
                     '<img class="mode-icon" src="img/' + displayMode.toLowerCase() + '16x16.png" alt="' + displayMode + '" />' + prettyCase(leg["@mode"]) + ' - ' + prettyRoute(leg["@route"], true) + 
                     '<table class="substeps"><tbody>' + 
-                    '<tr><td>' + prettyTime(ISO8601StringToDate(leg.startTime)) + '</td><td>Depart ' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '<div class="stepmeta">' + millisecondsToString(leg.duration) + ' (-- stops)<br />Previous stop is ----</div></td></tr>' + 
-                    '<tr><td>' + prettyTime(ISO8601StringToDate(leg.endTime)) + '</td><td>Arrive ' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + '<div class="stepmeta">Previous stop is ----</div></td></tr>' + 
+                    '<tr><td>' + prettyTime(ISO8601StringToDate(leg.startTime)) + '</td><td>Depart ' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '</div></td></tr>' + 
+                    '<tr><td>' + prettyTime(ISO8601StringToDate(leg.endTime)) + '</td><td>Arrive ' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + '<div class="stepmeta">' + millisecondsToString(leg.duration) + ' (' + stopsPassed + ' stops)<br />Previous stop is ' + previousToStop + '</div></td></tr>' + 
                     '</tbody></table>');
     }
 
@@ -484,6 +509,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             .html(disambiguateMarkup.append(disambiguateToMarkup + disambiguateFromMarkup));
     }
 
+    // event handlers
     // (called by the map when the user uses the context menu or drags the marker)
     function updateToLocation(point, isDrag) {
         if(point !== null) {
@@ -512,6 +538,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         }        
     }
 
+    // behaviors
     function addFormUIBehavior() {
         var setBlankClassIfEmpty = function(element) { 
             if(jQuery(element).val() === "") {
