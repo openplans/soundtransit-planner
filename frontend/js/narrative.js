@@ -5,33 +5,37 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         return null;
     }
 
+    // DOM elements
     var root = jQuery(_root);
     var map = null;
 
+    // the response from the server--passed to updateMap when
+    // user selects a second route without a new trip plan request
     var plannerResponse = null;
-    
-    // data formatting 
+
+    // formatting 
+    // FIXME: potential timezone issues?
     function ISO8601StringToDate(str) {
         if(str === null) {
             return null;
         }
         
-        // from http://anentropic.wordpress.com/2009/06/25/javascript-iso8601-parser-and-pretty-dates/
+        // adapted from http://anentropic.wordpress.com/2009/06/25/javascript-iso8601-parser-and-pretty-dates/
         var parts = str.split('T'),
         dateParts = parts[0].split('-'),
-        timeParts = parts[1].split(/-|Z/i),
+        timeParts = parts[1].split('-'),
         timeSubParts = timeParts[0].split(':'),
         timeSecParts = timeSubParts[2].split('.'),
         timeHours = Number(timeSubParts[0]),
 
         _date = new Date;
-        _date.setUTCFullYear(Number(dateParts[0]));
-        _date.setUTCMonth(Number(dateParts[1])-1);
-        _date.setUTCDate(Number(dateParts[2]));
-        _date.setUTCHours(Number(timeHours));
-        _date.setUTCMinutes(Number(timeSubParts[1]));
-        _date.setUTCSeconds(Number(timeSecParts[0]));
-        if (timeSecParts[1]) _date.setUTCMilliseconds(Number(timeSecParts[1]));
+        _date.setFullYear(Number(dateParts[0]));
+        _date.setMonth(Number(dateParts[1])-1);
+        _date.setDate(Number(dateParts[2]));
+        _date.setHours(Number(timeHours));
+        _date.setMinutes(Number(timeSubParts[1]));
+        _date.setSeconds(Number(timeSecParts[0]));
+        if (timeSecParts[1]) _date.setMilliseconds(Number(timeSecParts[1]));
 
         return _date;
     }
@@ -63,7 +67,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             return minuteString;
         }
     }
-    
+
     function centsToDollars(n) {
         try {
             return parseFloat(n/100).toFixed(2);
@@ -71,7 +75,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             return null;
         }
     }
-      
+
     function metersToMiles (n) {
         try {
             return parseFloat(n / 1609.344).toFixed(1);
@@ -112,7 +116,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             return miles + " mi";
         }
     }
-      
+
     function prettyTime(dateObject) {
         if(dateObject === null) {
             return "Unknown";
@@ -187,10 +191,10 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
 		            .html('<div id="trip-spinner">Planning your trip</div>')
 	                .fadeIn("fast");
 		        });
-          
-        jQuery.ajax({
+    
+        jQuery.jsonp({
+            callback: "fn",
             url: "http://sea.dev.openplans.org:8080/translatis-api/ws/planP",
-            dataType: "jsonp",
             data: {
                 arriveBy: (root.find("#leavetype").val() === "Arrive By"),
                 date: root.find("#leaveday").val(),
@@ -206,7 +210,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 showIntermediateStops: true,
                 mode: "TRANSIT,WALK"
             },
-            success: function(data) {    
+            success: function(data, status) {    
                 // TODO:determine whether we need to disambiguate a to or from location (or both)
                 if (false) {
                     var resultSet = {'from': ['array','of','options'], 'to': ['array','of','options']};
@@ -223,18 +227,18 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                         .fadeIn("fast");
                 }
             },
-            error:function(x,e){
+            error:function(xError, status) {                
                 root.find("#trip-data")
                     .html(
                         '<div id="no-results">' + 
                         '<h3>We\'re sorry!</h3>' + 
-                        '<p>Something went wrong when trying to plan your trip&mdash;try again in a few minutes.</p>' + 
+                        '<p>Something went wrong when trying to plan your trip&mdash;try your request again later.</p>' + 
                         '</div>');
             }
         });
     }
 
-    // FIXME: better system for handling special route formatting cases? e.g. color, icons, etc.?
+    // FIXME: better (pluggable?) system for handling special route formatting cases? e.g. color, icons, etc.?
     function isSounder(route) {
         if(route === null) {
             return false;
@@ -466,26 +470,28 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         }
 
         // previous stop at end point
-        var stopsPassed = 0;
+        var stopsPassed = -1;
         var previousToStop = "unknown";
+
+        if(typeof leg.intermediateStops !== 'undefined' && leg.intermediateStops !== null) {
+            var intermediateLegs = null;
+            if(typeof leg.intermediateStops.stop.name !== 'undefined') {
+                intermediateLegs = [leg.intermediateStops.stop];
+            } else {
+                intermediateLegs = leg.intermediateStops.stop;
+            }
         
-        var intermediateLegs = null;
-        if(typeof leg.intermediateStops.stop.name !== 'undefined') {
-            intermediateLegs = [leg.intermediateStops.stop];
-        } else {
-            intermediateLegs = leg.intermediateStops.stop;
+            if(intermediateLegs.length >= 1) {
+                previousToStop = intermediateLegs[intermediateLegs.length - 1].name;
+                stopsPassed = intermediateLegs.length;
+            }
         }
         
-        if(intermediateLegs.length >= 1) {
-            previousToStop = intermediateLegs[intermediateLegs.length - 1].name;
-            stopsPassed = intermediateLegs.length;
-        }
-    
         return jQuery('<li class="' + displayMode.toLowerCase() + ' leg-' + legIndex + '"></li>').html(
                     '<img class="mode-icon" src="img/' + displayMode.toLowerCase() + '16x16.png" alt="' + displayMode + '" />' + prettyCase(leg["@mode"]) + ' - ' + prettyRoute(leg["@route"], true) + 
                     '<table class="substeps"><tbody>' + 
                     '<tr><td>' + prettyTime(ISO8601StringToDate(leg.startTime)) + '</td><td>Depart ' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '</div></td></tr>' + 
-                    '<tr><td>' + prettyTime(ISO8601StringToDate(leg.endTime)) + '</td><td>Arrive ' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + '<div class="stepmeta">' + millisecondsToString(leg.duration) + ' (' + stopsPassed + ' stops)<br />Previous stop is ' + previousToStop + '</div></td></tr>' + 
+                    '<tr><td>' + prettyTime(ISO8601StringToDate(leg.endTime)) + '</td><td>Arrive ' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + '<div class="stepmeta">' + millisecondsToString(leg.duration) + ((stopsPassed >= 0) ? ' (' + stopsPassed + ' stop' + ((stopsPassed === 1) ? '' : 's') + ')' : '') + '<br />Previous stop is ' + previousToStop + '</div></td></tr>' + 
                     '</tbody></table>');
     }
 
@@ -560,10 +566,26 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     setBlankClassIfEmpty(this);
                 });
                 
-            root.find('#disambiguation, #trip-data')
-                .fadeOut('slow');
+            root.find("#disambiguation")
+                .fadeOut('slow')
+                .empty();
                 
+            root.find('#trip-data')
+                .fadeOut('slow')
+                .empty()
+                .html(
+                    '<div id="how-to-plan">' +
+                    '<h3>2 Ways to Plan Your Trip</h3>' +
+                    '<h4>1. Enter your start and end locations.</h4>' +
+                    '<p>Enter your origin and destination above (don\'t use city or zip) then select "Plan Trip".</p>' +
+                    '<h4>2. Pick points on the map.</h4>' +
+                    '<p>Right-click on the map to set the Start and End locations, then select "Plan Trip".</p>' +
+                    '</div>')
+                 .fadeIn('slow');
+                     
             map.reset();
+            
+            return false;
         });
   
         // to/from
@@ -588,6 +610,8 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 .each(function() {
                     setBlankClassIfEmpty(this);
                 });
+                
+            return false;
         });
   
         // date pickers
@@ -611,7 +635,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             .spinner({ min: 0, max: 59, increment: 'fast' })
             .val(zeroPad(now.getMinutes()));
 
-        if (now.getHours() > 12) {
+        if (now.getHours() >= 12) {
             root.find('#leaveampm option[value="pm"]')
                 .attr('selected', 'selected');
         }          
@@ -631,6 +655,8 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 jQuery(this).html('Fewer Options<span></span>')
                     .addClass('active');
             }
+            
+            return false;
         });
 
         // form submit action
@@ -669,7 +695,8 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         _mapControlsRoot,
         { 
             updateToLocationFunction: updateToLocation, 
-            updateFromLocationFunction: updateFromLocation 
+            updateFromLocationFunction: updateFromLocation,
+            hasTripPlanner: true 
         }
     );
 
@@ -698,7 +725,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 .trigger("change");
         },
 
-        setLeaveType: function(v) {  
+        setLeaveType: function(v) {
             if(v === null || v === "") {
                 return;
             }
@@ -706,7 +733,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             root.find('#leavetype')
                 .val(v);
         },
-        
+
         setDay: function(v) {
             if(v === null || v === "") {
                 return;
@@ -715,7 +742,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             root.find('#leaveday')
                 .val(v);
         },
-                
+
         setHour: function(v) {
             if(v === null || v === "") {
                 return;
@@ -746,7 +773,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             realSelect.children().each(function(_, option) {
                if(option.value === v) {
                    styledSelect.val(option.text);
-                   return;
+                   return false;
                } 
             });
         },
@@ -767,7 +794,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             realSelect.children().each(function(_, option) {
                 if(option.value === v) {
                    styledSelect.val(option.text);
-                   return;
+                   return false;
                } 
             });
         },
@@ -788,11 +815,11 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             realSelect.children().each(function(_, option) { 
                if(option.value === v) {
                    styledSelect.val(option.text);
-                   return;
+                   return false;
                } 
             });
         },
-        
+
         setAccessible: function(v) {
             if(v === null || v === "") {
                 return;

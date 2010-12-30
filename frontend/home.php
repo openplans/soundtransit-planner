@@ -20,6 +20,7 @@
 
     <!--INCLUDE ALL OF THESE FILES IN A PRODUCTION DEPLOYMENT, IN THIS ORDER-->
 	<script type="text/javascript" src="js/jquery/jquery-1.4.2.min.js"></script>
+	<script type="text/javascript" src="js/jquery/jquery-jsonp.min.js"></script>
 	<script type="text/javascript" src="js/jquery/jquery-ui-1.8.6.custom.min.js"></script>
 	<script type="text/javascript" src="js/jquery/jquery-combobox-support.min.js"></script>
 	<script type="text/javascript" src="js/jquery/jquery-ui-spinner.min.js"></script>
@@ -82,7 +83,7 @@
             <span id="maxwalk-wrap">
               <select id="maxwalk" name="maxwalk">
            		<option value="420">1/4 mile max walk</option>
-           		<option value="840">1/2 mile max walk</option>
+       		    <option value="840" selected="true">1/2 mile max walk</option>
               	<option value="1260">3/4 mile max walk</option>
               	<option value="1680">1 mile max walk</option>
            	  </select>

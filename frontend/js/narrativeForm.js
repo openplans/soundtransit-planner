@@ -5,8 +5,10 @@ OTP.NarrativeForm = function(_root) {
         return null;
     }
 
+    // DOM elements
     var root = jQuery(_root);
-    
+
+    // behaviors
     function addFormUIBehavior() {
         var setBlankClassIfEmpty = function(element) { 
             if(jQuery(element).val() === "") {
@@ -30,6 +32,8 @@ OTP.NarrativeForm = function(_root) {
                 
             root.find('#disambiguation, #trip-data')
                 .fadeOut('slow');
+
+            return false;
         });
   
         // to/from
@@ -54,6 +58,8 @@ OTP.NarrativeForm = function(_root) {
                 .each(function() {
                     setBlankClassIfEmpty(this);
                 });
+                
+            return false;
         });
   
         // date pickers
@@ -77,7 +83,7 @@ OTP.NarrativeForm = function(_root) {
             .spinner({ min: 0, max: 59, increment: 'fast' })
             .val(zeroPad(now.getMinutes()));
 
-        if (now.getHours() > 12) {
+        if (now.getHours() >= 12) {
             root.find('#leaveampm option[value="pm"]')
                 .attr('selected', 'selected');
         }          
@@ -97,11 +103,14 @@ OTP.NarrativeForm = function(_root) {
                 jQuery(this).html('Fewer Options<span></span>')
                     .addClass('active');
             }
+            
+            return false;
         }); 
     }
 
+    // constructor
     addFormUIBehavior();
-    
+
     // public methods
     return {};
 };

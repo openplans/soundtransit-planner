@@ -20,6 +20,7 @@
 
     <!--INCLUDE ALL OF THESE FILES IN A PRODUCTION DEPLOYMENT, IN THIS ORDER-->
 	<script type="text/javascript" src="js/jquery/jquery-1.4.2.min.js"></script>
+	<script type="text/javascript" src="js/jquery/jquery-jsonp.min.js"></script>
 	<script type="text/javascript" src="js/jquery/jquery-ui-1.8.6.custom.min.js"></script>
 	<script type="text/javascript" src="js/jquery/jquery-combobox-support.min.js"></script>
 	<script type="text/javascript" src="js/jquery/jquery-ui-spinner.min.js"></script>
@@ -126,8 +127,8 @@
                 
                 <form>
                     <select id="ferry">
-                        <option value="Select route">Select route</option>
-                        <option value="MWSF-5">Seattle - Bainbridge Island</option>
+                        <option selected="true" value="Select route">Select route</option>
+                        <option value="MWSF-5I">Seattle - Bainbridge Island</option>
                         <option value="MWSF-3I">Seattle - Bremerton</option>
                         <option value="MWSF-13I">Fauntleroy-Southworth</option>
                         <option value="MWSF-1I">Point Definance - Talequah</option>
