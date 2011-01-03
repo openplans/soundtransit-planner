@@ -31,9 +31,15 @@
 	
     <!--THE BLOCK BELOW IS SPECIFIC TO THIS PAGE AND USE CASE-->
   	<script type="text/javascript">
-      jQuery(document).ready(function() {
-		OTP.NarrativeForm(document.getElementById("plannerform"));
-      });
+        function init() {
+            OTP.NarrativeForm(document.getElementById("plannerform"));
+        }
+
+        if(jQuery.browser.msie) {
+          window.onload = init;
+        } else {
+          jQuery(document).ready(init);
+        }
     </script>
 </head>
 

@@ -942,17 +942,18 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
     // setup map 
     addBaseLayers();    
+
+    // center on seattle metro area
+    var point = new OpenLayers.LonLat(-122.30, 47.45);
+    var proj = new OpenLayers.Projection("EPSG:4326");
+    map.setCenter(point.transform(proj, map.getProjectionObject()), 8);
+
     addRouteLayers();    
     addDataLayers();
 
     addContextMenuBehavior();
     addMapLayerChooserBehavior();
     addDataLayerQueryBehavior();
-
-    // center on seattle metro area
-    var point = new OpenLayers.LonLat(-122.30, 47.45);
-    var proj = new OpenLayers.Projection("EPSG:4326");
-    map.setCenter(point.transform(proj, map.getProjectionObject()), 8);
 
     // public methods    
     return {

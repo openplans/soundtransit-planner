@@ -2,6 +2,7 @@
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7"/>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<title>Interactive System Map</title>
 
@@ -31,9 +32,15 @@
 	
     <!--THE BLOCK BELOW IS SPECIFIC TO THIS PAGE AND USE CASE-->
   	<script type="text/javascript">
-      jQuery(document).ready(function() {
-        OTP.Map(document.getElementById("map"), document.getElementById("map-controls"));
-      });
+        function init() {
+            OTP.Map(document.getElementById("map"), document.getElementById("map-controls"));            
+        }
+
+        if(jQuery.browser.msie) {
+            window.onload = init;
+        } else {
+            jQuery(document).ready(init);
+        }
     </script>
 </head>
 
