@@ -485,27 +485,28 @@ OTP.Map = function(_root, _controlsRoot, options) {
                      return;
                  }
 
-                 var points = [];
-
                  jQuery(data.features).each(function(_, feature) {
                      // in multi-geometry types, coords are wrapped in arrays of arrays
                      for(var z = 0; z < feature.geometry.coordinates.length; z++) {
+                         var points = [];
+
                          for(var i = 0; i < feature.geometry.coordinates[z].length; i++) {
                              var wgsPoint = new OpenLayers.Geometry.Point(feature.geometry.coordinates[z][i][1], feature.geometry.coordinates[z][i][0]);
                              var proj = new OpenLayers.Projection("EPSG:4326");
                              var point = wgsPoint.transform(proj, map.getProjectionObject());
                              points.push(point);
                          }
+
+                         if(points.length === 0) {
+                             return;
+                         }
+
+                         var polyline = new OpenLayers.Geometry.LineString(points);
+                         var lineFeature = new OpenLayers.Feature.Vector(polyline, null, style);
+                         routeLayer.addFeatures([lineFeature]);
                      }
                  });
 
-                 if(points.length === 0) {
-                     return;
-                 }
-
-                 var polyline = new OpenLayers.Geometry.LineString(points);
-                 var lineFeature = new OpenLayers.Feature.Vector(polyline, null, style);
-                 routeLayer.addFeatures([lineFeature]);
              }
         });        
     }
