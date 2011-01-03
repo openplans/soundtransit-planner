@@ -879,7 +879,32 @@ width: 100%;
 }
 
 .info-window .content .header {
+    margin-top: 5px;
+    margin-right: 20px;
+    margin-bottom: 5px;
+    padding-left: 30px;
+    height: 26px;
+    background-repeat: no-repeat;
+    background-position: 0 0;
+}
+
+.info-window .content .header p {
     font-weight: bold;
+    padding-top: 4px;
+    padding-left: 4px;
+    white-space: nowrap;
+}
+
+.info-window .content .header.stop {
+    background-image: url(../img/location-icon.png);
+}
+
+.info-window .content .header.fareoutlet {
+    background-image: url(../img/fares-icon.png);
+}
+
+.info-window .content .header.parkandride {
+    background-image: url(../img/parking-icon.png);
 }
 
 .info-window .content p {

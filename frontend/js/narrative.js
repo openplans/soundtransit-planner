@@ -211,10 +211,8 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 mode: "TRANSIT,WALK"
             },
             success: function(data, status) {    
-                // TODO:determine whether we need to disambiguate a to or from location (or both)
-                if (false) {
-                    var resultSet = {'from': ['array','of','options'], 'to': ['array','of','options']};
-                    disambiguateResults(resultSet);
+                if (typeof data.geocodeResponse !== 'undefined') {
+                    disambiguateResults(data.geocodeResponse);
                 } else {
                     root.find('#trip-data')
                         .fadeOut("fast")
@@ -456,7 +454,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     function formatWalkLeg(legIndex, leg) {
         return jQuery('<li class="' + leg["@mode"].toLowerCase() + ' leg-' + legIndex + '"></li>').html(
                     '<img class="mode-icon" src="img/walk16x16.png" alt="' + leg["@mode"] + '" />' +
-                    'Walk from <strong>' + ((typeof leg.startPlace !== 'undefined' && leg.startPlace !== null) ? leg.startPlace : "Unknown") + '</strong> to <strong>' + ((typeof leg.endPlace !== 'undefined' && leg.endPlace !== null) ? leg.endPlace : "Unknown") + '</strong>' + 
+                    'Walk from <strong>' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '</strong> to <strong>' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + '</strong>' + 
                     '<div class="stepmeta">' + millisecondsToString(leg.duration) + ' (' + prettyDistance(leg.distance) + ')</div>');
     }
 
@@ -495,19 +493,19 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     '</tbody></table>');
     }
 
-    // Expects an object in the format  {'from': [array,of,options], 'to': [array,of,options]}
+    // FIXME
     function disambiguateResults(results) {
         var disambiguateMarkup = jQuery('<div id="disambiguate-results"></div>');
         var disambiguateToMarkup = (results.to) ? jQuery('<div id="from-possibles"><h3>We found several starting points for your search</h3><h4>Did you mean?</h4><ol><li class="possible-1">12th Ave, Seattle WA <a href="#">select</a></li><li class="possible-2">52 12th Ave, Seattle WA <a href="#">select</a></li></ol></div>') : "";
         var disambiguateFromMarkup = (results.from) ? jQuery('<div id="from-possibles"><h3>We found several ending points for your search</h3><h4>Did you mean?</h4><ol><li class="possible-1">12th Ave, Seattle WA <a href="#">select</a></li><li class="possible-2">52 12th Ave, Seattle WA <a href="#">select</a></li></ol></div>') : "";
 
         // TODO: Add points to map, select behavior
-        results.to.each(function(toIndex) {       
+        jQuery(results.to).each(function(_, result) {       
             disambiguateToMarkup.append("");
         });
 
         // TODO: Add points to map, select behavior
-        results.from.each(function(toIndex) {       
+        jQuery(results.from).each(function(_, result) {       
             disambiguateFromMarkup.append("");
         });
 
