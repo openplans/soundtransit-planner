@@ -929,7 +929,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         projection: new OpenLayers.Projection("EPSG:900913"),
         maxExtent: new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34),
         controls: [
-            new OpenLayers.Control.Navigation(),
+            new OpenLayers.Control.Navigation({'zoomWheelEnabled': false}),
             new OpenLayers.Control.KeyboardDefaults(),
             new OpenLayers.Control.PanZoomBar({zoomWorldIcon:false}),
             new OpenLayers.Control.Attribution()

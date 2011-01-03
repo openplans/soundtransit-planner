@@ -866,6 +866,7 @@ width: 100%;
     padding-bottom: 11px;
     background-repeat: no-repeat;
     z-index: 10000000;
+    color: #4A4A4A;    
 }
 
 .info-window .content {
