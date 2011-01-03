@@ -477,6 +477,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                  outputFormat: "json",
                  format_options: "callback:" + callbackFunction,
                  typeName: "soundtransit:routes",
+                 propertyName: "the_geom",
                  cql_filter: cqlQuery
              },
              success: function(data) {
@@ -668,7 +669,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     var v = jQuery(this).val();
                     
                     if(v !== null && v !== "" && v !== "Select route") {
-                        systemMapRouteCriteria.WSF = "(designator LIKE '" + jQuery(this).val() + "')";
+                        systemMapRouteCriteria.WSF = "(designator LIKE '" + jQuery(this).val() + "' AND routetyp LIKE 'P')";
                     } else {
                         systemMapRouteCriteria.WSF = "";
                     }
@@ -690,9 +691,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
                         checkbox = jQuery(checkbox);
                         if(checkbox.attr("checked") === true) {
                             if(systemMapRouteCriteria.LINK.length > 0) {
-                                systemMapRouteCriteria.LINK += " AND ";
+                                systemMapRouteCriteria.LINK += " OR ";
                             }
-                            systemMapRouteCriteria.LINK += "(designator LIKE '" + checkbox.val() + "')";
+                            systemMapRouteCriteria.LINK += "(designator LIKE '" + checkbox.val() + "' AND routetyp LIKE 'P')";
                         }
                     });
 
@@ -713,9 +714,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
                         checkbox = jQuery(checkbox);                                    
                         if(checkbox.attr("checked") === true) {
                             if(systemMapRouteCriteria.SOUNDER.length > 0) {
-                                systemMapRouteCriteria.SOUNDER += " AND ";
+                                systemMapRouteCriteria.SOUNDER += " OR ";
                             }
-                            systemMapRouteCriteria.SOUNDER += "(designator LIKE '" + checkbox.val() + "')";
+                            systemMapRouteCriteria.SOUNDER += "(designator LIKE '" + checkbox.val() + "' AND routetyp LIKE 'P')";
                         }
                     });
                     
@@ -770,7 +771,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                         var v = jQuery(this).val();
                         
                         if(v !== null && v !== "" && v !== "Select route") {
-                            systemMapRouteCriteria.BUS = "(operator LIKE '" + content.find("#bus-agency").val() + "' AND designator LIKE '" + jQuery(this).val() + "')";
+                            systemMapRouteCriteria.BUS = "(operator LIKE '" + content.find("#bus-agency").val() + "' AND designator LIKE '" + jQuery(this).val() + "' AND routetyp LIKE 'P')";
                         } else {
                             systemMapRouteCriteria.BUS = "";
                         }
