@@ -73,7 +73,7 @@
                     <label>
                         Route
                         <select id="bus-route">
-                            <option value="Select transit agency">Select transit agency</option>
+                            <option value="">Select route</option>
                         </select>
                     </label>
                 </form>
@@ -87,12 +87,12 @@
                 
                 <form>
                     <label>
-                        <input type="checkbox" id="sounder-tacoma-seattle"> 
+                        <input type="checkbox" id="sounder-tacoma-seattle" value="MSOUNDER"> 
                         Tacoma/Seattle route
                     </label>
 
                     <label>
-                        <input type="checkbox" id="sounder-everett-seattle"> 
+                        <input type="checkbox" id="sounder-everett-seattle" value="MSOUNDER"> 
                         Everett/Seattle route
                     </label>
                 </form>
@@ -106,13 +106,13 @@
                 
                 <form>                    
                     <label>
-                        <input type="checkbox" id="link-central"> 
+                        <input type="checkbox" id="link-central" value="M599"> 
                         Central Link Light Rail
                         <span class="small">(Seatac Airport to Downtown Seattle)</span>
                     </label>
                     
                     <label>
-                        <input type="checkbox" id="link-tacoma"> 
+                        <input type="checkbox" id="link-tacoma" value="PTLDTC"> 
                         Everett/Seattle route
                         <span class="small">(Downtown Tacoma)</span>
                     </label>

@@ -184,14 +184,14 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
 
     // narrative logic
     function makeTripRequest() {
-		// planning spinner and text
-		root.find('#trip-data')
-		    .fadeOut("fast", function() {
-		        $(this)
-		            .html('<div id="trip-spinner">Planning your trip</div>')
-	                .fadeIn("fast");
-		        });
-    
+        // planning spinner and text
+        root.find('#trip-data')
+            .fadeOut("fast", function() {
+                $(this)
+                    .html('<div id="trip-spinner">Planning your trip</div>')
+                    .fadeIn("fast");
+                });
+
         jQuery.jsonp({
             callback: "fn",
             url: "http://sea.dev.openplans.org:8080/translatis-api/ws/planP",
@@ -217,10 +217,10 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     root.find('#trip-data')
                         .fadeOut("fast")
                         .empty();
-                        
+
                     updateNarrative(data);
                     addNarrativeUIBehavior();
-                    
+
                     root.find('#trip-data')
                         .fadeIn("fast");
                 }
@@ -260,20 +260,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     '<h3>We\'re sorry!</h3>' + 
                     '<p>Something went wrong when trying to plan your trip&mdash;the system reported \"' + data.error.msg + '\"</p>' + 
                     '</div>');
-            
-            return;
 
-        // successful response, but no itineraries found (FIXME: is this different from above?)
-        } else if (typeof data === 'undefined' || data.plan.itineraries.itinerary.length === 0) {
-            root.find("#trip-data")
-                .html(
-                    '<div id="no-results">' + 
-                    '<h3>We\'re sorry!</h3>' + 
-                    '<p>We don\'t have transit schedule data for a trip from ' + root.find("#from").val() + ' to ' + root.find("#to").val() + ' at the time and date you specified.</p>' + 
-                    '<p>You might try to:</p>' + 
-                    '<ul><li>Double check your spelling</li><li>Change the starting or end point of the trip by selecting them on the map</li><li>Look up schedules</li></ul>' + 
-                    '</div>');
-                    
             return;
         }
 
@@ -283,7 +270,6 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                                             '<tbody></tbody>' + 
                                             '</table>');
 
-        // HACK: OTP API changes return structure depending on whether there is more than one result returned--fix that?
         var itineraryCollection = null;
         if(typeof data.plan.itineraries.itinerary.duration !== 'undefined') {
             itineraryCollection = [data.plan.itineraries.itinerary];
@@ -327,8 +313,10 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 // trip options header: leg icons
                 if(isSounder(leg["@route"])) {
                     tripModes.push('<img src="img/sounder16x16.png" alt="Sounder" /> <strong>Sounder</strong> ');
+
                 } else if(isTheLink(leg["@route"])) {
                     tripModes.push('<img src="img/link16x16.png" alt="Link" /> <strong>Link</strong> ');
+
                 } else {
                     var modeText = '<img src="img/' + leg["@mode"].toLowerCase() + '16x16.png" alt="' + leg["@mode"] + '" /> ';
 
@@ -353,17 +341,17 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     var legStartTime = ISO8601StringToDate(leg.startTime);
                     if(startTime === null || legStartTime < startTime) {
                         startTime = legStartTime;
-                    }                    
+                    }
                 }
 
                 if(typeof leg.endTime !== 'undefined' && leg.endTime !== null) {
                     var legEndTime = ISO8601StringToDate(leg.endTime);
                     if(endTime === null || legEndTime > endTime) {
                         endTime = legEndTime;
-                    }                    
+                    }
                 }
             });
-            
+
             // set initial selection class/map display
             var activeClass = "";
             if(tripNumber === 1) {
@@ -467,7 +455,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             displayMode = 'link';
         }
 
-        // previous stop at end point
+        // previous stop at end point + stops passed on leg
         var stopsPassed = -1;
         var previousToStop = "unknown";
 
@@ -489,7 +477,12 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     '<img class="mode-icon" src="img/' + displayMode.toLowerCase() + '16x16.png" alt="' + displayMode + '" />' + prettyCase(leg["@mode"]) + ' - ' + prettyRoute(leg["@route"], true) + 
                     '<table class="substeps"><tbody>' + 
                     '<tr><td>' + prettyTime(ISO8601StringToDate(leg.startTime)) + '</td><td>Depart ' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '</div></td></tr>' + 
-                    '<tr><td>' + prettyTime(ISO8601StringToDate(leg.endTime)) + '</td><td>Arrive ' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + '<div class="stepmeta">' + millisecondsToString(leg.duration) + ((stopsPassed >= 0) ? ' (' + stopsPassed + ' stop' + ((stopsPassed === 1) ? '' : 's') + ')' : '') + '<br />Previous stop is ' + previousToStop + '</div></td></tr>' + 
+                    '<tr><td>' + prettyTime(ISO8601StringToDate(leg.endTime)) + '</td><td>Arrive ' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + 
+                        '<div class="stepmeta">' +
+                            millisecondsToString(leg.duration) + ((stopsPassed >= 0) ? ' (' + stopsPassed + ' stop' + ((stopsPassed === 1) ? '' : 's') + ')' : '') +
+                            '<br />Previous stop is ' + previousToStop + 
+                        '</div>' + 
+                    '</td></tr>' + 
                     '</tbody></table>');
     }
 
@@ -514,7 +507,6 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     }
 
     // event handlers
-    // (called by the map when the user uses the context menu or drags the marker)
     function updateToLocation(point, isDrag) {
         if(point !== null) {
             root.find("#to")
@@ -528,7 +520,6 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         }
     }
 
-    // (called by the map when the user uses the context menu or drags the marker)    
     function updateFromLocation(point, isDrag) {
         if(point !== null) {
             root.find("#from")
@@ -664,7 +655,6 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         });
     }
     
-    // (called after narrative is updated)
     function addNarrativeUIBehavior() {
         // table row focus
         root.find('#tripresult-summaries tbody tr').click(function() {
@@ -699,7 +689,6 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     );
 
     addFormUIBehavior();
-    addNarrativeUIBehavior();
 
     // public methods
     return {

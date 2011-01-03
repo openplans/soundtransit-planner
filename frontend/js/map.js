@@ -32,7 +32,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     var markersDragControl = null;
 
     // CQL filter for system-map route layer
-    var systemMapRouteFeaturesCriteria = {};
+    var systemMapRouteCriteria = {};
 
     // decodes google-encoded polyline data
     function decodePolyline(encoded) {
@@ -94,7 +94,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
         var lonlat = map.getLonLatFromViewPortPx(point);
     
-        // show trip planner only functions if we have a trip planner attached
+        // show trip-planner-only functions if we have a trip planner attached
         if(options.hasTripPlanner === true) {
             var startTripHere = jQuery('<li></li>')
                                 .append('<a href="#">Start Trip Here</a>')
@@ -210,6 +210,90 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }        
     }
 
+    function showInfoWindow(clickedLocation, featureData) {
+        hideInfoWindow();
+
+        if(typeof featureData.features === 'undefined' || featureData.features.length === 0) {
+            return;
+        }
+
+        var feature = featureData.features[0];
+
+        if(feature === null) {
+            return;
+        }
+        
+        // create info window popup wrapper and append to DOM
+        var lonlat = null;
+        var infoWindowContent = null;
+        if(featureData.features.length > 1) {
+            infoWindowContent = jQuery("<div>There is more than one facility at this point. Zoom in to choose one.</div>")
+                                    .addClass("content")
+                                    .css("width", "175px");
+            lonlat = clickedLocation;
+        } else {
+            infoWindowContent =  jQuery(getInfoWindowContentForFeature(feature.properties))
+                                    .addClass("content");
+
+            var wgsLonlat = new OpenLayers.LonLat(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
+            var proj = new OpenLayers.Projection("EPSG:4326");
+            lonlat = wgsLonlat.transform(proj, map.getProjectionObject());
+        }
+
+        var closeButton = jQuery('<a href="#">Close</a>')
+                                        .addClass("close")
+                                        .click(function(e) {
+                                            hideInfoWindow();
+                                            return false; 
+                                        });
+            
+        infoWindow = jQuery("<div></div>")
+                            .addClass("info-window")
+                            .append(infoWindowContent.append(closeButton))
+                            .appendTo(jQuery(map.layerContainerDiv));
+
+        // set position of infowindow
+        var viewPortPx = map.getViewPortPxFromLonLat(lonlat);
+        var layerContainerPx = map.getLayerPxFromViewPortPx(viewPortPx);
+        var iconSize = getIconSizeInPixelsAtThisZoomLevel();
+
+        infoWindowContent
+            .css("width", infoWindowContent.width());
+
+        infoWindow
+            .css("top", layerContainerPx.y - infoWindow.height() - iconSize.h - 2)
+            .css("left", layerContainerPx.x - (infoWindow.width() / 2));
+            
+        ensureInfoWindowIsVisible();
+    }
+
+    function ensureInfoWindowIsVisible() {
+        var viewPortWidth = jQuery(map.viewPortDiv).width();
+        var infoWindowWidth = infoWindow.width();
+        var layerContainerPosition = jQuery(map.layerContainerDiv).position();
+        var infoWindowPosition = infoWindow.position();
+
+        var x = 0;
+        var y = 0;
+
+        var hiddenTop = infoWindowPosition.top + layerContainerPosition.top;
+        if(hiddenTop < 0) {
+            y = hiddenTop - 30;
+        }
+
+        var hiddenLeft = infoWindowPosition.left + layerContainerPosition.left;
+        if(hiddenLeft < 0) {
+            x = hiddenLeft - 50;
+        }
+
+        var hiddenRight = (infoWindowPosition.left + layerContainerPosition.left + infoWindowWidth) - viewPortWidth;
+        if(hiddenRight > 0) {
+            x += hiddenRight + 30;
+        }
+
+        map.pan(x, y);
+    }
+
     function getInfoWindowContentForFeature(featureProperties) {
         var content = jQuery("<div></div>")
                         .addClass("content");
@@ -239,87 +323,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }
 
         return content;
-    }
-
-    function ensureInfoWindowIsVisible() {
-        var viewPortWidth = jQuery(map.viewPortDiv).width();
-        var infoWindowWidth = infoWindow.width();
-        var layerContainerPosition = jQuery(map.layerContainerDiv).position();
-        var infoWindowPosition = infoWindow.position();
-
-        var x = 0;
-        var y = 0;
-
-        var hiddenTop = infoWindowPosition.top + layerContainerPosition.top;
-        if(hiddenTop < 0) {
-            y = hiddenTop - 30;
-        }
-
-        var hiddenLeft = infoWindowPosition.left + layerContainerPosition.left;
-        if(hiddenLeft < 0) {
-            x = hiddenLeft - 30;
-        }
-
-        var hiddenRight = (infoWindowPosition.left + layerContainerPosition.left + infoWindowWidth) - viewPortWidth;
-        if(hiddenRight > 0) {
-            x += hiddenRight + 30;
-        }
-
-        map.pan(x, y);
-    }
-
-    function showInfoWindow(featureData) {
-        hideInfoWindow();
-
-        if(typeof featureData.features === 'undefined' || featureData.features.length === 0) {
-            return;
-        }
-
-        var feature = featureData.features[0];
-
-        if(feature === null) {
-            return;
-        }
-        
-        // create info window popup wrapper and append to DOM
-        var infoWindowContent = null;
-        if(featureData.features.length > 1) {
-            infoWindowContent = jQuery("<div>There is more than one facility at this point. Zoom in to choose one.</div>")
-                                    .addClass("content")
-                                    .css("width", "175px");
-        } else {
-            infoWindowContent =  jQuery(getInfoWindowContentForFeature(feature.properties))
-                                    .addClass("content");
-        }
-
-        var closeButton = jQuery('<a href="#">Close</a>')
-                                        .addClass("close")
-                                        .click(function(e) {
-                                            hideInfoWindow();
-                                            return false; 
-                                        });
-            
-        infoWindow = jQuery("<div></div>")
-                            .addClass("info-window")
-                            .append(infoWindowContent.append(closeButton))
-                            .appendTo(jQuery(map.layerContainerDiv));
-
-        // set position of infowindow
-        var wgsLonlat = new OpenLayers.LonLat(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
-        var proj = new OpenLayers.Projection("EPSG:4326");
-        var lonlat = wgsLonlat.transform(proj, map.getProjectionObject());
-        var viewPortPx = map.getViewPortPxFromLonLat(lonlat);
-        var layerContainerPx = map.getLayerPxFromViewPortPx(viewPortPx);
-        var iconSize = getIconSizeInPixelsAtThisZoomLevel();
-
-        infoWindowContent
-            .css("width", infoWindowContent.width());
-
-        infoWindow
-            .css("top", layerContainerPx.y - infoWindow.height() - iconSize.h - 2)
-            .css("left", layerContainerPx.x - (infoWindow.width() / 2));
-            
-        ensureInfoWindowIsVisible();
     }
 
     // NOTE: this logic should match the SLD-specified display logic in GeoServer!
@@ -395,7 +398,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                             bbox: queryBounds.toBBOX(6, false) + "," + map.getProjection()
                         },
                         success: function(data) {    
-                            showInfoWindow(data);
+                            showInfoWindow(lonlat, data);
                         }
                 });
             }
@@ -407,22 +410,28 @@ OTP.Map = function(_root, _controlsRoot, options) {
     }
 
     // layer stuff
+    function zoomToRouteExtent() {
+        if(routeLayer !== null) {
+            var bounds = routeLayer.getDataExtent();
+            map.zoomToExtent(bounds);
+        }
+    }
+
     function refreshRouteLayer() {
         if(routeLayer !== null) {
             routeLayer.removeAllFeatures();
         }
         
-        // generate filter query
-        for(mode in systemMapRouteFeaturesCriteria) {
-            var v = systemMapRouteFeaturesCriteria[mode];
+        for(mode in systemMapRouteCriteria) {         
+            var query = systemMapRouteCriteria[mode];
 
-            if(v === null || v === "") {
+            console.log(mode + "=" + query);
+
+            if(query === null || query === "") {
                 continue;
             }
-            
-            cql = "designator LIKE '" + v + "'";
 
-            var style = {};
+            var style = null;
             if(mode === "WSF") {
                  style = {
                           strokeColor: "#666666",
@@ -449,41 +458,57 @@ OTP.Map = function(_root, _controlsRoot, options) {
                  };                                
             }
 
-            var callbackFunction = "getRouteCallback" + Math.floor(Math.random() * 1000000000);
-            jQuery.ajax({
-                    url: "http://sea.dev.openplans.org/geoserver/wfs",
-                    dataType: "jsonp",
-                    jsonpCallback: callbackFunction,
-                    data: {
-                        request: "GetFeature",
-                        outputFormat: "json",
-                        format_options: "callback:" + callbackFunction,
-                        typeName: "soundtransit:routes",
-                        cql_filter: cql
-                    },
-                    success: function(data) {    
-                        var points = [];                        
-                        jQuery(data.features).each(function(_, feature) {
-                            for(var i = 0; i < feature.geometry.coordinates.length; i++) {
-                                var point = new OpenLayers.Geometry.Point(feature.geometry.coordinates[i][1], feature.geometry.coordinates[i][0]);
-                               	var proj = new OpenLayers.Projection("EPSG:4326");
-                               	var point = point.transform(proj, map.getProjectionObject());
-                                points.push(point);
-                            }
-                        });
-
-                        if(points.length === 0) {
-                            return;
-                        }
-
-                        var polyline = new OpenLayers.Geometry.LineString(points);
-                        var lineFeature = new OpenLayers.Feature.Vector(polyline, null, style);
-                        routeLayer.addFeatures([lineFeature]);
-                    }
-            });
+            drawWFSRouteQueryWithStyle(query, style);
         }
     }
 
+    function drawWFSRouteQueryWithStyle(cqlQuery, style) {
+        if(cqlQuery === null || style === null) {
+            return;
+        }
+
+        var callbackFunction = "drawWFSPolylineQueryWithStyleCallback" + Math.floor(Math.random() * 1000000000);
+        jQuery.ajax({
+             url: "http://sea.dev.openplans.org/geoserver/wfs",
+             dataType: "jsonp",
+             jsonpCallback: callbackFunction,
+             data: {
+                 request: "GetFeature",
+                 outputFormat: "json",
+                 format_options: "callback:" + callbackFunction,
+                 typeName: "soundtransit:routes",
+                 cql_filter: cqlQuery
+             },
+             success: function(data) {
+                 if(typeof data.features === 'undefined') {
+                     return;
+                 }
+
+                 var points = [];
+
+                 jQuery(data.features).each(function(_, feature) {
+                     // in multi-geometry types, coords are wrapped in arrays of arrays
+                     for(var z = 0; z < feature.geometry.coordinates.length; z++) {
+                         for(var i = 0; i < feature.geometry.coordinates[z].length; i++) {
+                             var point = new OpenLayers.Geometry.Point(feature.geometry.coordinates[z][i][1], feature.geometry.coordinates[z][i][0]);
+                             var proj = new OpenLayers.Projection("EPSG:4326");
+                             var point = point.transform(proj, map.getProjectionObject());
+                             points.push(point);
+                         }
+                     }
+                 });
+
+                 if(points.length === 0) {
+                     return;
+                 }
+
+                 var polyline = new OpenLayers.Geometry.LineString(points);
+                 var lineFeature = new OpenLayers.Feature.Vector(polyline, null, style);
+                 routeLayer.addFeatures([lineFeature]);
+             }
+        });        
+    }
+    
     function addBaseLayers() {
         var apiKey = "AgszXQ8Q5lbiJFYujII-Lcie9XQ-1DK3a2X7xWJmfSeipw8BAAF0ETX8AJ4K-PDm";
 
@@ -542,7 +567,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     function addRouteLayers() {
         // (markers are in a separate layer because they are draggable, the route is not)
         routeLayer = new OpenLayers.Layer.Vector("Routes");
-        markersLayer = new OpenLayers.Layer.Vector("Planned Route Markers");
+        markersLayer = new OpenLayers.Layer.Vector("Route Markers");
 
         map.addLayers([routeLayer, markersLayer]);
 
@@ -552,7 +577,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
         markersDragControl.activate();
     }
 
-    // layer manipulation
     function setBaseLayer(name) {
         var layerArray = map.layers;
         for (var i=0;i<layerArray.length;i++) {
@@ -641,7 +665,14 @@ OTP.Map = function(_root, _controlsRoot, options) {
         showLayerButtonPopout(element, chooserUI, function(content) {
             content.find("#ferry")
                 .change(function(e) {
-                    systemMapRouteFeaturesCriteria.WSF = jQuery(this).val();
+                    var v = jQuery(this).val();
+                    
+                    if(v !== null && v !== "" && v !== "Select route") {
+                        systemMapRouteCriteria.WSF = "(designator LIKE '" + jQuery(this).val() + "')";
+                    } else {
+                        systemMapRouteCriteria.WSF = "";
+                    }
+                    
                     refreshRouteLayer();
                 });
         });
@@ -651,7 +682,22 @@ OTP.Map = function(_root, _controlsRoot, options) {
         var chooserUI = controlsRoot.find("#link-layer-chooser");
 
         showLayerButtonPopout(element, chooserUI, function(content) {
+            content.find("#link-central, #link-tacoma")
+                .change(function(e) {
+                    systemMapRouteCriteria.LINK = "";
+                    
+                    jQuery("#link-central, #link-tacoma").each(function(_, checkbox) {
+                        checkbox = jQuery(checkbox);
+                        if(checkbox.attr("checked") === true) {
+                            if(systemMapRouteCriteria.LINK.length > 0) {
+                                systemMapRouteCriteria.LINK += " AND ";
+                            }
+                            systemMapRouteCriteria.LINK += "(designator LIKE '" + checkbox.val() + "')";
+                        }
+                    });
 
+                    refreshRouteLayer();                    
+                });
         });
     }
 
@@ -659,7 +705,22 @@ OTP.Map = function(_root, _controlsRoot, options) {
         var chooserUI = controlsRoot.find("#sounder-layer-chooser");
 
         showLayerButtonPopout(element, chooserUI, function(content) {
+            content.find("#sounder-tacoma-seattle, #sounder-everett-seattle")
+                .change(function(e) {
+                    systemMapRouteCriteria.SOUNDER = "";
 
+                    jQuery("#sounder-tacoma-seattle, #sounder-everett-seattle").each(function(_, checkbox) {
+                        checkbox = jQuery(checkbox);                                    
+                        if(checkbox.attr("checked") === true) {
+                            if(systemMapRouteCriteria.SOUNDER.length > 0) {
+                                systemMapRouteCriteria.SOUNDER += " AND ";
+                            }
+                            systemMapRouteCriteria.SOUNDER += "(designator LIKE '" + checkbox.val() + "')";
+                        }
+                    });
+                    
+                    refreshRouteLayer();
+                });
         });
     }
 
@@ -667,9 +728,15 @@ OTP.Map = function(_root, _controlsRoot, options) {
         var chooserUI = controlsRoot.find("#bus-layer-chooser");
 
         showLayerButtonPopout(element, chooserUI, function(content) {
-            // behavior to update list of routes when agency changes
+            // behavior to populate route dropdown when agency changes
             content.find("#bus-agency")
-                .change(function(e) {       
+                .change(function(e) {      
+                    var agency = jQuery(this).val();
+                    
+                    if(agency === "") {
+                        return;
+                    } 
+
                     var callbackFunction = "getRouteListCallback" + Math.floor(Math.random() * 1000000000);
                     jQuery.ajax({
                             url: "http://sea.dev.openplans.org/geoserver/wfs",
@@ -679,19 +746,37 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                 request: "GetFeature",
                                 outputFormat: "json",
                                 format_options: "callback:" + callbackFunction,
+                                propertyName: "designator",
                                 typeName: "soundtransit:routes",
-                                cql_filter: "operator LIKE '" + jQuery(this).val() + "'"
+                                cql_filter: "(operator LIKE '" + agency + "' AND routetyp LIKE 'P')"
                             },
-                            success: function(data) {    
-                                debugger;
+                            success: function(data) {   
+                                var selectBox = content.find("#bus-route");
+                                selectBox.children().remove();
+                                selectBox.append("<option value=''>Select route</option>");
+                                for(var i = 0; i < data.features.length; i++) {
+                                    var feature = data.features[i];
+                                    var option = jQuery("<option></option")
+                                                    .text(feature.properties.designator)
+                                                    .val(feature.properties.designator);
+                                    selectBox.append(option);
+                                } 
                             }
                     });
-                });            
+                });
+                
+                content.find("#bus-route")
+                    .change(function(e) {
+                        var v = jQuery(this).val();
+                        
+                        if(v !== null && v !== "" && v !== "Select route") {
+                            systemMapRouteCriteria.BUS = "(operator LIKE '" + content.find("#bus-agency").val() + "' AND designator LIKE '" + jQuery(this).val() + "')";
+                        } else {
+                            systemMapRouteCriteria.BUS = "";
+                        }
 
-
-
-
-
+                        refreshRouteLayer();
+                    });                
         });
     }
 
@@ -732,6 +817,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     setLayerVisibility(layerName, true);
                     jQuery(this).addClass("active");
                 }
+                
+                hideInfoWindow();
+                
                 return false;
             })
             .hover(function(e) {
@@ -752,6 +840,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     setLayerVisibility(layerName, true);
                     jQuery(this).addClass("active");
                 }
+
+                hideInfoWindow();
+
                 return false;
             })
             .hover(function(e) {
@@ -772,6 +863,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     setLayerVisibility(layerName, true);
                     jQuery(this).addClass("active");
                 }
+
+                hideInfoWindow();
+
                 return false;
             })
             .hover(function(e) {
@@ -872,10 +966,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         },
 
         zoomToPlannedRoute: function() {
-            if(routeLayer !== null) {
-                var bounds = routeLayer.getDataExtent();
-                map.zoomToExtent(bounds);
-            }
+            zoomToRouteExtent();
         },
 
         // FIXME: we have to pass an encoded polyline into here because we 
@@ -939,7 +1030,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         },
 
         addLegToPlannedRoute: function(encodedPolyline, type) {
-            if(encodedPolyline === null) {
+            if(encodedPolyline === null || type === null) {
                 return;
             }
     
