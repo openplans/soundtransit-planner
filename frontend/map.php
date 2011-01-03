@@ -93,12 +93,12 @@
                 
                 <form>
                     <label>
-                        <input type="checkbox" id="sounder-tacoma-seattle" value="MSOUNDER"> 
+                        <input type="checkbox" id="sounder-tacoma-seattle" value="MSOUNDER/7"> 
                         Tacoma/Seattle route
                     </label>
 
                     <label>
-                        <input type="checkbox" id="sounder-everett-seattle" value="MSOUNDER"> 
+                        <input type="checkbox" id="sounder-everett-seattle" value="MSOUNDER/4"> 
                         Everett/Seattle route
                     </label>
                 </form>

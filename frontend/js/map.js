@@ -712,12 +712,13 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     systemMapRouteCriteria.SOUNDER = "";
 
                     jQuery("#sounder-tacoma-seattle, #sounder-everett-seattle").each(function(_, checkbox) {
-                        checkbox = jQuery(checkbox);                                    
+                        checkbox = jQuery(checkbox);
+                        var values = checkbox.val().split("/");                        
                         if(checkbox.attr("checked") === true) {
                             if(systemMapRouteCriteria.SOUNDER.length > 0) {
                                 systemMapRouteCriteria.SOUNDER += " OR ";
                             }
-                            systemMapRouteCriteria.SOUNDER += "(designator LIKE '" + checkbox.val() + "' AND routetyp LIKE 'P')";
+                            systemMapRouteCriteria.SOUNDER += "(designator LIKE '" + values[0] + "' AND stops=" + values[1] + " AND routetyp LIKE 'P')";
                         }
                     });
                     
