@@ -28,14 +28,16 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         timeSecParts = timeSubParts[2].split('.'),
         timeHours = Number(timeSubParts[0]),
 
-        _date = new Date;
+        _date = new Date();
         _date.setFullYear(Number(dateParts[0]));
         _date.setMonth(Number(dateParts[1])-1);
         _date.setDate(Number(dateParts[2]));
         _date.setHours(Number(timeHours));
         _date.setMinutes(Number(timeSubParts[1]));
         _date.setSeconds(Number(timeSecParts[0]));
-        if (timeSecParts[1]) _date.setMilliseconds(Number(timeSecParts[1]));
+        if (timeSecParts[1]) {
+            _date.setMilliseconds(Number(timeSecParts[1]));
+        }
 
         return _date;
     }
@@ -161,7 +163,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             agencyName = '<a href="http://www.soundtransit.org/link">Link Light Rail</a>';
             route = "";
         } else {
-            var agencyIdentifier = (route + '').toUpperCase().match("^[M|P|CT]\d*");
+            var agencyIdentifier = (route + '').toUpperCase().match(/^[M|P|CT]\d/i);
 
             if(agencyIdentifier !== null && typeof agencyIdentifier[0] !== 'undefined') {
                 agencyIdentifier = agencyIdentifier[0];
@@ -541,10 +543,10 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             } else {
                 jQuery(element).removeClass('blank');
             }
-        }
+        };
         var zeroPad = function(value) { 
-            return (parseInt(value) < 10) ? ("0" + value.toString()) : value;
-        }
+            return (parseInt(value, 10) < 10) ? ("0" + value.toString()) : value;
+        };
 
         // clear button behavior
         root.find('#clear').click(function() {
@@ -615,7 +617,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             });
 	
         root.find('#leavehour')
-            .val((now.getHours() > 12) ? (now.getHours() - 12) : ((now.getHours() == 0) ? 12 : now.getHours()));
+            .val((now.getHours() > 12) ? (now.getHours() - 12) : ((now.getHours() === 0) ? 12 : now.getHours()));
 
 		root.find('#leaveminute')
             .bind('change', function(event, ui) {
@@ -663,7 +665,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             
             jQuery(this).addClass("active");
 
-            var tripNumber = parseInt((this.id).split('-')[0].match(/([0-9]*)$/ig)[0]);
+            var tripNumber = parseInt((this.id).split('-')[0].match(/([0-9]*)$/ig)[0], 10);
 
             root.find('#trip' + tripNumber + '-results')
                 .slideDown()

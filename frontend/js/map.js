@@ -321,7 +321,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
             content.append("<p>" + k + ": " + v + "</p>");
         }
-
+        
         return content;
     }
 
@@ -491,9 +491,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
                      // in multi-geometry types, coords are wrapped in arrays of arrays
                      for(var z = 0; z < feature.geometry.coordinates.length; z++) {
                          for(var i = 0; i < feature.geometry.coordinates[z].length; i++) {
-                             var point = new OpenLayers.Geometry.Point(feature.geometry.coordinates[z][i][1], feature.geometry.coordinates[z][i][0]);
+                             var wgsPoint = new OpenLayers.Geometry.Point(feature.geometry.coordinates[z][i][1], feature.geometry.coordinates[z][i][0]);
                              var proj = new OpenLayers.Projection("EPSG:4326");
-                             var point = point.transform(proj, map.getProjectionObject());
+                             var point = wgsPoint.transform(proj, map.getProjectionObject());
                              points.push(point);
                          }
                      }
@@ -1038,9 +1038,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
             var rawPoints = decodePolyline(encodedPolyline);
             var points = [];
             for(var i = 0; i < rawPoints.length; i++) {
-                var point = new OpenLayers.Geometry.Point(rawPoints[i][1], rawPoints[i][0]);
-               	var proj = new OpenLayers.Projection("EPSG:4326");
-               	var point = point.transform(proj, map.getProjectionObject());
+                var wgsPoint = new OpenLayers.Geometry.Point(rawPoints[i][1], rawPoints[i][0]);
+                var proj = new OpenLayers.Projection("EPSG:4326");
+                var point = wgsPoint.transform(proj, map.getProjectionObject());
                 points.push(point);
             }
 

@@ -16,10 +16,10 @@ OTP.NarrativeForm = function(_root) {
             } else {
                 jQuery(element).removeClass('blank');
             }
-        }
+        };
         var zeroPad = function(value) { 
-            return (parseInt(value) < 10) ? ("0" + value.toString()) : value;
-        }
+            return (parseInt(value, 10) < 10) ? ("0" + value.toString()) : value;
+        };
 
         // clear button behavior
         root.find('#clear').click(function() {
@@ -74,7 +74,7 @@ OTP.NarrativeForm = function(_root) {
             });
 	
         root.find('#leavehour')
-            .val((now.getHours() > 12) ? (now.getHours() - 12) : ((now.getHours() == 0) ? 12 : now.getHours()));
+            .val((now.getHours() > 12) ? (now.getHours() - 12) : ((now.getHours() === 0) ? 12 : now.getHours()));
 
 		root.find('#leaveminute')
             .bind('change', function(event, ui) {
