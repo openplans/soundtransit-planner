@@ -163,7 +163,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             agencyName = '<a href="http://www.soundtransit.org/link">Link Light Rail</a>';
             route = "";
         } else {
-            var agencyIdentifier = (route + '').toUpperCase().match(/^[M|P|CT]\d/i);
+            var agencyIdentifier = (route + '').toUpperCase().match('^[M|P|CT|ST]');
 
             if(agencyIdentifier !== null && typeof agencyIdentifier[0] !== 'undefined') {
                 agencyIdentifier = agencyIdentifier[0];
