@@ -512,7 +512,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     function updateToLocation(point, isDrag) {
         if(point !== null) {
             root.find("#to")
-                .val(point.lat + "," + point.lon)
+                .val(parseFloat(point.lat).toFixed(6) + "," + parseFloat(point.lon).toFixed(6))
                 .removeClass('blank');
 
             if(isDrag === true) {
@@ -525,7 +525,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     function updateFromLocation(point, isDrag) {
         if(point !== null) {
             root.find("#from")
-                .val(point.lat + "," + point.lon)
+                .val(parseFloat(point.lat).toFixed(6) + "," + parseFloat(point.lon).toFixed(6))
                 .removeClass('blank');            
 
             if(isDrag === true) {
