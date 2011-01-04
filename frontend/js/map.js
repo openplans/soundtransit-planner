@@ -392,7 +392,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 // make request
                 var callbackFunction = "getFeatureCallback" + Math.floor(Math.random() * 1000000000);
                 jQuery.ajax({
-                        url: "http://sea.dev.openplans.org/geoserver/wfs",
+                        url: "http://sea.dev.openplans.org:8080/geoserver/wfs",
                         dataType: "jsonp",
                         jsonpCallback: callbackFunction,
                         data: {
@@ -473,7 +473,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
         var callbackFunction = "drawWFSRouteQueryWithStyleCallback" + Math.floor(Math.random() * 1000000000);
         jQuery.ajax({
-             url: "http://sea.dev.openplans.org/geoserver/wfs",
+             url: "http://sea.dev.openplans.org:8080/geoserver/wfs",
              dataType: "jsonp",
              jsonpCallback: callbackFunction,
              data: {
@@ -533,7 +533,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     }
 
     function addDataLayers() {
-        var stops = new OpenLayers.Layer.WMS("Stops", "http://sea.dev.openplans.org/geoserver/gwc/service/wms", {
+        var stops = new OpenLayers.Layer.WMS("Stops", "http://sea.dev.openplans.org:8080/geoserver/gwc/service/wms", {
             layers: 'soundtransit:stops',
             format: 'image/png'
         },
@@ -543,7 +543,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             visibility: false
         });
 
-        var parkandride = new OpenLayers.Layer.WMS("Park and Rides", "http://sea.dev.openplans.org/geoserver/gwc/service/wms", {
+        var parkandride = new OpenLayers.Layer.WMS("Park and Rides", "http://sea.dev.openplans.org:8080/geoserver/gwc/service/wms", {
             layers: 'soundtransit:parkandrides',
             format: 'image/png'
         },
@@ -553,7 +553,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             visibility: false
         });
 
-        var fareoutlets = new OpenLayers.Layer.WMS("Fare Outlets", "http://sea.dev.openplans.org/geoserver/gwc/service/wms", {
+        var fareoutlets = new OpenLayers.Layer.WMS("Fare Outlets", "http://sea.dev.openplans.org:8080/geoserver/gwc/service/wms", {
             layers: 'soundtransit:fareoutlets',
             format: 'image/png'
         },
@@ -749,7 +749,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
                     var callbackFunction = "getRouteListCallback" + Math.floor(Math.random() * 1000000000);
                     jQuery.ajax({
-                            url: "http://sea.dev.openplans.org/geoserver/wfs",
+                            url: "http://sea.dev.openplans.org:8080/geoserver/wfs",
                             dataType: "jsonp",
                             jsonpCallback: callbackFunction,
                             data: {
