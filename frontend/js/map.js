@@ -412,6 +412,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
         var getFeatureInfoControl = new OpenLayers.Control.GetFeatureInfoWithJSONP();
         map.addControl(getFeatureInfoControl);
         getFeatureInfoControl.activate();
+
+        // hide info windows if zoom level changes
+        map.events.on({ "zoomend": hideInfoWindow });
     }
 
     // layer stuff
