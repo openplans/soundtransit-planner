@@ -80,8 +80,8 @@ OTP.NarrativeForm = function(_root) {
             .bind('change', function(event, ui) {
                 this.value = zeroPad(this.value);
             })
-            .spinner({ min: 0, max: 59, increment: 'fast' })
-            .val(zeroPad(now.getMinutes()));
+            .val(zeroPad(now.getMinutes()))
+            .spinner({ min: 0, max: 59, increment: 'fast' });
 
         if (now.getHours() >= 12) {
             root.find('#leaveampm option[value="pm"]')

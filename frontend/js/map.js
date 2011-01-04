@@ -5,7 +5,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         return null;
     }
     
-    // options from user--valid values are:
+    // configuration options--valid values are:
     //
     // * updateFromLocationFunction: function called when end marker is dragged
     // * updateToLocationFunction: function called when start marker is dragged
@@ -23,7 +23,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     var infoWindow = null;
     var layerChooserPopout = null;
 
-    // array of WMS layers that can be queried with GetFeatureInfo
+    // array of WMS layers that can be queried with WFS GetFeature
     var queryableLayers = [];
 
     // the vector layers that are used by the trip planner to show the planned route.
@@ -90,7 +90,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
             markersDragControl.deactivate();
         }
 
-        contextMenu = jQuery("<ul></ul>");
+        contextMenu = jQuery("<ul></ul>")
+                        .addClass("context-menu");
 
         var lonlat = map.getLonLatFromViewPortPx(point);
     
@@ -155,8 +156,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                             });
         contextMenu.append(centerMapHere);
 
-        contextMenu.css("z-index", "10000000")
-            .css("position", "absolute")
+        contextMenu
             .css("left", point.x)
             .css("top", point.y)
             .menu();
@@ -230,6 +230,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             infoWindowContent = jQuery("<div>There is more than one facility at this point. Zoom in to choose one.</div>")
                                     .addClass("content")
                                     .css("width", "175px");
+                                    
             lonlat = clickedLocation;
         } else {
             infoWindowContent =  jQuery(getInfoWindowContentForFeature(feature.properties))
@@ -268,10 +269,14 @@ OTP.Map = function(_root, _controlsRoot, options) {
     }
 
     function ensureInfoWindowIsVisible() {
-        var viewPortWidth = jQuery(map.viewPortDiv).width();
+        if(infoWindow === null) {
+            return;
+        }
+        
         var infoWindowWidth = infoWindow.width();
-        var layerContainerPosition = jQuery(map.layerContainerDiv).position();
         var infoWindowPosition = infoWindow.position();
+        var viewPortWidth = jQuery(map.viewPortDiv).width();
+        var layerContainerPosition = jQuery(map.layerContainerDiv).position();
 
         var x = 0;
         var y = 0;
@@ -296,14 +301,14 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
     function getInfoWindowContentForFeature(featureProperties) {
         var content = jQuery("<div></div>")
-                        .addClass("content");
+                            .addClass("content");
 
         var headerWrapper = jQuery("<div></div>")
-                        .addClass("header")
-                        .appendTo(content);
+                            .addClass("header")
+                            .appendTo(content);
 
         var header = jQuery("<p></p>")
-                        .appendTo(headerWrapper);
+                            .appendTo(headerWrapper);
 
         if(typeof featureProperties.outlettype !== 'undefined') {
             headerWrapper.addClass("fareoutlet");
@@ -371,21 +376,21 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                                     lonlat.lon + (iconSize.w * metersPerPixel), 
                                                     lonlat.lat + (iconSize.h * metersPerPixel));
 
-                // generate layer query specification
-                var visibleLayers = [];
+                // generate visible layer query specification
+                var visibleLayerTypes = [];
                 for(var i = 0; i < queryableLayers.length; i++) {
                     if(queryableLayers[i].getVisibility() === true) {
                         var activeLayer = queryableLayers[i];
-                        visibleLayers.push(activeLayer.params.LAYERS);
+                        visibleLayerTypes.push(activeLayer.params.LAYERS);
                     }
                 }
                 
-                if(visibleLayers.length === 0) {
+                if(visibleLayerTypes.length === 0) {
                     return;
                 }
 
                 // make request
-                var callbackFunction = "getFeatureInfoCallback" + Math.floor(Math.random() * 1000000000);
+                var callbackFunction = "getFeatureCallback" + Math.floor(Math.random() * 1000000000);
                 jQuery.ajax({
                         url: "http://sea.dev.openplans.org/geoserver/wfs",
                         dataType: "jsonp",
@@ -394,7 +399,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                             request: "GetFeature",
                             outputFormat: "json",
                             format_options: "callback:" + callbackFunction,
-                            typeName: visibleLayers.join(","),
+                            typeName: visibleLayerTypes.join(","),
                             bbox: queryBounds.toBBOX(6, false) + "," + map.getProjection()
                         },
                         success: function(data) {    
@@ -410,24 +415,23 @@ OTP.Map = function(_root, _controlsRoot, options) {
     }
 
     // layer stuff
-    function zoomToRouteExtent() {
+    function zoomToRouteLayerExtent() {
         if(routeLayer !== null) {
             var bounds = routeLayer.getDataExtent();
             map.zoomToExtent(bounds);
         }
     }
 
+    // FIXME: do we need to clear then readd everything here?
     function refreshRouteLayer() {
         if(routeLayer !== null) {
             routeLayer.removeAllFeatures();
         }
         
         for(mode in systemMapRouteCriteria) {         
-            var query = systemMapRouteCriteria[mode];
+            var cqlQuery = systemMapRouteCriteria[mode];
 
-            console.log(mode + "=" + query);
-
-            if(query === null || query === "") {
+            if(cqlQuery === null || cqlQuery === "") {
                 continue;
             }
 
@@ -458,7 +462,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                  };                                
             }
 
-            drawWFSRouteQueryWithStyle(query, style);
+            drawWFSRouteQueryWithStyle(cqlQuery, style);
         }
     }
 
@@ -467,7 +471,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             return;
         }
 
-        var callbackFunction = "drawWFSPolylineQueryWithStyleCallback" + Math.floor(Math.random() * 1000000000);
+        var callbackFunction = "drawWFSRouteQueryWithStyleCallback" + Math.floor(Math.random() * 1000000000);
         jQuery.ajax({
              url: "http://sea.dev.openplans.org/geoserver/wfs",
              dataType: "jsonp",
@@ -486,7 +490,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
                  }
 
                  jQuery(data.features).each(function(_, feature) {
-                     // in multi-geometry types, coords are wrapped in arrays of arrays
                      for(var z = 0; z < feature.geometry.coordinates.length; z++) {
                          var points = [];
 
@@ -622,7 +625,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
         var popoutId = openingElement.attr("id") + "-popout";
 
         layerChooserPopout = controlsRoot.find("#" + popoutId);
-        if(layerChooserPopout.length === 0) {        
+        if(layerChooserPopout.length === 0) {
+            // wrap content in a div if we were passed a string--if a DOM node, just wrap in jQuery.
             var layerChooserPopoutContent = null;
             if(typeof content === "string") {
                 layerChooserPopoutContent = jQuery("<div></div>")
@@ -651,6 +655,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
         layerChooserPopout.show();
                  
+        // position popout
         var parentElement = jQuery(openingElement.parent());
         var offset = openingElement.offset();
         var offsetParent = parentElement.offset();
@@ -670,7 +675,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     var v = jQuery(this).val();
                     
                     if(v !== null && v !== "" && v !== "Select route") {
-                        systemMapRouteCriteria.WSF = "(designator LIKE '" + jQuery(this).val() + "' AND routetyp LIKE 'P')";
+                        systemMapRouteCriteria.WSF = "(designator LIKE '" + v + "' AND routetyp LIKE 'P')";
                     } else {
                         systemMapRouteCriteria.WSF = "";
                     }
@@ -712,8 +717,10 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     systemMapRouteCriteria.SOUNDER = "";
 
                     jQuery("#sounder-tacoma-seattle, #sounder-everett-seattle").each(function(_, checkbox) {
-                        checkbox = jQuery(checkbox);
+                        // there are two things required to specify a route--we delimit them with a "/" in the input value.
                         var values = checkbox.val().split("/");                        
+
+                        checkbox = jQuery(checkbox);
                         if(checkbox.attr("checked") === true) {
                             if(systemMapRouteCriteria.SOUNDER.length > 0) {
                                 systemMapRouteCriteria.SOUNDER += " OR ";
@@ -773,7 +780,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                         var v = jQuery(this).val();
                         
                         if(v !== null && v !== "" && v !== "Select route") {
-                            systemMapRouteCriteria.BUS = "(operator LIKE '" + content.find("#bus-agency").val() + "' AND designator LIKE '" + jQuery(this).val() + "' AND routetyp LIKE 'P')";
+                            systemMapRouteCriteria.BUS = "(operator LIKE '" + content.find("#bus-agency").val() + "' AND designator LIKE '" + v + "' AND routetyp LIKE 'P')";
                         } else {
                             systemMapRouteCriteria.BUS = "";
                         }
@@ -944,18 +951,17 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
     // setup map 
     addBaseLayers();    
-
-    // center on seattle metro area
-    var point = new OpenLayers.LonLat(-122.30, 47.45);
-    var proj = new OpenLayers.Projection("EPSG:4326");
-    map.setCenter(point.transform(proj, map.getProjectionObject()), 8);
-
     addRouteLayers();    
     addDataLayers();
 
     addContextMenuBehavior();
     addMapLayerChooserBehavior();
     addDataLayerQueryBehavior();
+
+    // center on seattle metro area
+    var point = new OpenLayers.LonLat(-122.30, 47.45);
+    var proj = new OpenLayers.Projection("EPSG:4326");
+    map.setCenter(point.transform(proj, map.getProjectionObject()), 8);
 
     // public methods    
     return {
@@ -970,7 +976,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         },
 
         zoomToPlannedRoute: function() {
-            zoomToRouteExtent();
+            zoomToRouteLayerExtent();
         },
 
         // FIXME: we have to pass an encoded polyline into here because we 

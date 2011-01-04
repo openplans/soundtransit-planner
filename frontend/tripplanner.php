@@ -37,10 +37,10 @@
 
             // SET PROPERTIES PASSED TO US FROM THE HOMEPAGE OR ANOTHER FORM
             <?php
-                if(isset($_REQUEST['from']) && $_REQUEST['from'] != "") 
+                if(isset($_REQUEST['from'])) 
                     echo "narrative.setFrom('" . $_REQUEST['from'] . "');\n";
 
-                if(isset($_REQUEST['to']) && $_REQUEST['to'] != "") 
+                if(isset($_REQUEST['to'])) 
                     echo "narrative.setTo('" . $_REQUEST['to'] . "');\n";
 
                 if(isset($_REQUEST['leavetype'])) 

@@ -266,7 +266,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             return;
         }
 
-        // trip options header
+        // trip summary header
         var tripSummariesMarkup = jQuery('<table id="tripresult-summaries">' + 
                                             '<thead><tr><th>Trip</th><th>Travel Time</th><th>Cash</th><th>Route &amp; Transfers</th><tr></thead>' + 
                                             '<tbody></tbody>' + 
@@ -284,9 +284,10 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             var tripNumber = tripIndex + 1;
             var tripModes = [];
 
+            // transfers for this trip
             var transfers = Math.floor(trip.legs.leg.length / 2) - 1;
 
-            // fares
+            // fares for this trip
             var studentFare = "";
             var seniorFare = "";
             var regularFare = "";
@@ -306,13 +307,14 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                                 .addClass("results")
                                 .attr("id", "trip" + tripNumber + "-results");
                             
+            // step by step directions for this trip
             var itineraryMarkup = jQuery('<ul class="trip-stepbystep"></ul>');
 
             var startTime = null;
             var endTime = null;
             var tripDuration = 0;
             jQuery.each(trip.legs.leg, function(legIndex, leg) {                  
-                // trip options header: leg icons
+                // leg mode icons for this trip
                 if(isSounder(leg["@route"])) {
                     tripModes.push('<img src="img/sounder16x16.png" alt="Sounder" /> <strong>Sounder</strong> ');
 
@@ -329,10 +331,10 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     tripModes.push(modeText);                    
                 }
 
-                // trip detail: trip leg descriptions
+                // leg descriptions for this trip
                 itineraryMarkup.append((leg["@mode"] === "WALK") ? formatWalkLeg(legIndex, leg) : formatTransitLeg(legIndex, leg));
 
-                // end time, start time, duration across this trip for use in trip header 
+                // end time, start time, duration across this trip for use in trip summary 
                 if(! isNaN(leg.duration) && typeof leg.duration !== 'undefined') {
                     try {
                         tripDuration += parseInt(leg.duration, 10);
@@ -363,7 +365,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 updateMap(data, tripNumber);
             }
 
-            // trip options header
+            // trip summary header
             jQuery('<tr id="trip' + tripNumber + '-summary" class="'+ activeClass + '">' +
                     '<td class="trip-id">' + tripNumber + '</td>' +
                     '<td>' + millisecondsToString(tripDuration) + '<em>' + ((startTime !== null) ? prettyTime(startTime) : "Unknown") + ' - ' + ((endTime !== null) ? prettyTime(endTime) : "Unknown") + '</em></td>' + 
@@ -372,7 +374,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     '</tr>')
                     .appendTo(tripSummariesMarkup.children('tbody'));
 
-            // trip detail: price header
+            // trip descripton: price header
             jQuery('<table class="trip-prices">' + 
                     '<thead><tr><th><h3>Trip ' + tripNumber + '</h3></th><th colspan="2">' + millisecondsToString(tripDuration) + ', ' + transfers + ' Transfer' + ((transfers === 1) ? "" : "s") + '</th></tr></thead>' + 
                     '<tbody>' + 
@@ -442,19 +444,20 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     }
 
     function formatWalkLeg(legIndex, leg) {
-        return jQuery('<li class="' + leg["@mode"].toLowerCase() + ' leg-' + legIndex + '"></li>').html(
-                    '<img class="mode-icon" src="img/walk16x16.png" alt="' + leg["@mode"] + '" />' +
+        return jQuery('<li class="walk leg-' + legIndex + '"></li>').html(
+                    '<img class="mode-icon" src="img/walk16x16.png" alt="Walk" />' +
                     'Walk from <strong>' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '</strong> to <strong>' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + '</strong>' + 
                     '<div class="stepmeta">' + millisecondsToString(leg.duration) + ' (' + prettyDistance(leg.distance) + ')</div>');
     }
 
     function formatTransitLeg(legIndex, leg) {
-        // determine mode that will be used to display icons, etc.
-        var displayMode = leg["@mode"];
+        // determine key that will be used to display mode icons
+        var displayType = leg["@mode"];
+
         if(isSounder(leg["@route"])) {
-            displayMode = 'sounder';
+            displayType = 'Sounder';
         } else if(isTheLink(leg["@route"])) {
-            displayMode = 'link';
+            displayType = 'Link';
         }
 
         // previous stop at end point + stops passed on leg
@@ -475,8 +478,8 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             }
         }
         
-        return jQuery('<li class="' + displayMode.toLowerCase() + ' leg-' + legIndex + '"></li>').html(
-                    '<img class="mode-icon" src="img/' + displayMode.toLowerCase() + '16x16.png" alt="' + displayMode + '" />' + prettyCase(leg["@mode"]) + ' - ' + prettyRoute(leg["@route"], true) + 
+        return jQuery('<li class="' + displayType.toLowerCase() + ' leg-' + legIndex + '"></li>').html(
+                    '<img class="mode-icon" src="img/' + displayType.toLowerCase() + '16x16.png" alt="' + displayType + '" />' + prettyCase(leg["@mode"]) + ' - ' + prettyRoute(leg["@route"], true) + 
                     '<table class="substeps"><tbody>' + 
                     '<tr><td>' + prettyTime(ISO8601StringToDate(leg.startTime)) + '</td><td>Depart ' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '</div></td></tr>' + 
                     '<tr><td>' + prettyTime(ISO8601StringToDate(leg.endTime)) + '</td><td>Arrive ' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + 
@@ -623,8 +626,8 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             .bind('change', function(event, ui) {
                 this.value = zeroPad(this.value);
             })
-            .spinner({ min: 0, max: 59, increment: 'fast' })
-            .val(zeroPad(now.getMinutes()));
+            .val(zeroPad(now.getMinutes()))
+            .spinner({ min: 0, max: 59, increment: 'fast' });
 
         if (now.getHours() >= 12) {
             root.find('#leaveampm option[value="pm"]')
@@ -772,10 +775,14 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 return;
             }
             
-            root.find('#moreoptions').show();            
+            // deploy extras section if value was changed
+            var currentValue = root.find('#trippriority-wrap select').val();
+            if(currentValue !== v) {
+                root.find('#moreoptions').show();
 
-            root.find('a#optionstoggle').html('Fewer Options<span></span>')
-                .addClass('active');
+                root.find('a#optionstoggle').html('Fewer Options<span></span>')
+                    .addClass('active');
+            }
  
             var realSelect = root.find('#trippriority-wrap select');
             var styledSelect = root.find('#trippriority-wrap input');
@@ -793,11 +800,15 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 return;
             }
             
-            root.find('#moreoptions').show();
+            // deploy extras section if value was changed
+            var currentValue = root.find('#maxwalk-wrap select').val();
+            if(currentValue !== v) {
+                root.find('#moreoptions').show();
 
-            root.find('a#optionstoggle').html('Fewer Options<span></span>')
-                .addClass('active');
-                            
+                root.find('a#optionstoggle').html('Fewer Options<span></span>')
+                    .addClass('active');
+            }
+                    
             var realSelect = root.find('#maxwalk-wrap select');
             var styledSelect = root.find('#maxwalk-wrap input');
 
@@ -813,11 +824,15 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             if(v === null || v === "") {
                 return;
             }
-            
-            root.find('#moreoptions').show();
 
-            root.find('a#optionstoggle').html('Fewer Options<span></span>')
-                .addClass('active');
+            // deploy extras section if value was changed
+            var currentValue = root.find('accessible').attr("checked");
+            if(currentValue !== v) {
+                root.find('#moreoptions').show();
+
+                root.find('a#optionstoggle').html('Fewer Options<span></span>')
+                    .addClass('active');
+            }
 
             root.find('accessible')
                 .attr('checked', v);
