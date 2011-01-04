@@ -133,7 +133,7 @@
                 
                 <form>
                     <select id="ferry">
-                        <option selected="true" value="Select route">Select route</option>
+                        <option selected="true" value="">Select route</option>
                         <option value="MWSF-5I">Seattle - Bainbridge Island</option>
                         <option value="MWSF-3I">Seattle - Bremerton</option>
                         <option value="MWSF-13I">Fauntleroy-Southworth</option>

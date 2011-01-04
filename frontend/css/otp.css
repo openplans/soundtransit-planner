@@ -765,12 +765,17 @@ width: 100%;
 }
 
 /* context menu */
-#map .ui-menu .ui-menu-item a {
+.context-menu {
+    z-index: 10000000;
+    position: absolute;
+}
+    
+.context-menu .ui-menu-item a {
     font-size: 11px;
     color: #656565;
 }
 
-#map .ui-menu .ui-menu-item.separator {
+.context-menu .ui-menu-item.separator {
     padding-bottom: 5px;
     margin-bottom: 5px;
     border-bottom: 1px solid #C0C0C0;    
