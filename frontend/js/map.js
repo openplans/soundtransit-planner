@@ -1078,8 +1078,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
             var icon = new OpenLayers.Feature.Vector(point.transform(proj, map.getProjectionObject()), { type: "disambiguation"});
 
             icon.style = {
-                             externalGraphic: "img/pin-" + counter + ".png",
-                             graphicWidth: 29,
+                             externalGraphic: "img/pin-" + counter + "-highlight.png",
+                             graphicWidth: 32,
                              graphicHeight: 37,
                              graphicXOffset: -15,
                              graphicYOffset: -37,
@@ -1101,8 +1101,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
 						// FIXME: There must be a better way to do this, but I'm not finding a way to specify highlight or select styles on a per-feature basis.
             markersSelectControl.highlight(markersLayer.getFeatureById(id));
 						markersLayer.getFeatureById(id).style = {
-                             externalGraphic: "img/b-flag.png",
-                             graphicWidth: 29,
+                             externalGraphic: "img/pin-" + counter + ".png",
+                             graphicWidth: 32,
                              graphicHeight: 37,
                              graphicXOffset: -15,
                              graphicYOffset: -37,
@@ -1121,7 +1121,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             markersSelectControl.unhighlight(markersLayer.getFeatureById(id));
 						markersLayer.getFeatureById(id).style = {
                              externalGraphic: "img/pin-" + counter + ".png",
-                             graphicWidth: 29,
+                             graphicWidth: 32,
                              graphicHeight: 37,
                              graphicXOffset: -15,
                              graphicYOffset: -37,
