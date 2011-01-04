@@ -412,6 +412,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
         var getFeatureInfoControl = new OpenLayers.Control.GetFeatureInfoWithJSONP();
         map.addControl(getFeatureInfoControl);
         getFeatureInfoControl.activate();
+
+        // hide info windows if zoom level changes
+        map.events.on({ "zoomend": hideInfoWindow });
     }
 
     // layer stuff
@@ -717,10 +720,11 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     systemMapRouteCriteria.SOUNDER = "";
 
                     jQuery("#sounder-tacoma-seattle, #sounder-everett-seattle").each(function(_, checkbox) {
+                        checkbox = jQuery(checkbox);
+
                         // there are two things required to specify a route--we delimit them with a "/" in the input value.
                         var values = checkbox.val().split("/");                        
 
-                        checkbox = jQuery(checkbox);
                         if(checkbox.attr("checked") === true) {
                             if(systemMapRouteCriteria.SOUNDER.length > 0) {
                                 systemMapRouteCriteria.SOUNDER += " OR ";
