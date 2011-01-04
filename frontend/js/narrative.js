@@ -494,21 +494,31 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     // FIXME
     function disambiguateResults(results) {
         var disambiguateMarkup = jQuery('<div id="disambiguate-results"></div>');
-        var disambiguateToMarkup = (results.to) ? jQuery('<div id="from-possibles"><h3>We found several starting points for your search</h3><h4>Did you mean?</h4><ol><li class="possible-1">12th Ave, Seattle WA <a href="#">select</a></li><li class="possible-2">52 12th Ave, Seattle WA <a href="#">select</a></li></ol></div>') : "";
-        var disambiguateFromMarkup = (results.from) ? jQuery('<div id="from-possibles"><h3>We found several ending points for your search</h3><h4>Did you mean?</h4><ol><li class="possible-1">12th Ave, Seattle WA <a href="#">select</a></li><li class="possible-2">52 12th Ave, Seattle WA <a href="#">select</a></li></ol></div>') : "";
+        var disambiguateToMarkup = "";
+        var disambiguateFromMarkup = "";
 
-        // TODO: Add points to map, select behavior
-        jQuery(results.to).each(function(_, result) {       
-            disambiguateToMarkup.append("");
-        });
+				if (results.to.candidate instanceof Array) {
+					var disambiguateToMarkup = jQuery('<div id="to-possibles"><h3>We found several ending points for your search</h3><h4>Did you mean?</h4></div>');
+					var toList = jQuery('<ol></ol>');
+		        // TODO: Add points to map, select behavior
+		        jQuery(results.to.candidate).each(function(_, result) {       
+		            toList.append('<li class="possible-' + (_ + 1) + '">' + result.name + ', ' + result.area + '<a href="#">select</a></li>');
+		        });
+						disambiguateToMarkup.append(toList);
+				}
 
-        // TODO: Add points to map, select behavior
-        jQuery(results.from).each(function(_, result) {       
-            disambiguateFromMarkup.append("");
-        });
+				if (results.from.candidate instanceof Array) {
+					  var disambiguateFromMarkup = jQuery('<div id="from-possibles"><h3>We found several starting points for your search</h3><h4>Did you mean?</h4></div>');
+						var fromList = jQuery('<ol></ol>');
+		        // TODO: Add points to map, select behavior
+		        jQuery(results.from.candidate).each(function(_, result) {     
+		            fromList.append('<li class="possible-' + (_ + 1) + '">' + result.name + ', ' + result.area + '<a href="#">select</a></li>');
+		        });
+						disambiguateFromMarkup.append(fromList);
+				}
 
         root.find("#trip-data")
-            .html(disambiguateMarkup.append(disambiguateToMarkup + disambiguateFromMarkup));
+            .html(disambiguateMarkup.append(disambiguateToMarkup).append(disambiguateFromMarkup));
     }
 
     // event handlers
