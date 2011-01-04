@@ -1078,7 +1078,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             var icon = new OpenLayers.Feature.Vector(point.transform(proj, map.getProjectionObject()), { type: "disambiguation"});
 
             icon.style = {
-                             externalGraphic: "img/pin-" + counter + "-highlight.png",
+                             externalGraphic: "img/pin-" + counter + ".png",
                              graphicWidth: 32,
                              graphicHeight: 37,
                              graphicXOffset: -15,
@@ -1120,7 +1120,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
             markersSelectControl.unhighlight(markersLayer.getFeatureById(id));
 						markersLayer.getFeatureById(id).style = {
-                             externalGraphic: "img/pin-" + counter + ".png",
+                             externalGraphic: "img/pin-" + counter + "-highlight.png",
                              graphicWidth: 32,
                              graphicHeight: 37,
                              graphicXOffset: -15,
