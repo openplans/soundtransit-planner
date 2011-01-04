@@ -577,7 +577,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         map.addLayers([routeLayer, markersLayer]);
 
         // listener for drag events on markers
-        var markersDragControl = new OpenLayers.Control.DragFeature(markersLayer, { onComplete: onCompleteMarkerMove });
+        markersDragControl = new OpenLayers.Control.DragFeature(markersLayer, { onComplete: onCompleteMarkerMove });
         map.addControl(markersDragControl);
         markersDragControl.activate();
     }
@@ -591,7 +591,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }  
     }
 
-	function setLayerVisibility(name, visible) {
+  function setLayerVisibility(name, visible) {
         var layerArray = map.layers;
         for (var i=0;i<layerArray.length;i++) {
             if (map.layers[i].name === name) {
@@ -980,6 +980,20 @@ OTP.Map = function(_root, _controlsRoot, options) {
             zoomToRouteLayerExtent();
         },
 
+        beginDisambiguation: function() {
+            markersLayer.removeAllFeatures();
+            if(markersDragControl !== null) {
+                markersDragControl.deactivate();
+            }
+        },
+
+        endDisambiguation: function() {
+            markersLayer.removeAllFeatures();
+            if(markersDragControl !== null) {
+                markersDragControl.activate();
+            }
+        },
+
         // FIXME: we have to pass an encoded polyline into here because we 
         // don't have access to just the start/end points for some leg types. Change API?
         setStartPoint: function(encodedPolyline) {
@@ -1040,15 +1054,15 @@ OTP.Map = function(_root, _controlsRoot, options) {
             markersLayer.addFeatures([icon]);
         },
 
-        addDisambiguationPoint: function(lat, lon, counter) {
+        addDisambiguationPoint: function(lon, lat, counter) {
             if(lat === null || lon === null) {
                 return;
             }
 
-						if (counter === null) {
-								counter = 1;
-						}
-						//alert(lat + "," + lon + "," + counter);
+            if (counter === null) {
+                counter = 1;
+            }
+            //alert(lat + "," + lon + "," + counter);
 
             var point = new OpenLayers.Geometry.Point(lat, lon);
             var proj = new OpenLayers.Projection("EPSG:4326");
@@ -1060,10 +1074,12 @@ OTP.Map = function(_root, _controlsRoot, options) {
                              graphicXOffset: -15,
                              graphicYOffset: -37,
                              graphicTitle: "Disambiguation Point",
-                             cursor: "move"
+                             cursor: "auto"
                          };
+            
 
             markersLayer.addFeatures([icon]);
+            map.zoomToExtent(markersLayer.getDataExtent());
         },
 
 

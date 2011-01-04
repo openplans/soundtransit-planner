@@ -72,11 +72,11 @@ OTP.NarrativeForm = function(_root) {
                 buttonImage: "img/calendar.png",
                 buttonImageOnly: true
             });
-	
+  
         root.find('#leavehour')
             .val((now.getHours() > 12) ? (now.getHours() - 12) : ((now.getHours() === 0) ? 12 : now.getHours()));
 
-		root.find('#leaveminute')
+    root.find('#leaveminute')
             .spinner({ min: 0, max: 59, increment: 'fast' })
             .bind('change', function(event, ui) {
                 this.value = zeroPad(this.value);

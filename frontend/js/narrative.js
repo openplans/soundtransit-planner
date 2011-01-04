@@ -497,27 +497,34 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         var disambiguateToMarkup = "";
         var disambiguateFromMarkup = "";
 
-				if (results.to.candidate instanceof Array) {
-					var disambiguateToMarkup = jQuery('<div id="to-possibles"><h3>We found several ending points for your search</h3><h4>Did you mean?</h4></div>');
-					var toList = jQuery('<ol></ol>');
-		        // TODO: Add points to map, select behavior
-		        jQuery(results.to.candidate).each(function(_, result) {       
-		            toList.append('<li class="possible-' + (_ + 1) + '">' + result.name + ', ' + result.area + '<a href="#">select</a></li>');
-								map.addDisambiguationPoint(result.latitude, result.longitude, (_+1));
-		        });
-						disambiguateToMarkup.append(toList);
-				}
+        map.beginDisambiguation();
 
-				if (results.from.candidate instanceof Array) {
-					  var disambiguateFromMarkup = jQuery('<div id="from-possibles"><h3>We found several starting points for your search</h3><h4>Did you mean?</h4></div>');
-						var fromList = jQuery('<ol></ol>');
-		        // TODO: Add points to map, select behavior
-		        jQuery(results.from.candidate).each(function(_, result) {     
-		            fromList.append('<li class="possible-' + (_ + 1) + '">' + result.name + ', ' + result.area + '<a href="#">select</a></li>');
-								map.addDisambiguationPoint(result.latitude, result.longitude, (_+1));
-		        });
-						disambiguateFromMarkup.append(fromList);
-				}
+        if (results.to.candidate instanceof Array) {
+          var disambiguateToMarkup = jQuery('<div id="to-possibles"><h3>We found several ending points for your search</h3><h4>Did you mean?</h4></div>');
+          var toList = jQuery('<ol></ol>');
+            // TODO: Add points to map, select behavior
+            jQuery(results.to.candidate).each(function(_, result) {       
+                toList.append('<li class="possible-' + (_ + 1) + '">' + result.name + ', ' + result.area + '<a href="#">select</a></li>');
+                map.addDisambiguationPoint(result.longitude, result.latitude, (_+1));
+            });
+            disambiguateToMarkup.append(toList);
+        }
+
+        if (results.from.candidate instanceof Array) {
+            var disambiguateFromMarkup = jQuery('<div id="from-possibles"><h3>We found several starting points for your search</h3><h4>Did you mean?</h4></div>');
+            var fromList = jQuery('<ol></ol>');
+            // TODO: Add points to map, select behavior
+            jQuery(results.from.candidate).each(function(_, result) {
+                var link = jQuery('<a href="#">select</a>').click(function() {
+                    alert((_ + 1));
+                    return false;
+                });
+        
+                jQuery('<li class="possible-' + (_ + 1) + '">' + result.name + ', ' + result.area + '</li>').append(link).appendTo(fromList);
+                map.addDisambiguationPoint(result.latitude, result.longitude, (_+1));
+            });
+            disambiguateFromMarkup.append(fromList);
+        }
 
         root.find("#trip-data")
             .html(disambiguateMarkup.append(disambiguateToMarkup).append(disambiguateFromMarkup));
@@ -630,11 +637,11 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 buttonImage: "img/calendar.png",
                 buttonImageOnly: true
             });
-	
+  
         root.find('#leavehour')
             .val((now.getHours() > 12) ? (now.getHours() - 12) : ((now.getHours() === 0) ? 12 : now.getHours()));
 
-		root.find('#leaveminute')
+    root.find('#leaveminute')
             .spinner({ min: 0, max: 59, increment: 'fast' })
             .bind('change', function(event, ui) {
                 this.value = zeroPad(this.value);
