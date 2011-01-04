@@ -30,6 +30,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     var routeLayer = null;   
     var markersLayer = null;
     var markersDragControl = null;
+		var markersSelectControl = null;
 
     // CQL filter for system-map route layer
     var systemMapRouteCriteria = {};
@@ -579,6 +580,11 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
         map.addLayers([routeLayer, markersLayer]);
 
+			  // enable selection of features
+				markersSelectControl = new OpenLayers.Control.SelectFeature(markersLayer, {});
+				map.addControl(markersSelectControl);
+				markersSelectControl.activate();
+
         // listener for drag events on markers
         markersDragControl = new OpenLayers.Control.DragFeature(markersLayer, { onComplete: onCompleteMarkerMove });
         map.addControl(markersDragControl);
@@ -1066,11 +1072,11 @@ OTP.Map = function(_root, _controlsRoot, options) {
             if (counter === null) {
                 counter = 1;
             }
-            //alert(lat + "," + lon + "," + counter);
 
             var point = new OpenLayers.Geometry.Point(lat, lon);
             var proj = new OpenLayers.Projection("EPSG:4326");
-            var icon = new OpenLayers.Feature.Vector(point.transform(proj, map.getProjectionObject()), { type: "disambiguation" });
+            var icon = new OpenLayers.Feature.Vector(point.transform(proj, map.getProjectionObject()), { type: "disambiguation"});
+
             icon.style = {
                              externalGraphic: "img/pin-" + counter + ".png",
                              graphicWidth: 29,
@@ -1079,13 +1085,51 @@ OTP.Map = function(_root, _controlsRoot, options) {
                              graphicYOffset: -37,
                              graphicTitle: "Disambiguation Point",
                              cursor: "auto"
-                         };
-            
+                         };           
 
             markersLayer.addFeatures([icon]);
             map.zoomToExtent(markersLayer.getDataExtent());
+
+						return icon.id;
         },
 
+        highlightDisambiguationPoint: function(id, counter) {
+            if(id === null || counter === null) {
+                return;
+            }
+						
+						// FIXME: There must be a better way to do this, but I'm not finding a way to specify highlight or select styles on a per-feature basis.
+            markersSelectControl.highlight(markersLayer.getFeatureById(id));
+						markersLayer.getFeatureById(id).style = {
+                             externalGraphic: "img/b-flag.png",
+                             graphicWidth: 29,
+                             graphicHeight: 37,
+                             graphicXOffset: -15,
+                             graphicYOffset: -37,
+                             graphicTitle: "Disambiguation Point",
+                             cursor: "auto"
+                         };
+
+        },
+				
+
+        unhighlightDisambiguationPoint: function(id, counter) {
+            if(id === null || counter === null) {
+                return;
+            }
+
+            markersSelectControl.unhighlight(markersLayer.getFeatureById(id));
+						markersLayer.getFeatureById(id).style = {
+                             externalGraphic: "img/pin-" + counter + ".png",
+                             graphicWidth: 29,
+                             graphicHeight: 37,
+                             graphicXOffset: -15,
+                             graphicYOffset: -37,
+                             graphicTitle: "Disambiguation Point",
+                             cursor: "auto"
+                         };
+
+        },
 
         addLegToPlannedRoute: function(encodedPolyline, type) {
             if(encodedPolyline === null || type === null) {

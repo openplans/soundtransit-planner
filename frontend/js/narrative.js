@@ -515,13 +515,16 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             var fromList = jQuery('<ol></ol>');
             // TODO: Add points to map, select behavior
             jQuery(results.from.candidate).each(function(_, result) {
+								var feature_id = map.addDisambiguationPoint(result.latitude, result.longitude, (_+1));
+	
                 var link = jQuery('<a href="#">select</a>').click(function() {
-                    alert((_ + 1));
+                    //alert(feature_id);
                     return false;
                 });
-        
-                jQuery('<li class="possible-' + (_ + 1) + '">' + result.name + ', ' + result.area + '</li>').append(link).appendTo(fromList);
-                map.addDisambiguationPoint(result.latitude, result.longitude, (_+1));
+
+ 
+                jQuery('<li class="possible-' + (_ + 1) + '">' + result.name + ', ' + result.area + '</li>')	.mouseenter(function() { map.highlightDisambiguationPoint(feature_id, (_ + 1));}).mouseleave(function() { map.unhighlightDisambiguationPoint(feature_id, (_ + 1));}).append(link).appendTo(fromList);
+
             });
             disambiguateFromMarkup.append(fromList);
         }
