@@ -633,11 +633,11 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             .val((now.getHours() > 12) ? (now.getHours() - 12) : ((now.getHours() === 0) ? 12 : now.getHours()));
 
 		root.find('#leaveminute')
+            .spinner({ min: 0, max: 59, increment: 'fast' })
             .bind('change', function(event, ui) {
                 this.value = zeroPad(this.value);
             })
-            .val(zeroPad(now.getMinutes()))
-            .spinner({ min: 0, max: 59, increment: 'fast' });
+            .val(zeroPad(now.getMinutes()));
 
         if (now.getHours() >= 12) {
             root.find('#leaveampm option[value="pm"]')
