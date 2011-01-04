@@ -758,7 +758,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                 format_options: "callback:" + callbackFunction,
                                 propertyName: "designator",
                                 typeName: "soundtransit:routes",
-                                cql_filter: "(operator LIKE '" + agency + "' AND routetyp LIKE 'P')"
+                                cql_filter: "(operator LIKE '" + agency + "' AND routetyp LIKE 'P')",
+                                sortBy: "designator"
                             },
                             success: function(data) {   
                                 var selectBox = content.find("#bus-route");
