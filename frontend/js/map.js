@@ -1033,6 +1033,33 @@ OTP.Map = function(_root, _controlsRoot, options) {
             markersLayer.addFeatures([icon]);
         },
 
+        addDisambiguationPoint: function(lat, lon, counter) {
+            if(lat === null || lon === null) {
+                return;
+            }
+
+						if (counter === null) {
+								counter = 1;
+						}
+						//alert(lat + "," + lon + "," + counter);
+
+            var point = new OpenLayers.Geometry.Point(lat, lon);
+            var proj = new OpenLayers.Projection("EPSG:4326");
+            var icon = new OpenLayers.Feature.Vector(point.transform(proj, map.getProjectionObject()), { type: "disambiguation" });
+            icon.style = {
+                             externalGraphic: "img/pin-" + counter + ".png",
+                             graphicWidth: 29,
+                             graphicHeight: 37,
+                             graphicXOffset: -15,
+                             graphicYOffset: -37,
+                             graphicTitle: "Disambiguation Point",
+                             cursor: "move"
+                         };
+
+            markersLayer.addFeatures([icon]);
+        },
+
+
         addLegToPlannedRoute: function(encodedPolyline, type) {
             if(encodedPolyline === null || type === null) {
                 return;

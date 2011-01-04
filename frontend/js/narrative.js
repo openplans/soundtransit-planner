@@ -500,6 +500,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
 		        // TODO: Add points to map, select behavior
 		        jQuery(results.to.candidate).each(function(_, result) {       
 		            toList.append('<li class="possible-' + (_ + 1) + '">' + result.name + ', ' + result.area + '<a href="#">select</a></li>');
+								map.addDisambiguationPoint(result.latitude, result.longitude, (_+1));
 		        });
 						disambiguateToMarkup.append(toList);
 				}
@@ -510,6 +511,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
 		        // TODO: Add points to map, select behavior
 		        jQuery(results.from.candidate).each(function(_, result) {     
 		            fromList.append('<li class="possible-' + (_ + 1) + '">' + result.name + ', ' + result.area + '<a href="#">select</a></li>');
+								map.addDisambiguationPoint(result.latitude, result.longitude, (_+1));
 		        });
 						disambiguateFromMarkup.append(fromList);
 				}
