@@ -30,7 +30,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     var routeLayer = null;   
     var markersLayer = null;
     var markersDragControl = null;
-		var markersSelectControl = null;
+    var markersSelectControl = null;
 
     // CQL filter for system-map route layer
     var systemMapRouteCriteria = {};
@@ -580,10 +580,10 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
         map.addLayers([routeLayer, markersLayer]);
 
-			  // enable selection of features
-				markersSelectControl = new OpenLayers.Control.SelectFeature(markersLayer, {});
-				map.addControl(markersSelectControl);
-				markersSelectControl.activate();
+        // enable selection of features
+        markersSelectControl = new OpenLayers.Control.SelectFeature(markersLayer, {});
+        map.addControl(markersSelectControl);
+        markersSelectControl.activate();
 
         // listener for drag events on markers
         markersDragControl = new OpenLayers.Control.DragFeature(markersLayer, { onComplete: onCompleteMarkerMove });
@@ -1003,6 +1003,10 @@ OTP.Map = function(_root, _controlsRoot, options) {
             }
         },
 
+        removeDisambiguationFor: function(location) {
+            markersLayer.removeFeatures(markersLayer.getFeaturesByAttribute('location', location));
+        },
+
         // FIXME: we have to pass an encoded polyline into here because we 
         // don't have access to just the start/end points for some leg types. Change API?
         setStartPoint: function(encodedPolyline) {
@@ -1063,7 +1067,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             markersLayer.addFeatures([icon]);
         },
 
-        addDisambiguationPoint: function(lon, lat, counter) {
+        addDisambiguationPoint: function(lon, lat, counter, location) {
             if(lat === null || lon === null) {
                 return;
             }
@@ -1074,7 +1078,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
             var point = new OpenLayers.Geometry.Point(lat, lon);
             var proj = new OpenLayers.Projection("EPSG:4326");
-            var icon = new OpenLayers.Feature.Vector(point.transform(proj, map.getProjectionObject()), { type: "disambiguation"});
+            var icon = new OpenLayers.Feature.Vector(point.transform(proj, map.getProjectionObject()), { type: "disambiguation", location: location});
 
             icon.style = {
                              externalGraphic: "img/pin-" + counter + ".png",
@@ -1089,17 +1093,17 @@ OTP.Map = function(_root, _controlsRoot, options) {
             markersLayer.addFeatures([icon]);
             map.zoomToExtent(markersLayer.getDataExtent());
 
-						return icon.id;
+            return icon.id;
         },
 
         highlightDisambiguationPoint: function(id, counter) {
             if(id === null || counter === null) {
                 return;
             }
-						
-						// FIXME: There must be a better way to do this, but I'm not finding a way to specify highlight or select styles on a per-feature basis.
+            
+            // FIXME: There must be a better way to do this, but I'm not finding a way to specify highlight or select styles on a per-feature basis.
             markersSelectControl.highlight(markersLayer.getFeatureById(id));
-						markersLayer.getFeatureById(id).style = {
+            markersLayer.getFeatureById(id).style = {
                              externalGraphic: "img/pin-" + counter + ".png",
                              graphicWidth: 32,
                              graphicHeight: 37,
@@ -1110,14 +1114,14 @@ OTP.Map = function(_root, _controlsRoot, options) {
                          };
 
         },
-				
+        
         unhighlightDisambiguationPoint: function(id, counter) {
             if(id === null || counter === null) {
                 return;
             }
 
             markersSelectControl.unhighlight(markersLayer.getFeatureById(id));
-						markersLayer.getFeatureById(id).style = {
+            markersLayer.getFeatureById(id).style = {
                              externalGraphic: "img/pin-" + counter + "-highlight.png",
                              graphicWidth: 32,
                              graphicHeight: 37,

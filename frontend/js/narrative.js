@@ -504,15 +504,15 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
           var toList = jQuery('<ol></ol>');
           // TODO: Add points to map, select behavior
           jQuery(results.to.candidate).each(function(_, result) {
-							if (_ >= 9) {return false;} //cap disambiguation somewhere
-							var feature_id = map.addDisambiguationPoint(result.latitude, result.longitude, (_+1));
+              if (_ >= 9) {return false;} //cap disambiguation somewhere
+              var feature_id = map.addDisambiguationPoint(result.latitude, result.longitude, (_+1), 'to');
 
               var link = jQuery('<a href="#">select</a>').click(function() {
                   userHasDisambiguated('to', $(this).parent().children('span.lat-lon').text());
                   return false;
               });
 
-              jQuery('<li class="possible-' + (_ + 1) + '"><span class="nice-name">' + result.name + ', ' + result.area + '</span><span class="lat-lon" style="display: none;">' + result.latitude + ',' + result.longitude + '</span></li>')	.mouseenter(function() { map.highlightDisambiguationPoint(feature_id, (_ + 1));}).mouseleave(function() { map.unhighlightDisambiguationPoint(feature_id, (_ + 1));}).append(link).appendTo(toList);
+              jQuery('<li class="possible-' + (_ + 1) + '"><span class="nice-name">' + result.name + ', ' + result.area + '</span><span class="lat-lon" style="display: none;">' + result.latitude + ',' + result.longitude + '</span></li>') .mouseenter(function() { map.highlightDisambiguationPoint(feature_id, (_ + 1));}).mouseleave(function() { map.unhighlightDisambiguationPoint(feature_id, (_ + 1));}).append(link).appendTo(toList);
 
           });
            disambiguateToMarkup.append(toList);
@@ -523,15 +523,15 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             var fromList = jQuery('<ol></ol>');
             // TODO: Add points to map, select behavior
             jQuery(results.from.candidate).each(function(_, result) {
-								if (_ >= 9) {return false;} //cap disambiguation somewhere
-								var feature_id = map.addDisambiguationPoint(result.latitude, result.longitude, (_+1));
-	
+                if (_ >= 9) {return false;} //cap disambiguation somewhere
+                var feature_id = map.addDisambiguationPoint(result.latitude, result.longitude, (_+1), 'from');
+  
                 var link = jQuery('<a href="#">select</a>').click(function() {
-										userHasDisambiguated('from', $(this).parent().children('span.lat-lon').text());
+                    userHasDisambiguated('from', $(this).parent().children('span.lat-lon').text());
                     return false;
                 });
 
-                jQuery('<li class="possible-' + (_ + 1) + '"><span class="nice-name">' + result.name + ', ' + result.area + '</span><span class="lat-lon" style="display: none;">' + result.latitude + ',' + result.longitude + '</span></li>')	.mouseenter(function() { map.highlightDisambiguationPoint(feature_id, (_ + 1));}).mouseleave(function() { map.unhighlightDisambiguationPoint(feature_id, (_ + 1));}).append(link).appendTo(fromList);
+                jQuery('<li class="possible-' + (_ + 1) + '"><span class="nice-name">' + result.name + ', ' + result.area + '</span><span class="lat-lon" style="display: none;">' + result.latitude + ',' + result.longitude + '</span></li>') .mouseenter(function() { map.highlightDisambiguationPoint(feature_id, (_ + 1));}).mouseleave(function() { map.unhighlightDisambiguationPoint(feature_id, (_ + 1));}).append(link).appendTo(fromList);
 
             });
             disambiguateFromMarkup.append(fromList);
@@ -569,14 +569,15 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     }
 
     function userHasDisambiguated(location, value) { // location should be either "to" or "from"
-				root.find('#' + location ).val(value);
-				// TODO: handle the case where we have ambiguous addresses for BOTH to and from
-				// Will need to remove only the relevant markers
-				// This probably means that we need different markers for to and from candidates, as well
-				map.endDisambiguation();
-    		root.find('#' + location + '-possibles').fadeOut('slow');
-				root.find("form#trip-plan-form").submit();
-				
+        root.find('#' + location ).val(value);
+        root.find('#' + location + '-possibles').fadeOut('slow', function() { 
+            $(this).remove();
+            map.removeDisambiguationFor(location);
+            if (root.find('#disambiguate-results').children().length == 0) {
+                map.endDisambiguation();
+                root.find("form#trip-plan-form").submit();
+            }
+        });
     }
 
     // behaviors
@@ -663,7 +664,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         root.find('#leavehour')
             .val((now.getHours() > 12) ? (now.getHours() - 12) : ((now.getHours() === 0) ? 12 : now.getHours()));
 
-				root.find('#leaveminute')
+        root.find('#leaveminute')
             .spinner({ min: 0, max: 59, increment: 'fast' })
             .bind('change', function(event, ui) {
                 this.value = zeroPad(this.value);
