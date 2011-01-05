@@ -503,7 +503,8 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
           var disambiguateToMarkup = jQuery('<div id="to-possibles"><h3>We found several ending points for your search</h3><h4>Did you mean?</h4></div>');
           var toList = jQuery('<ol></ol>');
           // TODO: Add points to map, select behavior
-          jQuery(results.from.candidate).each(function(_, result) {
+          jQuery(results.to.candidate).each(function(_, result) {
+							if (_ >= 9) {return false;} //cap disambiguation somewhere
 							var feature_id = map.addDisambiguationPoint(result.latitude, result.longitude, (_+1));
 
               var link = jQuery('<a href="#">select</a>').click(function() {
@@ -522,6 +523,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             var fromList = jQuery('<ol></ol>');
             // TODO: Add points to map, select behavior
             jQuery(results.from.candidate).each(function(_, result) {
+								if (_ >= 9) {return false;} //cap disambiguation somewhere
 								var feature_id = map.addDisambiguationPoint(result.latitude, result.longitude, (_+1));
 	
                 var link = jQuery('<a href="#">select</a>').click(function() {
@@ -536,7 +538,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         }
 
         root.find("#trip-data")
-            .html(disambiguateMarkup.append(disambiguateToMarkup).append(disambiguateFromMarkup));
+            .html(disambiguateMarkup.append(disambiguateFromMarkup).append(disambiguateToMarkup));
     }
 
     // event handlers
@@ -661,7 +663,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         root.find('#leavehour')
             .val((now.getHours() > 12) ? (now.getHours() - 12) : ((now.getHours() === 0) ? 12 : now.getHours()));
 
-    root.find('#leaveminute')
+				root.find('#leaveminute')
             .spinner({ min: 0, max: 59, increment: 'fast' })
             .bind('change', function(event, ui) {
                 this.value = zeroPad(this.value);
