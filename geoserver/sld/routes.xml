@@ -14,7 +14,7 @@
         <Rule>
             <ogc:Filter>
                 <ogc:PropertyIsEqualTo>
-                    <ogc:PropertyName>operator</ogc:PropertyName>
+                    <ogc:PropertyName>Operator</ogc:PropertyName>
                     <ogc:Literal>LLR</ogc:Literal>
                 </ogc:PropertyIsEqualTo>
             </ogc:Filter>
@@ -32,7 +32,7 @@
         <Rule>
             <ogc:Filter>
                 <ogc:PropertyIsEqualTo>
-            	    <ogc:PropertyName>operator</ogc:PropertyName>
+            	    <ogc:PropertyName>Operator</ogc:PropertyName>
             	    <ogc:Literal>SDR</ogc:Literal>
                 </ogc:PropertyIsEqualTo>
             </ogc:Filter>
@@ -50,7 +50,7 @@
         <Rule>
             <ogc:Filter>
                 <ogc:PropertyIsEqualTo>
-            	    <ogc:PropertyName>operator</ogc:PropertyName>
+            	    <ogc:PropertyName>Operator</ogc:PropertyName>
             	    <ogc:Literal>WSF</ogc:Literal>
                 </ogc:PropertyIsEqualTo>
             </ogc:Filter>
@@ -69,47 +69,47 @@
             <ogc:Filter>
                 <ogc:Or>                
                     <ogc:PropertyIsEqualTo>
-                	    <ogc:PropertyName>operator</ogc:PropertyName>
+                	    <ogc:PropertyName>Operator</ogc:PropertyName>
                 	    <ogc:Literal>ET</ogc:Literal>
                     </ogc:PropertyIsEqualTo>
 
                     <ogc:PropertyIsEqualTo>
-                	    <ogc:PropertyName>operator</ogc:PropertyName>
+                	    <ogc:PropertyName>Operator</ogc:PropertyName>
                 	    <ogc:Literal>ST</ogc:Literal>
                     </ogc:PropertyIsEqualTo>
 
                     <ogc:PropertyIsEqualTo>
-                	    <ogc:PropertyName>operator</ogc:PropertyName>
+                	    <ogc:PropertyName>Operator</ogc:PropertyName>
                 	    <ogc:Literal>MT</ogc:Literal>
                     </ogc:PropertyIsEqualTo>
 
                     <ogc:PropertyIsEqualTo>
-                	    <ogc:PropertyName>operator</ogc:PropertyName>
+                	    <ogc:PropertyName>Operator</ogc:PropertyName>
                 	    <ogc:Literal>MR</ogc:Literal>
                     </ogc:PropertyIsEqualTo>
                 
                     <ogc:PropertyIsEqualTo>
-                	    <ogc:PropertyName>operator</ogc:PropertyName>
+                	    <ogc:PropertyName>Operator</ogc:PropertyName>
                 	    <ogc:Literal>CT</ogc:Literal>
                     </ogc:PropertyIsEqualTo>
                 
                     <ogc:PropertyIsEqualTo>
-                	    <ogc:PropertyName>operator</ogc:PropertyName>
+                	    <ogc:PropertyName>Operator</ogc:PropertyName>
                 	    <ogc:Literal>PT</ogc:Literal>
                     </ogc:PropertyIsEqualTo>
                 
                     <ogc:PropertyIsEqualTo>
-                	    <ogc:PropertyName>operator</ogc:PropertyName>
+                	    <ogc:PropertyName>Operator</ogc:PropertyName>
                 	    <ogc:Literal>IT</ogc:Literal>
                     </ogc:PropertyIsEqualTo>
 
                     <ogc:PropertyIsEqualTo>
-                	    <ogc:PropertyName>operator</ogc:PropertyName>
+                	    <ogc:PropertyName>Operator</ogc:PropertyName>
                 	    <ogc:Literal>MTW</ogc:Literal>
                     </ogc:PropertyIsEqualTo>
 
                     <ogc:PropertyIsEqualTo>
-                	    <ogc:PropertyName>operator</ogc:PropertyName>
+                	    <ogc:PropertyName>Operator</ogc:PropertyName>
                 	    <ogc:Literal>SLU</ogc:Literal>
                     </ogc:PropertyIsEqualTo>
                 </ogc:Or>

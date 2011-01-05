@@ -684,7 +684,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     var v = jQuery(this).val();
                     
                     if(v !== null && v !== "" && v !== "Select route") {
-                        systemMapRouteCriteria.WSF = "(designator LIKE '" + v + "' AND routetyp LIKE 'P')";
+                        systemMapRouteCriteria.WSF = "(Designator LIKE '" + v + "' AND RouteTyp LIKE 'P')";
                     } else {
                         systemMapRouteCriteria.WSF = "";
                     }
@@ -708,7 +708,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                             if(systemMapRouteCriteria.LINK.length > 0) {
                                 systemMapRouteCriteria.LINK += " OR ";
                             }
-                            systemMapRouteCriteria.LINK += "(designator LIKE '" + checkbox.val() + "' AND routetyp LIKE 'P')";
+                            systemMapRouteCriteria.LINK += "(Designator LIKE '" + checkbox.val() + "' AND RouteTyp LIKE 'P')";
                         }
                     });
 
@@ -735,7 +735,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                             if(systemMapRouteCriteria.SOUNDER.length > 0) {
                                 systemMapRouteCriteria.SOUNDER += " OR ";
                             }
-                            systemMapRouteCriteria.SOUNDER += "(designator LIKE '" + values[0] + "' AND stops=" + values[1] + " AND routetyp LIKE 'P')";
+                            systemMapRouteCriteria.SOUNDER += "(Designator LIKE '" + values[0] + "' AND Stops=" + values[1] + " AND RouteTyp LIKE 'P')";
                         }
                     });
                     
@@ -766,10 +766,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                 request: "GetFeature",
                                 outputFormat: "json",
                                 format_options: "callback:" + callbackFunction,
-                                propertyName: "designator",
+                                propertyName: "Designator",
                                 typeName: "soundtransit:routes",
-                                cql_filter: "(operator LIKE '" + agency + "' AND routetyp LIKE 'P')",
-                                sortBy: "designator"
+                                cql_filter: "(Operator LIKE '" + agency + "' AND RouteTyp LIKE 'P')"
                             },
                             success: function(data) {   
                                 var selectBox = content.find("#bus-route");
@@ -778,8 +777,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                 for(var i = 0; i < data.features.length; i++) {
                                     var feature = data.features[i];
                                     var option = jQuery("<option></option")
-                                                    .text(feature.properties.designator)
-                                                    .val(feature.properties.designator);
+                                                    .text(feature.properties.Designator)
+                                                    .val(feature.properties.Designator);
                                     selectBox.append(option);
                                 } 
                             }
@@ -791,7 +790,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                         var v = jQuery(this).val();
                         
                         if(v !== null && v !== "" && v !== "Select route") {
-                            systemMapRouteCriteria.BUS = "(operator LIKE '" + content.find("#bus-agency").val() + "' AND designator LIKE '" + v + "' AND routetyp LIKE 'P')";
+                            systemMapRouteCriteria.BUS = "(Operator LIKE '" + content.find("#bus-agency").val() + "' AND Designator LIKE '" + v + "' AND RouteTyp LIKE 'P')";
                         } else {
                             systemMapRouteCriteria.BUS = "";
                         }
@@ -1112,7 +1111,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
         },
 				
-
         unhighlightDisambiguationPoint: function(id, counter) {
             if(id === null || counter === null) {
                 return;
