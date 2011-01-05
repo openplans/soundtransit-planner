@@ -53,7 +53,7 @@ background-position: -65px -16px;
 
 .ui-widget .ui-widget,
 input.ui-widget, .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
-background-image: url(../img/form-field-bg.png);
+background-image: url(../img/otp/form-field-bg.png);
 background-repeat: repeat-x;
 color: #656565;
 font-family: inherit;
@@ -115,31 +115,31 @@ background-position: 0 -28px;
 }
 
 #toggle-layers a#toggle-fares {
-background-image: url(../img/fares-modal-icon.png);
+background-image: url(../img/otp/fares-modal-icon.png);
 }
 
 #toggle-layers a#toggle-parking {
-background-image: url(../img/parking-modal-icon.png);
+background-image: url(../img/otp/parking-modal-icon.png);
 }
 
 #toggle-layers a#toggle-location {
-background-image: url(../img/location-modal-icon.png);
+background-image: url(../img/otp/location-modal-icon.png);
 }
 
 #toggle-layers a#toggle-bus {
-background-image: url(../img/bus-modal-icon.png);
+background-image: url(../img/otp/bus-modal-icon.png);
 }
 
 #toggle-layers a#toggle-sounder {
-background-image: url(../img/sounder-modal-icon.png);
+background-image: url(../img/otp/sounder-modal-icon.png);
 }
 
 #toggle-layers a#toggle-link {
-background-image: url(../img/link-modal-icon.png);
+background-image: url(../img/otp/link-modal-icon.png);
 }
 
 #toggle-layers a#toggle-ferry {
-background-image: url(../img/ferry-modal-icon.png);
+background-image: url(../img/otp/ferry-modal-icon.png);
 }
 
 
@@ -214,7 +214,7 @@ background: none;
 
 #from.blank:focus, 
 #to.blank:focus {
-background-image: url(../img/form-field-bg.png);
+background-image: url(../img/otp/form-field-bg.png);
 background-repeat: repeat-x;
 }
 
@@ -226,7 +226,7 @@ top: 50%;
 margin-top: -10px;
 width: 20px;
 height: 21px;
-background: url(../img/toggle.png);
+background: url(../img/otp/toggle.png);
 overflow: hidden;
 text-indent: -9999em;
 }
@@ -359,7 +359,7 @@ margin-top: 15px;
 padding: 15px 0 15px 30px;
 font-size: 18px;
 color: #656565;
-background: url(../img/spinner.gif) 0 50% no-repeat;
+background: url(../img/otp/spinner.gif) 0 50% no-repeat;
 }
 
 /* - */
@@ -404,11 +404,11 @@ padding: 4px 0 8px 28px;
 }
 
 #disambiguate-results #from-possibles h4 {
-background: url(../img/a-flag.png) 0 50% no-repeat;
+background: url(../img/otp/a-flag.png) 0 50% no-repeat;
 }
 
 #disambiguate-results #to-possibles h4 {
-background: url(../img/b-flag.png) 0 50% no-repeat;
+background: url(../img/otp/b-flag.png) 0 50% no-repeat;
 }
 
 #disambiguate-results ol {
@@ -428,75 +428,75 @@ float: right;
 
 /* ASSUMPTION: no more than 9 ambiguous results at once */
 #disambiguate-results ol li.possible-1 {
-background-image: url(../img/pin-1.png);
+background-image: url(../img/otp/pin-1.png);
 }
 
 * html #disambiguate-results ol li.possible-1 {
-background-image: url(../img/pin-1-ie.png);
+background-image: url(../img/otp/pin-1-ie.png);
 }
 
 #disambiguate-results ol li.possible-2 {
-background-image: url(../img/pin-2.png);
+background-image: url(../img/otp/pin-2.png);
 }
 
 * html #disambiguate-results ol li.possible-2 {
-background-image: url(../img/pin-2-ie.png);
+background-image: url(../img/otp/pin-2-ie.png);
 }
 
 #disambiguate-results ol li.possible-3 {
-background-image: url(../img/pin-3.png);
+background-image: url(../img/otp/pin-3.png);
 }
 
 * html #disambiguate-results ol li.possible-3 {
-background-image: url(../img/pin-3-ie.png);
+background-image: url(../img/otp/pin-3-ie.png);
 }
 
 #disambiguate-results ol li.possible-4 {
-background-image: url(../img/pin-4.png);
+background-image: url(../img/otp/pin-4.png);
 }
 
 * html #disambiguate-results ol li.possible-4 {
-background-image: url(../img/pin-4-ie.png);
+background-image: url(../img/otp/pin-4-ie.png);
 }
 
 #disambiguate-results ol li.possible-5 {
-background-image: url(../img/pin-5.png);
+background-image: url(../img/otp/pin-5.png);
 }
 
 * html #disambiguate-results ol li.possible-5 {
-background-image: url(../img/pin-5-ie.png);
+background-image: url(../img/otp/pin-5-ie.png);
 }
 
 #disambiguate-results ol li.possible-6 {
-background-image: url(../img/pin-6.png);
+background-image: url(../img/otp/pin-6.png);
 }
 
 * html #disambiguate-results ol li.possible-6 {
-background-image: url(../img/pin-6-ie.png);
+background-image: url(../img/otp/pin-6-ie.png);
 }
 
 #disambiguate-results ol li.possible-7 {
-background-image: url(../img/pin-7.png);
+background-image: url(../img/otp/pin-7.png);
 }
 
 * html #disambiguate-results ol li.possible-7 {
-background-image: url(../img/pin-7-ie.png);
+background-image: url(../img/otp/pin-7-ie.png);
 }
 
 #disambiguate-results ol li.possible-8 {
-background-image: url(../img/pin-8.png);
+background-image: url(../img/otp/pin-8.png);
 }
 
 * html #disambiguate-results ol li.possible-8 {
-background-image: url(../img/pin-8-ie.png);
+background-image: url(../img/otp/pin-8-ie.png);
 }
 
 #disambiguate-results ol li.possible-9 {
-background-image: url(../img/pin-9.png);
+background-image: url(../img/otp/pin-9.png);
 }
 
 * html #disambiguate-results ol li.possible-9 {
-background-image: url(../img/pin-9-ie.png);
+background-image: url(../img/otp/pin-9-ie.png);
 }
 
 /* - */
@@ -659,19 +659,19 @@ top: 3px;
 }
 
 ul.trip-stepbystep li.walk {
-background-image: url(../img/walk-step-bg.png);
+background-image: url(../img/otp/walk-step-bg.png);
 }
 
 ul.trip-stepbystep li.sounder {
-background-image: url(../img/sounder-step-bg.png);
+background-image: url(../img/otp/sounder-step-bg.png);
 }
 
 ul.trip-stepbystep li.link {
-background-image: url(../img/link-step-bg.png);
+background-image: url(../img/otp/link-step-bg.png);
 }
 
 ul.trip-stepbystep li.bus {
-background-image: url(../img/bus-step-bg.png);
+background-image: url(../img/otp/bus-step-bg.png);
 }
 
 ul.trip-stepbystep li:last-child {
@@ -708,11 +708,11 @@ font-style: italic;
 }
 
 #disambiguation.from h3 {
-background: url(../img/a-flag.png) 0 50% no-repeat;
+background: url(../img/otp/a-flag.png) 0 50% no-repeat;
 }
 
 #disambiguation.to h3 {
-background: url(../img/b-flag.png) 0 50% no-repeat;
+background: url(../img/otp/b-flag.png) 0 50% no-repeat;
 }
 
 #disambiguation ol li {
@@ -735,75 +735,75 @@ text-decoration: underline;
 }
 
 #disambiguation ol li.option-1 {
-background-image: url(../img/pin-1.png);
+background-image: url(../img/otp/pin-1.png);
 }
 
 * html #disambiguation ol li.option-1 {
-background-image: url(../img/pin-1-ie.png);
+background-image: url(../img/otp/pin-1-ie.png);
 }
 
 #disambiguation ol li.option-2 {
-background-image: url(../img/pin-2.png);
+background-image: url(../img/otp/pin-2.png);
 }
 
 * html #disambiguation ol li.option-2 {
-background-image: url(../img/pin-2-ie.png);
+background-image: url(../img/otp/pin-2-ie.png);
 }
 
 #disambiguation ol li.option-3 {
-background-image: url(../img/pin-3.png);
+background-image: url(../img/otp/pin-3.png);
 }
 
 * html #disambiguation ol li.option-3 {
-background-image: url(../img/pin-3-ie.png);
+background-image: url(../img/otp/pin-3-ie.png);
 }
 
 #disambiguation ol li.option-4 {
-background-image: url(../img/pin-4.png);
+background-image: url(../img/otp/pin-4.png);
 }
 
 * html #disambiguation ol li.option-4 {
-background-image: url(../img/pin-4-ie.png);
+background-image: url(../img/otp/pin-4-ie.png);
 }
 
 #disambiguation ol li.option-5 {
-background-image: url(../img/pin-5.png);
+background-image: url(../img/otp/pin-5.png);
 }
 
 * html #disambiguation ol li.option-5 {
-background-image: url(../img/pin-5-ie.png);
+background-image: url(../img/otp/pin-5-ie.png);
 }
 
 #disambiguation ol li.option-6 {
-background-image: url(../img/pin-6.png);
+background-image: url(../img/otp/pin-6.png);
 }
 
 * html #disambiguation ol li.option-6 {
-background-image: url(../img/pin-6-ie.png);
+background-image: url(../img/otp/pin-6-ie.png);
 }
 
 #disambiguation ol li.option-7 {
-background-image: url(../img/pin-7.png);
+background-image: url(../img/otp/pin-7.png);
 }
 
 * html #disambiguation ol li.option-7 {
-background-image: url(../img/pin-7-ie.png);
+background-image: url(../img/otp/pin-7-ie.png);
 }
 
 #disambiguation ol li.option-8 {
-background-image: url(../img/pin-8.png);
+background-image: url(../img/otp/pin-8.png);
 }
 
 * html #disambiguation ol li.option-8 {
-background-image: url(../img/pin-8-ie.png);
+background-image: url(../img/otp/pin-8-ie.png);
 }
 
 #disambiguation ol li.option-9 {
-background-image: url(../img/pin-9.png);
+background-image: url(../img/otp/pin-9.png);
 }
 
 * html #disambiguation ol li.option-9 {
-background-image: url(../img/pin-9-ie.png);
+background-image: url(../img/otp/pin-9-ie.png);
 }
 
 /* - */
@@ -852,7 +852,7 @@ width: 100%;
 .layer-popout {
     top: 32px;
     position: absolute;
-    background-image: url(../img/bubble-top-callout.png);
+    background-image: url(../img/otp/bubble-top-callout.png);
     background-position: 50% 0;
     padding-top: 11px;
     background-repeat: no-repeat;
@@ -877,7 +877,7 @@ width: 100%;
     top: 5px;
     right: 5px;
     text-indent: -9999px;
-    background-image: url(../img/close.png);
+    background-image: url(../img/otp/close.png);
     background-repeat: no-repeat;
     background-position: 0 0;
     height: 19px;
@@ -895,19 +895,19 @@ width: 100%;
 }
 
 .layer-chooser.WSF .header {
-    background-image: url(../img/ferry-modal-icon.png);
+    background-image: url(../img/otp/ferry-modal-icon.png);
 }
 
 .layer-chooser.link .header {
-    background-image: url(../img/link-modal-icon.png);
+    background-image: url(../img/otp/link-modal-icon.png);
 }
 
 .layer-chooser.sounder .header {
-    background-image: url(../img/sounder-modal-icon.png);
+    background-image: url(../img/otp/sounder-modal-icon.png);
 }
 
 .layer-chooser.bus .header {
-    background-image: url(../img/bus-modal-icon.png);
+    background-image: url(../img/otp/bus-modal-icon.png);
 }
 
 .layer-chooser .header p {
@@ -933,7 +933,7 @@ width: 100%;
 /* - */
 .info-window {
     position: absolute;
-    background-image: url(../img/bubble-bottom-callout.png);
+    background-image: url(../img/otp/bubble-bottom-callout.png);
     background-position: 50% 100%;
     padding-bottom: 11px;
     background-repeat: no-repeat;
@@ -969,15 +969,15 @@ width: 100%;
 }
 
 .info-window .content .header.stop {
-    background-image: url(../img/location-icon.png);
+    background-image: url(../img/otp/location-icon.png);
 }
 
 .info-window .content .header.fareoutlet {
-    background-image: url(../img/fares-icon.png);
+    background-image: url(../img/otp/fares-icon.png);
 }
 
 .info-window .content .header.parkandride {
-    background-image: url(../img/parking-icon.png);
+    background-image: url(../img/otp/parking-icon.png);
 }
 
 .info-window .content p {
@@ -989,7 +989,7 @@ width: 100%;
     top: 5px;
     right: 5px;
     text-indent: -9999px;
-    background-image: url(../img/close.png);
+    background-image: url(../img/otp/close.png);
     background-repeat: no-repeat;
     background-position: 0 0;
     height: 19px;
