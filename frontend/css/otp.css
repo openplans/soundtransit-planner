@@ -720,7 +720,7 @@ list-style-type: none;
 min-height: 21px;
 vertical-align: middle;
 font-size: 15px;
-padding: 8px 30px 8px 35px;
+padding: 8px 30px 8px 38px;
 margin-bottom: 5px;
 background-position: 0 50%;
 background-repeat: no-repeat;
@@ -746,8 +746,64 @@ background-image: url(../img/pin-1-ie.png);
 background-image: url(../img/pin-2.png);
 }
 
-* html #disambiguation ol li.option-1 {
+* html #disambiguation ol li.option-2 {
 background-image: url(../img/pin-2-ie.png);
+}
+
+#disambiguation ol li.option-3 {
+background-image: url(../img/pin-3.png);
+}
+
+* html #disambiguation ol li.option-3 {
+background-image: url(../img/pin-3-ie.png);
+}
+
+#disambiguation ol li.option-4 {
+background-image: url(../img/pin-4.png);
+}
+
+* html #disambiguation ol li.option-4 {
+background-image: url(../img/pin-4-ie.png);
+}
+
+#disambiguation ol li.option-5 {
+background-image: url(../img/pin-5.png);
+}
+
+* html #disambiguation ol li.option-5 {
+background-image: url(../img/pin-5-ie.png);
+}
+
+#disambiguation ol li.option-6 {
+background-image: url(../img/pin-6.png);
+}
+
+* html #disambiguation ol li.option-6 {
+background-image: url(../img/pin-6-ie.png);
+}
+
+#disambiguation ol li.option-7 {
+background-image: url(../img/pin-7.png);
+}
+
+* html #disambiguation ol li.option-7 {
+background-image: url(../img/pin-7-ie.png);
+}
+
+#disambiguation ol li.option-8 {
+background-image: url(../img/pin-8.png);
+}
+
+* html #disambiguation ol li.option-8 {
+background-image: url(../img/pin-8-ie.png);
+}
+
+#disambiguation ol li.option-9 {
+background-image: url(../img/pin-9.png);
+}
+
+* html #disambiguation ol li.option-9 {
+background-image: url(../img/pin-9-ie.png);
 }
 
 /* - */
