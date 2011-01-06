@@ -32,6 +32,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     var markersDragControl = null;
     var markersSelectControl = null;
 
+    // route-specific features/WFS CQL for system map
     var systemMapRouteCriteria = {};
     var systemMapRouteFeatures = {};
 
@@ -112,9 +113,16 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                 .append('<a href="#">Start Trip Here</a>')
                                 .click(function(e) {
                                     var proj = new OpenLayers.Projection("EPSG:4326");
+
                                     if(typeof options.updateFromLocationFunction === 'function') {
                                         options.updateFromLocationFunction(lonlat.transform(map.getProjectionObject(), proj), false);
                                     }
+
+                                    var fromFeature = markersLayer.getFeaturesByAttribute('type', "start");                                        
+                                    if(fromFeature !== null && typeof fromFeature[0] !== 'undefined') {
+                                        fromFeature[0].move(lonlat.transform(proj,map.getProjectionObject()));
+                                    }
+
                                     hideContextMenu();
                                     return false;
                                 });
@@ -123,11 +131,18 @@ OTP.Map = function(_root, _controlsRoot, options) {
             var endTripHere = jQuery('<li></li>')
                                 .addClass("separator")
                                 .append('<a href="#">End Trip Here</a>')
-                                .click(function(e) {
+                                .click(function(e) {                                    
                                     var proj = new OpenLayers.Projection("EPSG:4326");
+
                                     if(typeof options.updateToLocationFunction === 'function') {
                                         options.updateToLocationFunction(lonlat.transform(map.getProjectionObject(), proj), false);
                                     }
+                                    
+                                    var toFeature = markersLayer.getFeaturesByAttribute('type', "end");                                        
+                                    if(toFeature !== null && typeof toFeature[0] !== 'undefined') {
+                                        toFeature[0].move(lonlat.transform(proj,map.getProjectionObject()));
+                                    }
+                                    
                                     hideContextMenu();
                                     return false;
                                 });

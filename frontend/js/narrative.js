@@ -316,13 +316,13 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             jQuery.each(trip.legs.leg, function(legIndex, leg) {                  
                 // leg mode icons for this trip
                 if(isSounder(leg["@route"])) {
-                    tripModes.push('<img src="img/sounder16x16.png" alt="Sounder" /> <strong>Sounder</strong> ');
+                    tripModes.push('<img src="img/otp/sounder16x16.png" alt="Sounder" /> <strong>Sounder</strong> ');
 
                 } else if(isTheLink(leg["@route"])) {
-                    tripModes.push('<img src="img/link16x16.png" alt="Link" /> <strong>Link</strong> ');
+                    tripModes.push('<img src="img/otp/link16x16.png" alt="Link" /> <strong>Link</strong> ');
 
                 } else {
-                    var modeText = '<img src="img/' + leg["@mode"].toLowerCase() + '16x16.png" alt="' + leg["@mode"] + '" /> ';
+                    var modeText = '<img src="img/otp/' + leg["@mode"].toLowerCase() + '16x16.png" alt="' + leg["@mode"] + '" /> ';
 
                     if(leg["@mode"] !== "WALK") {
                         modeText += prettyRoute(leg["@route"], false) + ' ';
@@ -445,7 +445,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
 
     function formatWalkLeg(legIndex, leg) {
         return jQuery('<li class="walk leg-' + legIndex + '"></li>').html(
-                    '<img class="mode-icon" src="img/walk16x16.png" alt="Walk" />' +
+                    '<img class="mode-icon" src="img/otp/walk16x16.png" alt="Walk" />' +
                     'Walk from <strong>' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '</strong> to <strong>' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + '</strong>' + 
                     '<div class="stepmeta">' + millisecondsToString(leg.duration) + ' (' + prettyDistance(leg.distance) + ')</div>');
     }
@@ -479,7 +479,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         }
         
         return jQuery('<li class="' + displayType.toLowerCase() + ' leg-' + legIndex + '"></li>').html(
-                    '<img class="mode-icon" src="img/' + displayType.toLowerCase() + '16x16.png" alt="' + displayType + '" />' + prettyCase(leg["@mode"]) + ' - ' + prettyRoute(leg["@route"], true) + 
+                    '<img class="mode-icon" src="img/otp/' + displayType.toLowerCase() + '16x16.png" alt="' + displayType + '" />' + prettyCase(leg["@mode"]) + ' - ' + prettyRoute(leg["@route"], true) + 
                     '<table class="substeps"><tbody>' + 
                     '<tr><td>' + prettyTime(ISO8601StringToDate(leg.startTime)) + '</td><td>Depart ' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '</div></td></tr>' + 
                     '<tr><td>' + prettyTime(ISO8601StringToDate(leg.endTime)) + '</td><td>Arrive ' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + 
@@ -657,7 +657,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             .val(zeroPad(now.getMonth() + 1) + "/" + zeroPad(now.getDate()) + "/" + now.getFullYear())
             .datepicker({
                 showOn: "button",
-                buttonImage: "img/calendar.png",
+                buttonImage: "img/otp/calendar.png",
                 buttonImageOnly: true
             });
   
