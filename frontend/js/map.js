@@ -453,7 +453,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
     function removeRouteLayerForMode(mode) {
         // clear CQL query
-        systemMapRouteCriteria[mode] = null;
+        systemMapRouteCriteria[mode] = "";
 
         // remove features from map
         var features = systemMapRouteFeatures[mode];
@@ -469,10 +469,17 @@ OTP.Map = function(_root, _controlsRoot, options) {
             return;
         }
 
+        // remove old existing features
+        var features = systemMapRouteFeatures[mode];
+
+        if(features !== null) {            
+            routeLayer.removeFeatures(features);
+            systemMapRouteFeatures[mode] = null;
+        }
+
         var cqlQuery = systemMapRouteCriteria[mode];
 
         if(cqlQuery === null || cqlQuery === "") {
-            removeRouteLayerForMode(mode);
             return;
         }
 
@@ -508,7 +515,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                       strokeWidth: 4
              };                                
         }
-        
+              
         var callbackFunction = "drawWFSRouteQueryWithStyleCallback" + Math.floor(Math.random() * 1000000000);
         jQuery.ajax({
              url: "http://sea.dev.openplans.org:8080/geoserver/wfs",
