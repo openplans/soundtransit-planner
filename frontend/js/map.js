@@ -32,8 +32,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
     var markersDragControl = null;
     var markersSelectControl = null;
 
-    // CQL filter for system-map route layer
     var systemMapRouteCriteria = {};
+    var systemMapRouteFeatures = {};
 
     // decodes google-encoded polyline data
     function decodePolyline(encoded) {
@@ -69,6 +69,16 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }
 
         return array;
+    }
+
+    function reset() {
+        if(routeLayer !== null) {
+            routeLayer.removeAllFeatures();
+        }
+
+        if(markersLayer !== null) {
+            markersLayer.removeAllFeatures();
+        }
     }
 
     // context menu (right-click menu)
@@ -426,55 +436,64 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }
     }
 
-    // FIXME: do we need to clear then readd everything here?
-    function refreshRouteLayer() {
-        if(routeLayer !== null) {
-            routeLayer.removeAllFeatures();
-        }
+    function removeRouteLayerForMode(mode) {
+        // clear CQL query
+        systemMapRouteCriteria[mode] = null;
+
+        // remove features from map
+        var features = systemMapRouteFeatures[mode];
         
-        for(mode in systemMapRouteCriteria) {         
-            var cqlQuery = systemMapRouteCriteria[mode];
-
-            if(cqlQuery === null || cqlQuery === "") {
-                continue;
-            }
-
-            var style = null;
-            if(mode === "WSF") {
-                 style = {
-                          strokeColor: "#666666",
-                          strokeOpacity: 0.80,
-                          strokeWidth: 4
-                 };
-            } else if(mode === "BUS") {
-                 style = {
-                          strokeColor: "#5380B0",
-                          strokeOpacity: 0.80,
-                          strokeWidth: 4
-                 };                
-            } else if(mode === "SOUNDER") {
-                 style = {
-                          strokeColor: "#0B9140",
-                          strokeOpacity: 0.80,
-                          strokeWidth: 4
-                 };                                
-            } else if(mode === "LINK") {
-                 style = {
-                          strokeColor: "#41B1C1",
-                          strokeOpacity: 0.80,
-                          strokeWidth: 4
-                 };                                
-            }
-
-            drawWFSRouteQueryWithStyle(cqlQuery, style);
+        if(features !== null) {            
+            routeLayer.removeFeatures(features);
+            systemMapRouteFeatures[mode] = null;
         }
     }
 
-    function drawWFSRouteQueryWithStyle(cqlQuery, style) {
-        if(cqlQuery === null || style === null) {
+    function drawRouteLayerForMode(mode, element) {
+        if(systemMapRouteCriteria === null) {
             return;
         }
 
+        var cqlQuery = systemMapRouteCriteria[mode];
+
+        if(cqlQuery === null || cqlQuery === "") {
+            removeRouteLayerForMode(mode);
+            return;
+        }
+
+        // if we're going to draw the polyline for this route, add 
+        // active class to its selector indicator
+        if(element !== null) {
+            jQuery(element).addClass("active");
+        }
+
+        var style = null;
+        if(mode === "WSF") {
+             style = {
+                      strokeColor: "#666666",
+                      strokeOpacity: 0.80,
+                      strokeWidth: 4
+             };
+        } else if(mode === "BUS") {
+             style = {
+                      strokeColor: "#5380B0",
+                      strokeOpacity: 0.80,
+                      strokeWidth: 4
+             };                
+        } else if(mode === "SOUNDER") {
+             style = {
+                      strokeColor: "#0B9140",
+                      strokeOpacity: 0.80,
+                      strokeWidth: 4
+             };                                
+        } else if(mode === "LINK") {
+             style = {
+                      strokeColor: "#41B1C1",
+                      strokeOpacity: 0.80,
+                      strokeWidth: 4
+             };                                
+        }
+        
         var callbackFunction = "drawWFSRouteQueryWithStyleCallback" + Math.floor(Math.random() * 1000000000);
         jQuery.ajax({
              url: "http://sea.dev.openplans.org:8080/geoserver/wfs",
@@ -494,6 +513,10 @@ OTP.Map = function(_root, _controlsRoot, options) {
                  }
 
                  jQuery(data.features).each(function(_, feature) {
+                     if(systemMapRouteFeatures[mode] == null) {
+                         systemMapRouteFeatures[mode] = [];
+                     }
+                     
                      for(var z = 0; z < feature.geometry.coordinates.length; z++) {
                          var points = [];
 
@@ -511,9 +534,11 @@ OTP.Map = function(_root, _controlsRoot, options) {
                          var polyline = new OpenLayers.Geometry.LineString(points);
                          var lineFeature = new OpenLayers.Feature.Vector(polyline, null, style);
                          routeLayer.addFeatures([lineFeature]);
+                         systemMapRouteFeatures[mode].push(lineFeature);
                      }
+                     
+                     zoomToRouteLayerExtent();
                  });
-
              }
         });        
     }
@@ -600,7 +625,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }  
     }
 
-  function setLayerVisibility(name, visible) {
+    function setLayerVisibility(name, visible) {
         var layerArray = map.layers;
         for (var i=0;i<layerArray.length;i++) {
             if (map.layers[i].name === name) {
@@ -625,7 +650,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }
     }
 
-    function showLayerButtonPopout(openingElement, content, initFn) {
+    function showLayerButtonPopout(openingElement, content, initFn, displayFn) {
         hideLayerButtonPopout();
 
         openingElement = jQuery(openingElement);
@@ -663,6 +688,11 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }
 
         layerChooserPopout.show();
+
+        // call display function if specificed
+        if(typeof displayFn === 'function') {
+            displayFn(layerChooserPopout.find(".content"));
+        }
                  
         // position popout
         var parentElement = jQuery(openingElement.parent());
@@ -677,20 +707,27 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
     function showFerryRouteLayerSelector(element) {
         var chooserUI = controlsRoot.find("#ferry-layer-chooser");
-        
+
         showLayerButtonPopout(element, chooserUI, function(content) {
+            // called first time popup is created
+            
             content.find("#ferry")
                 .change(function(e) {
                     var v = jQuery(this).val();
                     
                     if(v !== null && v !== "" && v !== "Select route") {
-                        systemMapRouteCriteria.WSF = "(Designator LIKE '" + v + "' AND RouteTyp LIKE 'P')";
+                        systemMapRouteCriteria.WSF = "(designator LIKE '" + v + "' AND routetyp LIKE 'P')";
                     } else {
                         systemMapRouteCriteria.WSF = "";
                     }
-                    
-                    refreshRouteLayer();
+
+                    drawRouteLayerForMode("WSF", element);
                 });
+        }, function(content) {
+            // reset UI called each time popup is displayed            
+            if(systemMapRouteCriteria.WSF === "" || systemMapRouteCriteria.WSF === null) {
+                content.find("#ferry").val("");
+            }
         });
     }
 
@@ -698,6 +735,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
         var chooserUI = controlsRoot.find("#link-layer-chooser");
 
         showLayerButtonPopout(element, chooserUI, function(content) {
+            // called first time popup is created
+            
             content.find("#link-central, #link-tacoma")
                 .change(function(e) {
                     systemMapRouteCriteria.LINK = "";
@@ -708,12 +747,17 @@ OTP.Map = function(_root, _controlsRoot, options) {
                             if(systemMapRouteCriteria.LINK.length > 0) {
                                 systemMapRouteCriteria.LINK += " OR ";
                             }
-                            systemMapRouteCriteria.LINK += "(Designator LIKE '" + checkbox.val() + "' AND RouteTyp LIKE 'P')";
+                            systemMapRouteCriteria.LINK += "(designator LIKE '" + checkbox.val() + "' AND routetyp LIKE 'P')";
                         }
                     });
 
-                    refreshRouteLayer();                    
+                    drawRouteLayerForMode("LINK", element);                    
                 });
+        }, function(content) {
+            // reset UI called each time popup is displayed            
+            if(systemMapRouteCriteria.LINK === "" || systemMapRouteCriteria.LINK === null) {
+                content.find("#link-central, #link-tacoma").attr("checked", false);
+            }
         });
     }
 
@@ -721,6 +765,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
         var chooserUI = controlsRoot.find("#sounder-layer-chooser");
 
         showLayerButtonPopout(element, chooserUI, function(content) {
+            // called first time popup is created
+            
             content.find("#sounder-tacoma-seattle, #sounder-everett-seattle")
                 .change(function(e) {
                     systemMapRouteCriteria.SOUNDER = "";
@@ -728,19 +774,24 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     jQuery("#sounder-tacoma-seattle, #sounder-everett-seattle").each(function(_, checkbox) {
                         checkbox = jQuery(checkbox);
 
-                        // there are two things required to specify a route--we delimit them with a "/" in the input value.
+                        // there are two things required to specify a route--we delimit them with a "/" in the input value. HACK
                         var values = checkbox.val().split("/");                        
 
                         if(checkbox.attr("checked") === true) {
                             if(systemMapRouteCriteria.SOUNDER.length > 0) {
                                 systemMapRouteCriteria.SOUNDER += " OR ";
                             }
-                            systemMapRouteCriteria.SOUNDER += "(Designator LIKE '" + values[0] + "' AND Stops=" + values[1] + " AND RouteTyp LIKE 'P')";
+                            systemMapRouteCriteria.SOUNDER += "(designator LIKE '" + values[0] + "' AND stops=" + values[1] + " AND routetyp LIKE 'P')";
                         }
                     });
                     
-                    refreshRouteLayer();
+                    drawRouteLayerForMode("SOUNDER", element);
                 });
+        }, function(content) {
+            // reset UI called each time popup is displayed
+            if(systemMapRouteCriteria.SOUNDER === "" || systemMapRouteCriteria.SOUNDER === null) {
+                content.find("#sounder-tacoma-seattle, #sounder-everett-seattle").attr("checked", false);
+            }
         });
     }
 
@@ -748,6 +799,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
         var chooserUI = controlsRoot.find("#bus-layer-chooser");
 
         showLayerButtonPopout(element, chooserUI, function(content) {
+            // called first time popup is created
+            
             // behavior to populate route dropdown when agency changes
             content.find("#bus-agency")
                 .change(function(e) {      
@@ -766,21 +819,39 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                 request: "GetFeature",
                                 outputFormat: "json",
                                 format_options: "callback:" + callbackFunction,
-                                propertyName: "Designator",
+                                propertyName: "designator",
                                 typeName: "soundtransit:routes",
-                                cql_filter: "(Operator LIKE '" + agency + "' AND RouteTyp LIKE 'P')"
+                                cql_filter: "(operator LIKE '" + agency + "' AND routetyp LIKE 'P')"
                             },
                             success: function(data) {   
                                 var selectBox = content.find("#bus-route");
+
                                 selectBox.children().remove();
                                 selectBox.append("<option value=''>Select route</option>");
+
+                                // push routes into an array and sort to remove dupes (can't do this in geoserver, unfortunately)
+                                var routes = [];
                                 for(var i = 0; i < data.features.length; i++) {
                                     var feature = data.features[i];
-                                    var option = jQuery("<option></option")
-                                                    .text(feature.properties.Designator)
-                                                    .val(feature.properties.Designator);
-                                    selectBox.append(option);
+                                    routes.push(feature.properties.designator);
                                 } 
+                                
+                                routes.sort();
+
+                                var lastValue = null;
+                                for(var i = 0; i < routes.length; i++) {
+                                    // remove duplicates
+                                    if(lastValue !== null) {
+                                        if(lastValue === routes[i]) {
+                                            continue;
+                                        }
+                                    }
+                                    lastValue = routes[i];
+                                    var option = jQuery("<option></option")
+                                                .text(routes[i])
+                                                .val(routes[i]);
+                                    selectBox.append(option);
+                                }
                             }
                     });
                 });
@@ -790,13 +861,18 @@ OTP.Map = function(_root, _controlsRoot, options) {
                         var v = jQuery(this).val();
                         
                         if(v !== null && v !== "" && v !== "Select route") {
-                            systemMapRouteCriteria.BUS = "(Operator LIKE '" + content.find("#bus-agency").val() + "' AND Designator LIKE '" + v + "' AND RouteTyp LIKE 'P')";
+                            systemMapRouteCriteria.BUS = "(operator LIKE '" + content.find("#bus-agency").val() + "' AND designator LIKE '" + v + "' AND routetyp LIKE 'P')";
                         } else {
                             systemMapRouteCriteria.BUS = "";
                         }
 
-                        refreshRouteLayer();
+                        drawRouteLayerForMode("BUS", element);
                     });                
+        }, function(content) {
+            // reset UI called each time popup is displayed
+            if(systemMapRouteCriteria.BUS === "" || systemMapRouteCriteria.BUS === null) {
+                content.find("#bus-agency, #bus-route").val("");
+            }
         });
     }
 
@@ -899,25 +975,61 @@ OTP.Map = function(_root, _controlsRoot, options) {
         // mode layers
         controlsRoot.find("#toggle-ferry")
             .click(function() {
-                showFerryRouteLayerSelector(this);
+                var element = jQuery(this);
+                
+                if(element.hasClass("active")) {
+                    element.removeClass("active");
+
+                    removeRouteLayerForMode("WSF");
+                    hideLayerButtonPopout();
+                } else {
+                    showFerryRouteLayerSelector(this);
+                }
                 return false;
             });   
             
         controlsRoot.find("#toggle-link")
             .click(function() {
-                showLinkRouteLayerSelector(this);
+                var element = jQuery(this);
+                
+                if(element.hasClass("active")) {
+                    element.removeClass("active");
+
+                    removeRouteLayerForMode("LINK");
+                    hideLayerButtonPopout();
+                } else {
+                    showLinkRouteLayerSelector(this);
+                }
                 return false;
             });     
                     
         controlsRoot.find("#toggle-sounder")
             .click(function() {
-                showSounderRouteLayerSelector(this);
+                var element = jQuery(this);
+                
+                if(element.hasClass("active")) {
+                    element.removeClass("active");
+
+                    removeRouteLayerForMode("SOUNDER");
+                    hideLayerButtonPopout();
+                } else {
+                    showSounderRouteLayerSelector(this);
+                }
                 return false;
             });  
                            
         controlsRoot.find("#toggle-bus")
             .click(function() {
-                showBusRouteLayerSelector(this);
+                var element = jQuery(this);
+                
+                if(element.hasClass("active")) {
+                    element.removeClass("active");
+
+                    removeRouteLayerForMode("BUS");
+                    hideLayerButtonPopout();                    
+                } else {
+                    showBusRouteLayerSelector(this);
+                }
                 return false;
             });             
     }
@@ -976,13 +1088,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     // public methods    
     return {
         reset: function() {
-            if(routeLayer !== null) {
-                routeLayer.removeAllFeatures();
-            }
-
-            if(markersLayer !== null) {
-                markersLayer.removeAllFeatures();
-            }
+            reset();
         },
 
         zoomToPlannedRoute: function() {
@@ -990,14 +1096,14 @@ OTP.Map = function(_root, _controlsRoot, options) {
         },
 
         beginDisambiguation: function() {
-            markersLayer.removeAllFeatures();
+            reset();
             if(markersDragControl !== null) {
                 markersDragControl.deactivate();
             }
         },
 
         endDisambiguation: function() {
-            markersLayer.removeAllFeatures();
+            reset();
             if(markersDragControl !== null) {
                 markersDragControl.activate();
             }
