@@ -9,7 +9,8 @@
   <link type="text/css" href="css/screen-reset.css" rel="stylesheet" media="screen, projection" />
   <link type="text/css" href="css/print-reset.css" rel="stylesheet" media="print" />
   <link type="text/css" href="css/jquery/ui-custom/jquery-ui-1.8.6.custom.css" rel="stylesheet" media="screen, projection" />
-    <link type="text/css" href="css/jquery/ui.combobox.css" rel="stylesheet" media="screen, projection" />
+  <link type="text/css" href="css/jquery/ui.selectmenu.css" rel="stylesheet" media="screen, projection" />
+  <link type="text/css" href="css/jquery/ui.combobox.css" rel="stylesheet" media="screen, projection" />
   <link type="text/css" href="css/jquery/ui.spinner.css" rel="stylesheet" media="screen, projection" />
   <link type="text/css" href="css/jquery/ui.combobox.css" rel="stylesheet" media="screen, projection" />
   <link type="text/css" href="css/otp.css" rel="stylesheet" media="screen, projection" />
@@ -22,6 +23,7 @@
   <script type="text/javascript" src="js/jquery/jquery-1.4.2.min.js"></script>
   <script type="text/javascript" src="js/jquery/jquery-jsonp.min.js"></script>
   <script type="text/javascript" src="js/jquery/jquery-ui-1.8.6.custom.min.js"></script>
+  <script type="text/javascript" src="js/jquery/jquery-ui-selectmenu.min.js"></script>
   <script type="text/javascript" src="js/jquery/jquery-combobox-support.min.js"></script>
   <script type="text/javascript" src="js/jquery/jquery-ui-spinner.min.js"></script>
   <script type="text/javascript" src="js/openlayers/OpenLayers.js"></script>
@@ -123,8 +125,7 @@
           </select>
         </span>
         <span id="leaveday-wrap"><input name="leaveday" id="leaveday" type="text" /></span>
-        <input id="leavehour" name="leavehour" type="text" value="12" /> :
-        <input id="leaveminute" name="leaveminute" type="text" value="00" />
+        <input id="leavehour" name="leavehour" type="text" value="12" />:<input id="leaveminute" name="leaveminute" type="text" value="00" />
         <span id="leaveampm-wrap">
           <select id="leaveampm" name="leaveampm"/>
             <option value="am">am</option>

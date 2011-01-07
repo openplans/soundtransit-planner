@@ -60,6 +60,33 @@ font-family: inherit;
 font-size: 12px;
 }
 
+body .ui-selectmenu {
+vertical-align: middle;
+}
+
+body .ui-selectmenu-menu li a, 
+body .ui-selectmenu-status {
+padding: 4px;
+}
+
+body .ui-selectmenu-icon {
+right: 0;
+}
+
+body .ui-selectmenu-menu li a {
+color: #222;
+}
+
+body #trippriority-button,
+body #trippriority-menu { /* since the select begins hidden, width is miscalculated as zero */
+width: 150px !important;
+}
+
+body #maxwalk-button,
+body #maxwalk-menu { /* since the select begins hidden, width is miscalculated as zero */
+width: 150px !important;
+}
+
 /* - */
 
 #map-controls {
@@ -263,12 +290,15 @@ height: 14px;
 padding: 4px;
 width: 15px;
 height: 14px;
+margin-left: -5px;
+margin-right: 2px;
 }
 
 #leaveminute {
 padding: 4px;
 width: 33px;
 height: 14px;
+margin-left: 2px;
 }
 
 #leaveampm-wrap .ui-autocomplete-input {
@@ -276,6 +306,7 @@ width: 22px;
 }
 
 #moreoptions {
+padding: 5px 0 0;
 display: none;
 }
 

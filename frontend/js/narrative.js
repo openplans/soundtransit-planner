@@ -676,7 +676,8 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 .attr('selected', 'selected');
         }          
 
-        root.find("#leavetype, #leaveampm, #trippriority, #maxwalk").combobox();        
+        root.find("#leavetype, #leaveampm, #trippriority, #maxwalk").selectmenu();
+        //root.find("#leavetype, #leaveampm, #trippriority, #maxwalk").combobox();        
 
         // more options
         root.find('a#optionstoggle').click(function() {
