@@ -69,7 +69,7 @@ OTP.NarrativeForm = function(_root) {
             .val(zeroPad(now.getMonth() + 1) + "/" + zeroPad(now.getDate()) + "/" + now.getFullYear())
             .datepicker({
                 showOn: "button",
-                buttonImage: "img/calendar.png",
+                buttonImage: "img/otp/calendar.png",
                 buttonImageOnly: true
             });
   
