@@ -223,7 +223,8 @@ vertical-align: middle;
 margin: 0 3px 0 0;
 }
 
-#from, #to {
+#from, 
+#to {
 font-size:15px;
 width: 275px;
 margin-left: 30px;
@@ -232,6 +233,11 @@ margin-left: 30px;
 border-radius: 4px;
 height: 19px;
 padding: 4px;
+}
+
+#from.ambiguous, 
+#to.ambiguous {
+border-color: #c1444c;
 }
 
 #from.blank, 

@@ -186,6 +186,9 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
 
     // narrative logic
     function makeTripRequest() {
+        // remove ambiguous classes, since we don't know whether the new values are resolvable
+        root.find('#to, #from').removeClass('ambiguous');
+        
         // planning spinner and text
         root.find('#trip-data')
             .fadeOut("fast", function() {
@@ -512,10 +515,20 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                   return false;
               });
 
-              jQuery('<li class="possible-' + (_ + 1) + '"><span class="nice-name">' + result.name + ', ' + result.area + '</span><span class="lat-lon" style="display: none;">' + result.latitude + ',' + result.longitude + '</span></li>') .mouseenter(function() { map.highlightDisambiguationPoint(feature_id, (_ + 1));}).mouseleave(function() { map.unhighlightDisambiguationPoint(feature_id, (_ + 1));}).append(link).appendTo(toList);
+              jQuery('<li class="possible-' + (_ + 1) + '"><span class="nice-name">' + result.name + ', ' + result.area + '</span><span class="lat-lon" style="display: none;">' + result.latitude + ',' + result.longitude + '</span></li>') .mouseenter(function() { map.highlightDisambiguationPoint(feature_id, (_ + 1));}).mouseleave(function() { map.unhighlightDisambiguationPoint(feature_id, (_ + 1));}).click(function() {
+                    userHasDisambiguated('to', $(this).children('span.lat-lon').text());
+                    return false;
+                }).append(link).appendTo(toList);
 
           });
-           disambiguateToMarkup.append(toList);
+
+            // account for the fact that we only want to show one set of disambiguation at a time
+            if (results.from.candidate instanceof Array) {
+                disambiguateToMarkup.css('display', 'none');
+            } else {
+                root.find('#to').addClass("ambiguous").focus();
+            }
+            disambiguateToMarkup.append(toList);
         }
 
         if (results.from.candidate instanceof Array) {
@@ -531,9 +544,14 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     return false;
                 });
 
-                jQuery('<li class="possible-' + (_ + 1) + '"><span class="nice-name">' + result.name + ', ' + result.area + '</span><span class="lat-lon" style="display: none;">' + result.latitude + ',' + result.longitude + '</span></li>') .mouseenter(function() { map.highlightDisambiguationPoint(feature_id, (_ + 1));}).mouseleave(function() { map.unhighlightDisambiguationPoint(feature_id, (_ + 1));}).append(link).appendTo(fromList);
+                jQuery('<li class="possible-' + (_ + 1) + '"><span class="nice-name">' + result.name + ', ' + result.area + '</span><span class="lat-lon" style="display: none;">' + result.latitude + ',' + result.longitude + '</span></li>') .mouseenter(function() { map.highlightDisambiguationPoint(feature_id, (_ + 1));}).mouseleave(function() { map.unhighlightDisambiguationPoint(feature_id, (_ + 1));}).click(function() {
+                        userHasDisambiguated('from', $(this).children('span.lat-lon').text());
+                        return false;
+                    }).append(link).appendTo(fromList);
 
             });
+            
+            root.find('#from').addClass("ambiguous").focus();
             disambiguateFromMarkup.append(fromList);
         }
 
@@ -569,13 +587,17 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     }
 
     function userHasDisambiguated(location, value) { // location should be either "to" or "from"
-        root.find('#' + location ).val(value);
+        root.find('#' + location ).val(value).removeClass('ambiguous');
+        
         root.find('#' + location + '-possibles').fadeOut('slow', function() { 
             $(this).remove();
             map.removeDisambiguationFor(location);
             if (root.find('#disambiguate-results').children().length == 0) {
                 map.endDisambiguation();
                 root.find("form#trip-plan-form").submit();
+            } else {
+                root.find('#to').addClass('ambiguous').focus();
+                root.find('#disambiguate-results').children().fadeIn('slow');
             }
         });
     }
@@ -698,7 +720,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
 
         // form submit action
         root.find("form#trip-plan-form").submit(function(e) {
-            e.preventDefault();     
+            e.preventDefault();
             makeTripRequest();
         });
     }
