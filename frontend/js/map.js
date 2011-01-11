@@ -31,6 +31,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
     var markersLayer = null;
     var markersDragControl = null;
     var markersSelectControl = null;
+    
+    // for clicking and hovering disambiguation candidates on the map
+    var disambiguationSelectControl = null;
 
     // route-specific features/WFS CQL for system map
     var systemMapRouteCriteria = {};
@@ -1119,8 +1122,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
         beginDisambiguation: function() {
             reset();
-            if(markersDragControl !== null) {
+            if(markersDragControl !== null && markersSelectControl !== null) {
                 markersDragControl.deactivate();
+                markersSelectControl.deactivate();
             }
         },
 
@@ -1128,6 +1132,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             reset();
             if(markersDragControl !== null) {
                 markersDragControl.activate();
+                markersSelectControl.activate();
             }
         },
 
