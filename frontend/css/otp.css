@@ -385,7 +385,7 @@ padding-top: 5px;
 }
 
 #trip-data {
-    width: 345px;
+width: 345px;
 }
 
 /* - */
@@ -859,176 +859,184 @@ width: 100%;
 
 /* context menu */
 .context-menu {
-    z-index: 10000000;
-    position: absolute;
+z-index: 10000000;
+position: absolute;
 }
-    
+
 .context-menu .ui-menu-item a {
-    font-size: 11px;
-    color: #656565;
+font-size: 11px;
+color: #656565;
 }
 
 .context-menu .ui-menu-item.separator {
-    padding-bottom: 5px;
-    margin-bottom: 5px;
-    border-bottom: 1px solid #C0C0C0;    
+padding-bottom: 5px;
+margin-bottom: 5px;
+border-bottom: 1px solid #C0C0C0;    
 }
 
 /* - */
 .olControlAttribution {
-    left: 5px;
-    bottom: 5px;
+left: 5px;
+bottom: 5px;
 }
 
 .olBingAttribution {
-    font-size: 10px;
-    color: #666666;
+font-size: 10px;
+color: #666666;
 }
 
 /* - */
 .layer-popout {
-    top: 32px;
-    position: absolute;
-    background-image: url(../img/otp/bubble-top-callout.png);
-    background-position: 50% 0;
-    padding-top: 11px;
-    background-repeat: no-repeat;
+top: 32px;
+position: absolute;
+background-image: url(../img/otp/bubble-top-callout.png);
+background-position: 50% 0;
+padding-top: 11px;
+background-repeat: no-repeat;
 }
 
 .layer-popout .content {
-    background-color: #FFFFFF;
-    border: 1px solid #bababa;
-    border-top: none;
-    padding: 5px;
-    padding-left: 10px;
-    padding-right: 10px;
+background-color: #FFFFFF;
+border: 1px solid #bababa;
+border-top: none;
+padding: 5px;
+padding-left: 10px;
+padding-right: 10px;
 }
 
 .layer-chooser {
-    display: none;
-    position: relative;
+display: none;
+position: relative;
 }
 
 .layer-chooser .close {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    text-indent: -9999px;
-    background-image: url(../img/otp/close.png);
-    background-repeat: no-repeat;
-    background-position: 0 0;
-    height: 19px;
-    width: 19px;
+position: absolute;
+top: 5px;
+right: 5px;
+text-indent: -9999px;
+background-image: url(../img/otp/close.png);
+background-repeat: no-repeat;
+background-position: 0 0;
+height: 19px;
+width: 19px;
 }
 
 .layer-chooser .header {
-    margin-top: 5px;
-    margin-right: 20px;
-    margin-bottom: 5px;
-    padding-left: 30px;
-    height: 26px;
-    background-repeat: no-repeat;
-    background-position: 0 0;
+margin-top: 5px;
+margin-right: 20px;
+margin-bottom: 5px;
+padding-left: 30px;
+height: 26px;
+background-repeat: no-repeat;
+background-position: 0 0;
 }
 
 .layer-chooser.WSF .header {
-    background-image: url(../img/otp/ferry-modal-icon.png);
+background-image: url(../img/otp/ferry-modal-icon.png);
 }
 
 .layer-chooser.link .header {
-    background-image: url(../img/otp/link-modal-icon.png);
+background-image: url(../img/otp/link-modal-icon.png);
 }
 
 .layer-chooser.sounder .header {
-    background-image: url(../img/otp/sounder-modal-icon.png);
+background-image: url(../img/otp/sounder-modal-icon.png);
 }
 
 .layer-chooser.bus .header {
-    background-image: url(../img/otp/bus-modal-icon.png);
+background-image: url(../img/otp/bus-modal-icon.png);
 }
 
 .layer-chooser .header p {
-    padding-top: 4px;
-    padding-left: 4px;
-    white-space: nowrap;
+padding-top: 4px;
+padding-left: 4px;
+white-space: nowrap;
 }
 
 .layer-chooser form label {
-    display: block;
-    padding-bottom: 2px;
-    padding-top: 2px;
+display: block;
+padding-bottom: 2px;
+padding-top: 2px;
 }
 
 .layer-chooser form label .small {
-    font-weight: normal;
-    display: block;
-    font-size: 75%;
-    line-height: 75%;
-    padding-left: 25px;
+font-weight: normal;
+display: block;
+font-size: 75%;
+line-height: 75%;
+padding-left: 25px;
 }
 
 /* - */
 .info-window {
-    position: absolute;
-    background-image: url(../img/otp/bubble-bottom-callout.png);
-    background-position: 50% 100%;
-    padding-bottom: 11px;
-    background-repeat: no-repeat;
-    z-index: 10000000;
-    color: #4A4A4A;    
+position: absolute;
+background-image: url(../img/otp/bubble-bottom-callout.png);
+background-position: 50% 100%;
+padding-bottom: 11px;
+background-repeat: no-repeat;
+z-index: 10000000;
+color: #4A4A4A;    
 }
 
 .info-window .content {
-    background-color: #FFFFFF;
-    border: 1px solid #bababa;
-    border-bottom: none;
-    padding: 5px;
-    padding-left: 10px;
-    padding-right: 40px;
-    position: relative;
+background-color: #FFFFFF;
+border: 1px solid #bababa;
+border-bottom: none;
+position: relative;
 }
 
-.info-window .content .header {
-    margin-top: 5px;
-    margin-right: 20px;
-    margin-bottom: 5px;
-    padding-left: 30px;
-    height: 26px;
-    background-repeat: no-repeat;
-    background-position: 0 0;
+.info-window .info-header {
+font-weight: bold;
+white-space: nowrap;
+padding-right: 20px;
+min-width: 225px;
+background: #f4f4f3;
+padding: 5px;
 }
 
-.info-window .content .header p {
-    font-weight: bold;
-    padding-top: 4px;
-    padding-left: 4px;
-    white-space: nowrap;
+.info-window .info-content {
+padding: 5px;
 }
 
-.info-window .content .header.stop {
-    background-image: url(../img/otp/location-icon.png);
+
+.crossbar {
+background-position: 0 50%;
+background-repeat: no-repeat;
+padding: 5px 0 5px 30px;
+min-height: 20px;
+vertical-align: middle;
 }
 
-.info-window .content .header.fareoutlet {
-    background-image: url(../img/otp/fares-icon.png);
+.stop .crossbar {
+background-image: url(../img/otp/location-icon.png);
 }
 
-.info-window .content .header.parkandride {
-    background-image: url(../img/otp/parking-icon.png);
+.fareoutlet .crossbar {
+background-image: url(../img/otp/fares-icon.png);
 }
 
-.info-window .content p {
-    white-space: nowrap;
+.parkandride .crossbar {
+background-image: url(../img/otp/parking-icon.png);
 }
 
 .info-window .content .close {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    text-indent: -9999px;
-    background-image: url(../img/otp/close.png);
-    background-repeat: no-repeat;
-    background-position: 0 0;
-    height: 19px;
-    width: 19px;
+position: absolute;
+top: 2px;
+right: 2px;
+text-indent: -9999px;
+background-image: url(../img/otp/close.png);
+background-repeat: no-repeat;
+background-position: 0 0;
+height: 19px;
+width: 19px;
+}
+
+.info-window .start-end-area {
+padding: 5px 0 0;
+font-size: 90%;
+text-align: right;
+}
+
+.info-window .start-end-area a {
+padding: 0 0 0 5px;
 }

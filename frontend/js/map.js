@@ -258,7 +258,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         if(featureData.features.length > 1) {
             infoWindowContent = jQuery("<div>There is more than one facility at this point. Zoom in to choose one.</div>")
                                     .addClass("content")
-                                    .css("width", "175px");
+                                    .css("width", "175px").append(getInfoWindowClose());
                                     
             lonlat = clickedLocation;
         } else {
@@ -269,17 +269,10 @@ OTP.Map = function(_root, _controlsRoot, options) {
             var proj = new OpenLayers.Projection("EPSG:4326");
             lonlat = wgsLonlat.transform(proj, map.getProjectionObject());
         }
-
-        var closeButton = jQuery('<a href="#">Close</a>')
-                                        .addClass("close")
-                                        .click(function(e) {
-                                            hideInfoWindow();
-                                            return false; 
-                                        });
             
         infoWindow = jQuery("<div></div>")
                             .addClass("info-window")
-                            .append(infoWindowContent.append(closeButton))
+                            .append(infoWindowContent)
                             .appendTo(jQuery(map.layerContainerDiv));
 
         // set position of infowindow
@@ -329,34 +322,79 @@ OTP.Map = function(_root, _controlsRoot, options) {
     }
 
     function getInfoWindowContentForFeature(featureProperties) {
+        var popupContent = "";
+        var type = "";
+        var headerContent = featureProperties.name;
+        var crossbar = "";
+        var amenities = "";
+        var ticketText = "";
+        var lonlat = new OpenLayers.LonLat(featureProperties.lon, featureProperties.lat);
+        var startEndTrip = jQuery('<div class="start-end-area"></div>');
+        
+        
+        if(typeof featureProperties.outlettype !== 'undefined') {
+            type = "fareoutlet";
+            var niceOutletType = (featureProperties.outlettype == 'TVM') ? "Ticket Vending Machine" : ((featureProperties.outlettype == 'ORCA') ? "ORCA Customer service center" : "Retailer");
+            //var niceOutletType = (featureProperties.outlettype == 'TVM') ? "Ticket Vending Machine" : ((featureProperties.outlettype == 'Retailer') ? "ORCA Customer service center" : "Retailer");
+            crossbar = '<div class="crossbar"><strong>' + niceOutletType + '</strong> - ' + featureProperties.location + '</div>';
+            
+        } else if(typeof featureProperties.accessible !== 'undefined') {
+            type = "stop";
+            crossbar = '<div class="crossbar"><strong>Stop ID</strong>: ' + featureProperties.localid.replace(/^\D/i, "") + '</div>';
+        } else {
+            type = "parkandride";
+            crossbar = '<div class="crossbar">' + featureProperties.location + '</div>';
+            if (featureProperties.spaces !== 0 && featureProperties.spaces !== "") {amenities += "Parking spaces: " + featureProperties.spaces;}
+            if (featureProperties.timefull !== 0 && featureProperties.timefull !== "") {amenities += " This parking lot is typically full by " + featureProperties.timefull + "AM<br />"} else {amenities += "<br />"}
+            if (featureProperties.numbikeloc !== 0 && featureProperties.numbikeloc !== "") {amenities += "Bike Lockers: " + featureProperties.numbikeloc + "<br />";}
+            if (featureProperties.electricca !== 0 && featureProperties.electricca !== "") {amenities += "Electric Car Chargers: " + featureProperties.electricca + "<br />";}
+            if (featureProperties.notes !== "") {amenities += "Notes: " + featureProperties.notes;}
+
+        }
+    
         var content = jQuery("<div></div>")
-                            .addClass("content");
+                            .addClass("info-content")
+                            .addClass(type);
 
         var headerWrapper = jQuery("<div></div>")
-                            .addClass("header")
-                            .appendTo(content);
+                            .addClass("info-header")
+                            .html("<h2>" + headerContent + "</h2>")
+                            .append(getInfoWindowClose);
 
-        var header = jQuery("<p></p>")
-                            .appendTo(headerWrapper);
+        var popupContent = headerWrapper.after(content.append(crossbar).append(amenities).append(ticketText));
 
-        if(typeof featureProperties.outlettype !== 'undefined') {
-            headerWrapper.addClass("fareoutlet");
-            header.text(featureProperties.name);
-        } else if(typeof featureProperties.accessible !== 'undefined') {
-            headerWrapper.addClass("stop");
-            header.text(featureProperties.name);
-        } else {
-            headerWrapper.addClass("parkandride");
-            header.text(featureProperties.location);
-        }
-
+        // Leaving in for debug, but we don't want to display all this info to users
         for(k in featureProperties) {
             var v = featureProperties[k];            
-
-            content.append("<p>" + k + ": " + v + "</p>");
+            content.append("<!-- " + k + ": " + v + " -->");
         }
         
-        return content;
+        jQuery('<a href="#">Start Trip Here</a>')
+            .click(function(e) {
+                if(typeof options.updateFromLocationFunction === 'function') {
+                    options.updateFromLocationFunction(lonlat, false);
+                }
+        }).appendTo(startEndTrip);
+        
+        jQuery('<a href="#">End Trip Here</a>')
+            .click(function(e) {
+                if(typeof options.updateToLocationFunction === 'function') {
+                    options.updateToLocationFunction(lonlat, false);
+                }
+        }).appendTo(startEndTrip);
+        
+        content.append(startEndTrip);
+        
+        return popupContent;
+    }
+    
+    function getInfoWindowClose() {
+        return jQuery('<a href="#">Close</a>')
+            .addClass("close")
+            .click(function(e) {
+                hideInfoWindow();
+                return false; 
+            });
     }
 
     // NOTE: this logic should match the SLD-specified display logic in GeoServer!
