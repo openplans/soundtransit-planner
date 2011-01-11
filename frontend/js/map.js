@@ -31,6 +31,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
     // controls attached to markersLayer
     var markersDragControl = null;
     var markersSelectControl = null;
+    
+    // for clicking and hovering disambiguation candidates on the map
+    var disambiguationSelectControl = null;
 
     // marker features on markersLayer
     var tripPlannerMarkerFeatures = null;
@@ -1057,14 +1060,16 @@ debugger;
         },
 
         beginDisambiguation: function() {
-            if(markersDragControl !== null) {
+            if(markersDragControl !== null && markersSelectControl !== null) {
                 markersDragControl.deactivate();
+                markersSelectControl.deactivate();
             }
         },
 
         endDisambiguation: function() {
             if(markersDragControl !== null) {
                 markersDragControl.activate();
+                markersSelectControl.activate();
             }
         },
 
