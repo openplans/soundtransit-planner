@@ -468,7 +468,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
         markersLimitReachedPopup = jQuery("<div></div>")
                                         .addClass("limit_reached");
 
-debugger;                                        
         switch(type) {
             case "stops":
                 markersLimitReachedPopup.append("<p>There are too many stops and stations to display." + 
@@ -484,7 +483,7 @@ debugger;
                 break;
         }                                        
 
-        markersLimitReachedPopup.appendTo(map.viewPortDiv);
+        markersLimitReachedPopup.appendTo(map.layerContainerDiv);
     }
 
     function featureCountForDataLayer(type) {
