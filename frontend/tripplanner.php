@@ -121,7 +121,7 @@
         <span id="leavetype-wrap">
           <select id="leavetype" name="leavetype">
             <option value="Arrive By">Arrive By</option>
-            <option value="Leave At">Leave At</option>
+            <option value="Leave At" selected="selected">Leave At</option>
           </select>
         </span>
         <span id="leaveday-wrap"><input name="leaveday" id="leaveday" type="text" /></span>
@@ -137,7 +137,7 @@
         <span id="trippriority-wrap">
           <select id="trippriority" name="trippriority">
             <option value="TRANSFERS">Fewest Transfers</option>
-            <option value="QUICK">Fastest Trip</option>
+            <option value="QUICK" selected="selected">Fastest Trip</option>
           </select>
         </span>
         <span id="maxwalk-wrap">
