@@ -315,9 +315,10 @@ OTP.Map = function(_root, _controlsRoot, options) {
         
         if(typeof featureProperties.outlettype !== 'undefined') {
             type = "fareoutlet";
-            var niceOutletType = (featureProperties.outlettype == 'TVM') ? "Ticket Vending Machine" : ((featureProperties.outlettype == 'ORCA') ? "ORCA Customer service center" : "Retailer");
-            //var niceOutletType = (featureProperties.outlettype == 'TVM') ? "Ticket Vending Machine" : ((featureProperties.outlettype == 'Retailer') ? "ORCA Customer service center" : "Retailer");
+            var niceOutletType = (featureProperties.outlettype == 'TVM') ? "Ticket Vending Machine" : ((featureProperties.outlettype == 'Retailer') ? "Retailer" : "ORCA Customer service center");
             crossbar = '<div class="crossbar"><strong>' + niceOutletType + '</strong> - ' + featureProperties.location + '</div>';
+            amenities += "<strong>What can I do here</strong>";
+            amenities += (featureProperties.outlettype == 'TVM') ? '<div class="fare-actions"><ul><li>Buy new ORCA Card (Note: Adult cards only)</li><li>Reload ORCA Card</li><li>Buy new monthly pass on ORCA Card</li><li>Central link tickets</li><li>Sounder tickets</li></ul></div>' : ((featureProperties.outlettype == 'Retailer') ? '<div class="fare-actions"><ul><li>Reload ORCA Card</li><li>Buy new monthly pass on ORCA Card</li></ul>Note: No new ORCA cards sold here</div>' : '<div class="fare-actions"><ul><li>Buy new ORCA Card, including Youth and Senior card</li><li>Reload ORCA Card</li><li>Buy new monthly pass on ORCA Card</li></ul></div>');
             
         } else if(typeof featureProperties.accessible !== 'undefined') {
             type = "stop";
