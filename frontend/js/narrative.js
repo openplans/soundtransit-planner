@@ -712,12 +712,12 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             if (jQuery(this).hasClass('active')) {
                 root.find('#moreoptions').hide();
 
-                jQuery(this).html('More Options<span></span>')
+                jQuery(this).html('More Options<span> </span>')
                     .removeClass('active');
             } else {
                 root.find('#moreoptions').show();
 
-                jQuery(this).html('Fewer Options<span></span>')
+                jQuery(this).html('Fewer Options<span> </span>')
                     .addClass('active');
             }
             
