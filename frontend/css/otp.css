@@ -981,11 +981,11 @@ background-position: 50% 100%;
 padding-bottom: 11px;
 background-repeat: no-repeat;
 z-index: 10000000;
-color: #4A4A4A;    
+color: #4a4a4a;    
 }
 
 .info-window .content {
-background-color: #FFFFFF;
+background-color: #fff;
 border: 1px solid #bababa;
 border-bottom: none;
 position: relative;
@@ -1003,7 +1003,6 @@ padding: 5px;
 .info-window .info-content {
 padding: 5px;
 }
-
 
 .crossbar {
 background-position: 0 50%;
@@ -1035,6 +1034,14 @@ background-repeat: no-repeat;
 background-position: 0 0;
 height: 19px;
 width: 19px;
+}
+
+.info-window .fare-actions {
+/*display: none;*/
+}
+
+.info-window ul {
+list-style-position: inside;
 }
 
 .info-window .start-end-area {

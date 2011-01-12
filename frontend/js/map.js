@@ -36,7 +36,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     var disambiguationSelectControl = null;
 
     // marker features on markersLayer
-    var tripPlannerMarkerFeatures = null;
+    var tripPlannerMarkerFeatures = [];
     var dataLayerMarkerFeatures = {};
 
     // route-specific features/WFS CQL for system map on routeLayer
@@ -84,9 +84,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
             routeLayer.removeAllFeatures();
         }
 
-        if(markersLayer !== null && tripPlannerMarkerFeatures !== null) {
+        if(markersLayer !== null && tripPlannerMarkerFeatures !== []) {
             markersLayer.removeFeatures(tripPlannerMarkerFeatures);
-            tripPlannerMarkerFeatures = null;
+            tripPlannerMarkerFeatures = [];
         }
     }
 
@@ -129,7 +129,26 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                     var fromFeature = markersLayer.getFeaturesByAttribute('type', "start");                                        
                                     if(fromFeature !== null && typeof fromFeature[0] !== 'undefined') {
                                         fromFeature[0].move(lonlat.transform(proj,map.getProjectionObject()));
+                                    } else { // create the feature
+                                        // TODO: refactor setStartPoint to accept lonlat in addition to polyline
+                                        //var icon = new OpenLayers.Feature.Vector(lonlat.transform(proj,map.getProjectionObject()), { type: "start" });
+                                        //icon.style = {
+                                        //    externalGraphic: "img/otp/a-flag.png",
+                                        //    graphicWidth: 23,
+                                        //    graphicHeight: 30,
+                                        //    graphicXOffset: 0,
+                                        //    graphicYOffset: -30,
+                                        //    graphicTitle: "Drag To Change Route",
+                                        //    cursor: "move"
+                                        //};
+
+                                        //markersLayer.addFeatures([icon]);
+
+                                        //tripPlannerMarkerFeatures.push(icon);
+                                    
                                     }
+                                    
+                                    
 
                                     hideContextMenu();
                                     return false;
@@ -315,9 +334,10 @@ OTP.Map = function(_root, _controlsRoot, options) {
         
         if(typeof featureProperties.outlettype !== 'undefined') {
             type = "fareoutlet";
-            var niceOutletType = (featureProperties.outlettype == 'TVM') ? "Ticket Vending Machine" : ((featureProperties.outlettype == 'ORCA') ? "ORCA Customer service center" : "Retailer");
-            //var niceOutletType = (featureProperties.outlettype == 'TVM') ? "Ticket Vending Machine" : ((featureProperties.outlettype == 'Retailer') ? "ORCA Customer service center" : "Retailer");
+            var niceOutletType = (featureProperties.outlettype == 'TVM') ? "Ticket Vending Machine" : ((featureProperties.outlettype == 'Retailer') ? "Retailer" : "ORCA Customer service center");
             crossbar = '<div class="crossbar"><strong>' + niceOutletType + '</strong> - ' + featureProperties.location + '</div>';
+            amenities += "<strong>What can I do here</strong>";
+            amenities += (featureProperties.outlettype == 'TVM') ? '<div class="fare-actions"><ul><li>Buy new ORCA Card (Note: Adult cards only)</li><li>Reload ORCA Card</li><li>Buy new monthly pass on ORCA Card</li><li>Central link tickets</li><li>Sounder tickets</li></ul></div>' : ((featureProperties.outlettype == 'Retailer') ? '<div class="fare-actions"><ul><li>Reload ORCA Card</li><li>Buy new monthly pass on ORCA Card</li></ul>Note: No new ORCA cards sold here</div>' : '<div class="fare-actions"><ul><li>Buy new ORCA Card, including Youth and Senior card</li><li>Reload ORCA Card</li><li>Buy new monthly pass on ORCA Card</li></ul></div>');
             
         } else if(typeof featureProperties.accessible !== 'undefined') {
             type = "stop";
@@ -352,19 +372,21 @@ OTP.Map = function(_root, _controlsRoot, options) {
             content.append("<!-- " + k + ": " + v + " -->");
         }
         
-        jQuery('<a href="#">Start Trip Here</a>')
-            .click(function(e) {
-                if(typeof options.updateFromLocationFunction === 'function') {
-                    options.updateFromLocationFunction(lonlat, false);
-                }
-        }).appendTo(startEndTrip);
+        if (options.hasTripPlanner === true) {
+            jQuery('<a href="#">Start Trip Here</a>')
+                .click(function(e) {
+                    if(typeof options.updateFromLocationFunction === 'function') {
+                        options.updateFromLocationFunction(lonlat, false);
+                    }
+            }).appendTo(startEndTrip);
         
-        jQuery('<a href="#">End Trip Here</a>')
-            .click(function(e) {
-                if(typeof options.updateToLocationFunction === 'function') {
-                    options.updateToLocationFunction(lonlat, false);
-                }
-        }).appendTo(startEndTrip);
+            jQuery('<a href="#">End Trip Here</a>')
+                .click(function(e) {
+                    if(typeof options.updateToLocationFunction === 'function') {
+                        options.updateToLocationFunction(lonlat, false);
+                    }
+            }).appendTo(startEndTrip);
+        }
         
         content.append(startEndTrip);
         
