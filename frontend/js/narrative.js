@@ -390,6 +390,9 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             jQuery(itineraryMarkup)
                 .appendTo(tripWrapper);
 
+            // hack to support IE7 last-child selector
+            jQuery(".trip-stepbystep li:last-child").addClass("last-child");
+
             tripWrapper
                 .appendTo(root.find("#trip-data"));
 
