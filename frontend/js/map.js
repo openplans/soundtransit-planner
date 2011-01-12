@@ -495,35 +495,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
     }
     
     // data layer stuff (fare outlets, etc.)
-    function hideLimitReachedMessage() {
-        if(markersLimitReachedPopup !== null) {
-            markersLimitReachedPopup.remove();
-            markersLimitReachedPopup = null;
-        }
-    }
-    
-    function showLimitReachedMessage(type) {
-        markersLimitReachedPopup = jQuery("<div></div>")
-                                        .addClass("limit_reached");
-
-        switch(type) {
-            case "stops":
-                markersLimitReachedPopup.append("<p>There are too many stops and stations to display." + 
-                                                "Please <a href='#'>zoom in</a> to see stops and stations.</p>");
-                break;
-            case "parkandrides":
-                markersLimitReachedPopup.html("<p>There are too many park and rides to display." + 
-                                                "Please <a href='#'>zoom in</a> to see park and rides.</p>");
-                break;
-            case "fareoutlets":
-                markersLimitReachedPopup.html("<p>There are too many fare outlets to display." + 
-                                                "Please <a href='#'>zoom in</a> to see fare outlets.</p>");
-                break;
-        }                                        
-
-        markersLimitReachedPopup.appendTo(map.layerContainerDiv);
-    }
-
     function featureCountForDataLayer(type) {
         // remove features from map
         var features = dataLayerMarkerFeatures[type];
@@ -551,12 +522,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 if(typeof data.features === 'undefined') {
                     return;
                 }
-
-                if(data.features.length > 200) {
-                    showLimitReachedMessage(type);
-                    return;
-                }
-                hideLimitReachedMessage();
 
                 jQuery(data.features).each(function(_, feature) {
                     if(typeof dataLayerMarkerFeatures[type] === 'undefined' || dataLayerMarkerFeatures[type] === null) {
@@ -612,11 +577,11 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
         // hide info window for this layer when zoom changes
         markersLayer.events.on({
-                         moveend: function(e) {
+                        moveend: function(e) {
                              if(e.zoomChanged) {
                                 hideInfoWindow();
                              }
-                          }
+                        }
                       });
 
         map.addLayers([routeLayer, markersLayer]);
