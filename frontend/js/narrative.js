@@ -560,26 +560,26 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     }
 
     // event handlers
-    function updateToLocation(point, isDrag) {
+    function updateToLocation(point, submitForm) {
         if(point !== null) {
             root.find("#to")
                 .val(parseFloat(point.lat).toFixed(6) + "," + parseFloat(point.lon).toFixed(6))
                 .removeClass('blank');
 
-            if(isDrag === true) {
+            if(submitForm === true) {
                root.find("form#trip-plan-form")
                     .submit();
             }
         }
     }
 
-    function updateFromLocation(point, isDrag) {
+    function updateFromLocation(point, submitForm) {
         if(point !== null) {
             root.find("#from")
                 .val(parseFloat(point.lat).toFixed(6) + "," + parseFloat(point.lon).toFixed(6))
                 .removeClass('blank');            
 
-            if(isDrag === true) {
+            if(submitForm === true) {
                root.find("form#trip-plan-form")
                     .submit();
             }
