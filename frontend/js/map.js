@@ -520,25 +520,25 @@ OTP.Map = function(_root, _controlsRoot, options) {
                  format_options: "callback:" + callbackFunction,
                  typeName: "soundtransit:" + type
              },
-             success: function(data) {
+             success: function(data) {                 
                 if(typeof data.features === 'undefined') {
                     return;
                 }
 
-                jQuery(data.features).each(function(_, feature) {
-                    if(typeof dataLayerMarkerFeatures[type] === 'undefined' || dataLayerMarkerFeatures[type] === null) {
-                        dataLayerMarkerFeatures[type] = [];
-                    }
+                if(typeof dataLayerMarkerFeatures[type] === 'undefined' || dataLayerMarkerFeatures[type] === null) {
+                    dataLayerMarkerFeatures[type] = [];
+                }
 
+                jQuery(data.features).each(function(_, feature) {
                     var point = new OpenLayers.Geometry.Point(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
                     var proj = new OpenLayers.Projection("EPSG:4326");
                     var icon = new OpenLayers.Feature.Vector(point.transform(proj, map.getProjectionObject()), feature.properties);
+
                     var style = {
-                          pointRadius: 12.5,
+                          pointRadius: 12,
                           graphicXOffset: -12,
                           graphicYOffset: -12
                     };
-                    
                     switch(type) {
                         case "stops":
                             style.externalGraphic = "img/otp/location-icon.png";
@@ -585,6 +585,43 @@ OTP.Map = function(_root, _controlsRoot, options) {
                              }
                         }
                       });
+
+/*                 
+        // partial icon scaling--features need to be on different layers? FIXME
+        
+        var context = {
+            getPointRadius : function() {
+              var ratio = map.getZoom() / 18;
+              return ratio * 12.5;
+            }
+        };
+        var templateDefault = {
+            opacity: 1,
+            pointRadius: 12.5,
+            graphicXOffset: -12,
+            graphicYOffset: -12,            
+            pointRadius: "${getPointRadius}"
+        };
+        var templateStops = {
+            externalGraphic: "img/otp/location-icon.png"
+        };        
+        var templateParkAndRides = {
+            externalGraphic: "img/otp/parking-icon.png"
+        };        
+        var templateFareOutlets = {
+            externalGraphic: "img/otp/fares-icon.png"
+        };        
+        
+        var renderingIntents = {
+            default: new OpenLayers.Style(templateDefault, {context:context}),
+            stops: new OpenLayers.Style(templateStops, {context:context}),
+            parkandrides: new OpenLayers.Style(templateParkAndRides, {context:context}),
+            fareoutlets: new OpenLayers.Style(templateFareOutlets, {context:context}),
+        }
+        var styleMap = new OpenLayers.StyleMap(renderingIntents);
+        styleMap.extendDefault = true;
+        markersLayer.styleMap = styleMap;
+*/
 
         map.addLayers([routeLayer, markersLayer]);
 
