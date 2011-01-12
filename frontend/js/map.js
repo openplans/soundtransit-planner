@@ -84,7 +84,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             routeLayer.removeAllFeatures();
         }
 
-        if(markersLayer !== null && tripPlannerMarkerFeatures !== null) {
+        if(markersLayer !== null && tripPlannerMarkerFeatures !== []) {
             markersLayer.removeFeatures(tripPlannerMarkerFeatures);
             tripPlannerMarkerFeatures = [];
         }
