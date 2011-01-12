@@ -129,7 +129,26 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                     var fromFeature = markersLayer.getFeaturesByAttribute('type', "start");                                        
                                     if(fromFeature !== null && typeof fromFeature[0] !== 'undefined') {
                                         fromFeature[0].move(lonlat.transform(proj,map.getProjectionObject()));
+                                    } else { // create the feature
+                                        // TODO: refactor setStartPoint to accept lonlat in addition to polyline
+                                        //var icon = new OpenLayers.Feature.Vector(lonlat.transform(proj,map.getProjectionObject()), { type: "start" });
+                                        //icon.style = {
+                                        //    externalGraphic: "img/otp/a-flag.png",
+                                        //    graphicWidth: 23,
+                                        //    graphicHeight: 30,
+                                        //    graphicXOffset: 0,
+                                        //    graphicYOffset: -30,
+                                        //    graphicTitle: "Drag To Change Route",
+                                        //    cursor: "move"
+                                        //};
+
+                                        //markersLayer.addFeatures([icon]);
+
+                                        //tripPlannerMarkerFeatures.push(icon);
+                                    
                                     }
+                                    
+                                    
 
                                     hideContextMenu();
                                     return false;
@@ -353,19 +372,21 @@ OTP.Map = function(_root, _controlsRoot, options) {
             content.append("<!-- " + k + ": " + v + " -->");
         }
         
-        jQuery('<a href="#">Start Trip Here</a>')
-            .click(function(e) {
-                if(typeof options.updateFromLocationFunction === 'function') {
-                    options.updateFromLocationFunction(lonlat, false);
-                }
-        }).appendTo(startEndTrip);
+        if (options.hasTripPlanner === true) {
+            jQuery('<a href="#">Start Trip Here</a>')
+                .click(function(e) {
+                    if(typeof options.updateFromLocationFunction === 'function') {
+                        options.updateFromLocationFunction(lonlat, false);
+                    }
+            }).appendTo(startEndTrip);
         
-        jQuery('<a href="#">End Trip Here</a>')
-            .click(function(e) {
-                if(typeof options.updateToLocationFunction === 'function') {
-                    options.updateToLocationFunction(lonlat, false);
-                }
-        }).appendTo(startEndTrip);
+            jQuery('<a href="#">End Trip Here</a>')
+                .click(function(e) {
+                    if(typeof options.updateToLocationFunction === 'function') {
+                        options.updateToLocationFunction(lonlat, false);
+                    }
+            }).appendTo(startEndTrip);
+        }
         
         content.append(startEndTrip);
         
