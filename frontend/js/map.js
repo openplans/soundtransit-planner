@@ -448,7 +448,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }
     }
 
-    // TODO: Refactor to support drawing route based
     function drawRouteLayerForMode(mode, element) {
         // remove old existing features (FIXME?)
         var features = systemMapRouteFeatures[mode];
@@ -1142,6 +1141,46 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
     // public methods    
     return {
+        showFerryRouteFor: function(v) {
+            if(v === null || v === "") {
+                return;
+            }
+
+            systemMapRouteCriteria.WSF = "(designator LIKE '" + v + "' AND routetyp LIKE 'P')";
+            drawRouteLayerForMode("WSF", '#toggle-ferry');
+                
+        },
+
+        showLinkRouteFor: function(v) {
+            if(v === null || v === "") {
+                return;
+            }
+
+            systemMapRouteCriteria.LINK = "(designator LIKE '" + v + "' AND routetyp LIKE 'P')";
+            drawRouteLayerForMode("LINK", '#toggle-link');
+                
+        },
+
+        showSounderRouteFor: function(v,s) {
+            if(v === null || v === "" || s === null || s === "") {
+                return;
+            }
+
+            systemMapRouteCriteria.SOUNDER = "(designator LIKE '" + v + "' AND stops=" + s + " AND routetyp LIKE 'P')";
+            drawRouteLayerForMode("SOUNDER", '#toggle-sounder');
+
+        },
+
+        showBusRouteFor: function(v,s) {
+            if(v === null || v === "" || s === null || s === "") {
+                return;
+            }
+
+            systemMapRouteCriteria.BUS = "(operator LIKE '" + v + "' AND designator LIKE '" + s + "' AND routetyp LIKE 'P')";
+            drawRouteLayerForMode("BUS", '#toggle-bus');
+
+        },
+        
         reset: function() {
             reset();
         },
