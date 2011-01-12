@@ -282,16 +282,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
         var infoWindowContent = jQuery(getInfoWindowContentForFeature(feature.attributes))
                                     .addClass("content");
 
-        var closeButton = jQuery('<a href="#">Close</a>')
-                                        .addClass("close")
-                                        .click(function(e) {
-                                            hideInfoWindow();
-                                            return false; 
-                                        });
-
         infoWindow = jQuery("<div></div>")
                             .addClass("info-window")
-                            .append(infoWindowContent.append(closeButton))
+                            .append(infoWindowContent)
                             .appendTo(jQuery(map.layerContainerDiv));
 
         // set position of infowindow
@@ -347,7 +340,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         var headerWrapper = jQuery("<div></div>")
                             .addClass("info-header")
                             .html("<h2>" + headerContent + "</h2>")
-                            .append(getInfoWindowClose);
+                            .append(getInfoWindowClose());
 
         var popupContent = headerWrapper.after(content.append(crossbar).append(amenities).append(ticketText));
 
