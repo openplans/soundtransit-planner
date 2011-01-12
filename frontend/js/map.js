@@ -12,7 +12,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     // * hasTripPlanner: true or false, indicating whether a trip planner is present with this map
     //
     options = jQuery.extend(options, {});
-    
+
     // DOM elements
     var root = jQuery(_root);
     var controlsRoot = jQuery(_controlsRoot);
@@ -23,19 +23,23 @@ OTP.Map = function(_root, _controlsRoot, options) {
     var infoWindow = null;
     var layerChooserPopout = null;
 
-    // array of WMS layers that can be queried with WFS GetFeature
-    var queryableLayers = [];
-
-    // the vector layers that are used by the trip planner to show the planned route.
+    // vector layers
     var routeLayer = null;   
     var markersLayer = null;
+    var markersLimitReachedPopup = null;
+
+    // controls attached to markersLayer
     var markersDragControl = null;
     var markersSelectControl = null;
     
     // for clicking and hovering disambiguation candidates on the map
     var disambiguationSelectControl = null;
 
-    // route-specific features/WFS CQL for system map
+    // marker features on markersLayer
+    var tripPlannerMarkerFeatures = null;
+    var dataLayerMarkerFeatures = {};
+
+    // route-specific features/WFS CQL for system map on routeLayer
     var systemMapRouteCriteria = {};
     var systemMapRouteFeatures = {};
 
@@ -80,8 +84,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
             routeLayer.removeAllFeatures();
         }
 
-        if(markersLayer !== null) {
-            markersLayer.removeAllFeatures();
+        if(markersLayer !== null && tripPlannerMarkerFeatures !== null) {
+            markersLayer.removeFeatures(tripPlannerMarkerFeatures);
+            tripPlannerMarkerFeatures = null;
         }
     }
 
@@ -239,57 +244,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }        
     }
 
-    function showInfoWindow(clickedLocation, featureData) {
-        hideInfoWindow();
-
-        if(typeof featureData.features === 'undefined' || featureData.features.length === 0) {
-            return;
-        }
-
-        var feature = featureData.features[0];
-
-        if(feature === null) {
-            return;
-        }
-        
-        // create info window popup wrapper and append to DOM
-        var lonlat = null;
-        var infoWindowContent = null;
-        if(featureData.features.length > 1) {
-            infoWindowContent = jQuery("<div>There is more than one facility at this point. Zoom in to choose one.</div>")
-                                    .addClass("content")
-                                    .css("width", "175px").append(getInfoWindowClose());
-                                    
-            lonlat = clickedLocation;
-        } else {
-            infoWindowContent =  jQuery(getInfoWindowContentForFeature(feature.properties))
-                                    .addClass("content");
-
-            var wgsLonlat = new OpenLayers.LonLat(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
-            var proj = new OpenLayers.Projection("EPSG:4326");
-            lonlat = wgsLonlat.transform(proj, map.getProjectionObject());
-        }
-            
-        infoWindow = jQuery("<div></div>")
-                            .addClass("info-window")
-                            .append(infoWindowContent)
-                            .appendTo(jQuery(map.layerContainerDiv));
-
-        // set position of infowindow
-        var viewPortPx = map.getViewPortPxFromLonLat(lonlat);
-        var layerContainerPx = map.getLayerPxFromViewPortPx(viewPortPx);
-        var iconSize = getIconSizeInPixelsAtThisZoomLevel();
-
-        infoWindowContent
-            .css("width", infoWindowContent.width());
-
-        infoWindow
-            .css("top", layerContainerPx.y - infoWindow.height() - iconSize.h - 2)
-            .css("left", layerContainerPx.x - (infoWindow.width() / 2));
-            
-        ensureInfoWindowIsVisible();
-    }
-
     function ensureInfoWindowIsVisible() {
         if(infoWindow === null) {
             return;
@@ -319,6 +273,40 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }
 
         map.pan(x, y);
+    }
+
+    function showInfoWindow(feature) {
+        hideInfoWindow();
+
+        // create info window popup wrapper and append to DOM
+        var infoWindowContent = jQuery(getInfoWindowContentForFeature(feature.attributes))
+                                    .addClass("content");
+
+        var closeButton = jQuery('<a href="#">Close</a>')
+                                        .addClass("close")
+                                        .click(function(e) {
+                                            hideInfoWindow();
+                                            return false; 
+                                        });
+
+        infoWindow = jQuery("<div></div>")
+                            .addClass("info-window")
+                            .append(infoWindowContent.append(closeButton))
+                            .appendTo(jQuery(map.layerContainerDiv));
+
+        // set position of infowindow
+        var lonlat = new OpenLayers.LonLat(feature.geometry.x, feature.geometry.y);
+        var viewPortPx = map.getViewPortPxFromLonLat(lonlat);
+        var layerContainerPx = map.getLayerPxFromViewPortPx(viewPortPx);
+
+        infoWindowContent
+            .css("width", infoWindowContent.width());
+            
+        infoWindow
+            .css("top", layerContainerPx.y - infoWindow.height() - (feature.style.pointRadius * 2) - 2)
+            .css("left", layerContainerPx.x - (infoWindow.width() / 2));
+            
+        ensureInfoWindowIsVisible();
     }
 
     function getInfoWindowContentForFeature(featureProperties) {
@@ -397,120 +385,27 @@ OTP.Map = function(_root, _controlsRoot, options) {
             });
     }
 
-    // NOTE: this logic should match the SLD-specified display logic in GeoServer!
-    function getIconSizeInPixelsAtThisZoomLevel() {
-        if(map.getScale() <= 50000) {
-            return new OpenLayers.Size(25, 25);            
-        } else {
-            var iconSizeInMeters = 500;
-            var iconSizeInPixels = iconSizeInMeters / map.getResolution();
-            return new OpenLayers.Size(iconSizeInPixels, iconSizeInPixels);
-        }
-    }
-
-    function addDataLayerQueryBehavior() {
-        if(queryableLayers === null || queryableLayers.length === 0) {
-            return;
-        }
-        
-        OpenLayers.Control.GetFeatureInfoWithJSONP = OpenLayers.Class(OpenLayers.Control, {               
-            initialize: function() {
-                OpenLayers.Control.prototype.initialize.apply(this, arguments);
-
-                this.handler = new OpenLayers.Handler.Click(
-                    this,
-                    {
-                        'click': this.trigger
-                    },
-                    {
-                        'single': true,
-                        'double': false
-                    }
-                );
-            },
-            trigger: function(e) {
-                var iconSize = getIconSizeInPixelsAtThisZoomLevel();                
-
-                if(iconSize === null) {
-                    return;
-                }
-                
-                // build a bbox that is roughly the size of a icon on the map at this zoom level
-                var lonlat = map.getLonLatFromViewPortPx(e.xy); 
-                var metersPerPixel = map.getResolution();
-                var queryBounds = new OpenLayers.Bounds(lonlat.lon - (iconSize.w * metersPerPixel), 
-                                                    lonlat.lat - (iconSize.h * metersPerPixel), 
-                                                    lonlat.lon + (iconSize.w * metersPerPixel), 
-                                                    lonlat.lat + (iconSize.h * metersPerPixel));
-
-                // generate visible layer query specification
-                var visibleLayerTypes = [];
-                for(var i = 0; i < queryableLayers.length; i++) {
-                    if(queryableLayers[i].getVisibility() === true) {
-                        var activeLayer = queryableLayers[i];
-                        visibleLayerTypes.push(activeLayer.params.LAYERS);
-                    }
-                }
-                
-                if(visibleLayerTypes.length === 0) {
-                    return;
-                }
-
-                // make request
-                var callbackFunction = "getFeatureCallback" + Math.floor(Math.random() * 1000000000);
-                jQuery.ajax({
-                        url: "http://sea.dev.openplans.org:8080/geoserver/wfs",
-                        dataType: "jsonp",
-                        jsonpCallback: callbackFunction,
-                        data: {
-                            request: "GetFeature",
-                            outputFormat: "json",
-                            format_options: "callback:" + callbackFunction,
-                            typeName: visibleLayerTypes.join(","),
-                            bbox: queryBounds.toBBOX(6, false) + "," + map.getProjection()
-                        },
-                        success: function(data) {    
-                            showInfoWindow(lonlat, data);
-                        }
-                });
-            }
-        });
-
-        var getFeatureInfoControl = new OpenLayers.Control.GetFeatureInfoWithJSONP();
-        map.addControl(getFeatureInfoControl);
-        getFeatureInfoControl.activate();
-
-        // hide info windows if zoom level changes
-        map.events.on({ "zoomend": hideInfoWindow });
-    }
-
-    // layer stuff
+    // route layer stuff
     function zoomToRouteLayerExtent() {
         if(routeLayer !== null) {
-            var bounds = routeLayer.getDataExtent();
-            map.zoomToExtent(bounds);
+            map.zoomToExtent(routeLayer.getDataExtent());
         }
     }
 
     function removeRouteLayerForMode(mode) {
-        // clear CQL query
         systemMapRouteCriteria[mode] = "";
 
         // remove features from map
         var features = systemMapRouteFeatures[mode];
         
-        if(features !== null) {            
+        if(typeof features !== 'undefined' && features !== null) {            
             routeLayer.removeFeatures(features);
             systemMapRouteFeatures[mode] = null;
         }
     }
 
     function drawRouteLayerForMode(mode, element) {
-        if(systemMapRouteCriteria === null) {
-            return;
-        }
-
-        // remove old existing features
+        // remove old existing features (FIXME?)
         var features = systemMapRouteFeatures[mode];
 
         if(features !== null) {            
@@ -522,12 +417,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
         if(cqlQuery === null || cqlQuery === "") {
             return;
-        }
-
-        // if we're going to draw the polyline for this route, add 
-        // active class to its selector indicator
-        if(element !== null) {
-            jQuery(element).addClass("active");
         }
 
         var style = null;
@@ -556,8 +445,14 @@ OTP.Map = function(_root, _controlsRoot, options) {
                       strokeWidth: 4
              };                                
         }
+        
+        // if we're going to draw the polyline for this route, add 
+        // active class to its selector indicator
+        if(element !== null) {
+            jQuery(element).addClass("active");
+        }
               
-        var callbackFunction = "drawWFSRouteQueryWithStyleCallback" + Math.floor(Math.random() * 1000000000);
+        var callbackFunction = "drawRouteLayerForModeCallback" + Math.floor(Math.random() * 1000000000);
         jQuery.ajax({
              url: "http://sea.dev.openplans.org:8080/geoserver/wfs",
              dataType: "jsonp",
@@ -576,7 +471,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                  }
 
                  jQuery(data.features).each(function(_, feature) {
-                     if(systemMapRouteFeatures[mode] == null) {
+                     if(typeof systemMapRouteFeatures[mode] === 'undefined' || systemMapRouteFeatures[mode] === null) {
                          systemMapRouteFeatures[mode] = [];
                      }
                      
@@ -606,6 +501,154 @@ OTP.Map = function(_root, _controlsRoot, options) {
         });        
     }
     
+    // data layer stuff (fare outlets, etc.)
+    function hideLimitReachedMessage() {
+        if(markersLimitReachedPopup !== null) {
+            markersLimitReachedPopup.remove();
+            markersLimitReachedPopup = null;
+        }
+    }
+    
+    function showLimitReachedMessage(type) {
+        markersLimitReachedPopup = jQuery("<div></div>")
+                                        .addClass("limit_reached");
+
+        switch(type) {
+            case "stops":
+                markersLimitReachedPopup.append("<p>There are too many stops and stations to display." + 
+                                                "Please <a href='#'>zoom in</a> to see stops and stations.</p>");
+                break;
+            case "parkandrides":
+                markersLimitReachedPopup.html("<p>There are too many park and rides to display." + 
+                                                "Please <a href='#'>zoom in</a> to see park and rides.</p>");
+                break;
+            case "fareoutlets":
+                markersLimitReachedPopup.html("<p>There are too many fare outlets to display." + 
+                                                "Please <a href='#'>zoom in</a> to see fare outlets.</p>");
+                break;
+        }                                        
+
+        markersLimitReachedPopup.appendTo(map.layerContainerDiv);
+    }
+
+    function featureCountForDataLayer(type) {
+        // remove features from map
+        var features = dataLayerMarkerFeatures[type];
+
+        if(typeof features !== 'undefined' && features !== null) {            
+            return features.length;
+        } else {
+            return null;
+        }
+    }
+
+    function addDataLayer(type, array) {
+        var callbackFunction = "addDataLayerCallback" + Math.floor(Math.random() * 1000000000);
+        jQuery.ajax({
+             url: "http://sea.dev.openplans.org:8080/geoserver/wfs",
+             dataType: "jsonp",
+             jsonpCallback: callbackFunction,
+             data: {
+                 request: "GetFeature",
+                 outputFormat: "json",
+                 format_options: "callback:" + callbackFunction,
+                 typeName: "soundtransit:" + type
+             },
+             success: function(data) {
+                if(typeof data.features === 'undefined') {
+                    return;
+                }
+
+                if(data.features.length > 200) {
+                    showLimitReachedMessage(type);
+                    return;
+                }
+                hideLimitReachedMessage();
+
+                jQuery(data.features).each(function(_, feature) {
+                    if(typeof dataLayerMarkerFeatures[type] === 'undefined' || dataLayerMarkerFeatures[type] === null) {
+                        dataLayerMarkerFeatures[type] = [];
+                    }
+
+                    var point = new OpenLayers.Geometry.Point(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
+                    var proj = new OpenLayers.Projection("EPSG:4326");
+                    var icon = new OpenLayers.Feature.Vector(point.transform(proj, map.getProjectionObject()), feature.properties);
+                    var style = {
+                          pointRadius: 12.5,
+                          graphicXOffset: -12,
+                          graphicYOffset: -12
+                    };
+                    
+                    switch(type) {
+                        case "stops":
+                            style.externalGraphic = "img/otp/location-icon.png";
+                            break;
+                        case "parkandrides":
+                            style.externalGraphic = "img/otp/parking-icon.png";
+                            break;
+                        case "fareoutlets":
+                            style.externalGraphic = "img/otp/fares-icon.png";
+                            break;
+                    }
+                    icon.style = style;
+
+                    dataLayerMarkerFeatures[type].push(icon);
+                });
+
+                markersLayer.addFeatures(dataLayerMarkerFeatures[type]);
+                map.zoomToExtent(markersLayer.getExtent());
+             }
+        });     
+    }
+
+    function removeDataLayer(type) {
+        // remove features from map
+        var features = dataLayerMarkerFeatures[type];
+
+        if(typeof features !== 'undefined' && features !== null) {            
+            markersLayer.removeFeatures(features);
+            dataLayerMarkerFeatures[type] = null;
+        }
+    }
+
+    function setupDataLayers() {
+        // (markers are in a separate layer because they are draggable, the route is not)
+        routeLayer = new OpenLayers.Layer.Vector("Routes");
+
+        markersLayer = new OpenLayers.Layer.Vector("Markers");
+
+        // hide info window for this layer when zoom changes
+        markersLayer.events.on({
+                         moveend: function(e) {
+                             if(e.zoomChanged) {
+                                hideInfoWindow();
+                             }
+                          }
+                      });
+
+        map.addLayers([routeLayer, markersLayer]);
+
+        // enable selection of features
+        markersSelectControl = new OpenLayers.Control.SelectFeature(markersLayer, { onSelect: showInfoWindow });
+        map.addControl(markersSelectControl);
+        markersSelectControl.activate();
+
+        // listener for drag events on markers
+        //markersDragControl = new OpenLayers.Control.DragFeature(markersLayer, { onComplete: onCompleteMarkerMove });
+        //map.addControl(markersDragControl);
+        //markersDragControl.activate();
+    }
+
+    // base layer stuff
+    function setBaseLayer(name) {
+        var layerArray = map.layers;
+        for (var i=0;i<layerArray.length;i++) {
+            if (map.layers[i].name === name && map.layers[i].isBaseLayer === true) {
+                map.setBaseLayer(map.layers[i]);
+            }
+        }  
+    }
+
     function addBaseLayers() {
         var apiKey = "AgszXQ8Q5lbiJFYujII-Lcie9XQ-1DK3a2X7xWJmfSeipw8BAAF0ETX8AJ4K-PDm";
 
@@ -622,88 +665,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
         });
 
         map.addLayers([road, hybrid]);
-    }
-
-    function addDataLayers() {
-        var stops = new OpenLayers.Layer.WMS("Stops", "http://sea.dev.openplans.org:8080/geoserver/gwc/service/wms", {
-            layers: 'soundtransit:stops',
-            format: 'image/png'
-        },
-        {
-            tileSize: new OpenLayers.Size(256,256),
-            isBaseLayer: false,
-            visibility: false
-        });
-
-        var parkandride = new OpenLayers.Layer.WMS("Park and Rides", "http://sea.dev.openplans.org:8080/geoserver/gwc/service/wms", {
-            layers: 'soundtransit:parkandrides',
-            format: 'image/png'
-        },
-        {
-            tileSize: new OpenLayers.Size(256,256),
-            isBaseLayer: false,
-            visibility: false
-        });
-
-        var fareoutlets = new OpenLayers.Layer.WMS("Fare Outlets", "http://sea.dev.openplans.org:8080/geoserver/gwc/service/wms", {
-            layers: 'soundtransit:fareoutlets',
-            format: 'image/png'
-        },
-        {
-            tileSize: new OpenLayers.Size(256,256),
-            isBaseLayer: false,
-            visibility: false
-        });
-
-        map.addLayers([stops, parkandride, fareoutlets]);
-
-        // (will have info window popups associated with them when clicked on)
-        queryableLayers = [stops, parkandride, fareoutlets];
-    }
-
-    function addRouteLayers() {
-        // (markers are in a separate layer because they are draggable, the route is not)
-        routeLayer = new OpenLayers.Layer.Vector("Routes");
-        markersLayer = new OpenLayers.Layer.Vector("Route Markers");
-
-        map.addLayers([routeLayer, markersLayer]);
-
-        // enable selection of features
-        markersSelectControl = new OpenLayers.Control.SelectFeature(markersLayer, {});
-        map.addControl(markersSelectControl);
-        markersSelectControl.activate();
-
-        // listener for drag events on markers
-        markersDragControl = new OpenLayers.Control.DragFeature(markersLayer, { onComplete: onCompleteMarkerMove });
-        map.addControl(markersDragControl);
-        markersDragControl.activate();
-    }
-
-    function setBaseLayer(name) {
-        var layerArray = map.layers;
-        for (var i=0;i<layerArray.length;i++) {
-            if (map.layers[i].name === name && map.layers[i].isBaseLayer === true) {
-                map.setBaseLayer(map.layers[i]);
-            }
-        }  
-    }
-
-    function setLayerVisibility(name, visible) {
-        var layerArray = map.layers;
-        for (var i=0;i<layerArray.length;i++) {
-            if (map.layers[i].name === name) {
-                map.layers[i].setVisibility(visible);
-            }
-        }
-    }
-    
-    function getLayerVisibility(name) {
-        var layerArray = map.layers;
-        for (var i=0;i<layerArray.length;i++) {
-            if (map.layers[i].name === name) {
-                return map.layers[i].getVisibility();
-            }
-        }        
     }
 
     // layer selection UI + tooltips
@@ -969,16 +930,14 @@ OTP.Map = function(_root, _controlsRoot, options) {
         controlsRoot.find("#toggle-fares")
             .click(function() {
                 var layerName = 'Fare Outlets';
-                if(getLayerVisibility(layerName) === true) {
-                    setLayerVisibility(layerName, false);
+                if(featureCountForDataLayer("fareoutlets") !== null) {
+                    removeDataLayer("fareoutlets");
                     jQuery(this).removeClass("active");                    
                 } else {
-                    setLayerVisibility(layerName, true);
+                    addDataLayer("fareoutlets");
                     jQuery(this).addClass("active");
                 }
-                
                 hideInfoWindow();
-                
                 return false;
             })
             .hover(function(e) {
@@ -992,16 +951,14 @@ OTP.Map = function(_root, _controlsRoot, options) {
         controlsRoot.find("#toggle-parking")
             .click(function() {
                 var layerName = 'Park and Rides';
-                if(getLayerVisibility(layerName) === true) {
-                    setLayerVisibility(layerName, false);
+                if(featureCountForDataLayer("parkandrides") !== null) {
+                    removeDataLayer("parkandrides");
                     jQuery(this).removeClass("active");                    
                 } else {
-                    setLayerVisibility(layerName, true);
+                    addDataLayer("parkandrides");
                     jQuery(this).addClass("active");
                 }
-
                 hideInfoWindow();
-
                 return false;
             })
             .hover(function(e) {
@@ -1015,16 +972,14 @@ OTP.Map = function(_root, _controlsRoot, options) {
         controlsRoot.find("#toggle-location")
             .click(function() {
                 var layerName = 'Stops';
-                if(getLayerVisibility(layerName) === true) {
-                    setLayerVisibility(layerName, false);
+                if(featureCountForDataLayer("stops") !== null) {
+                    removeDataLayer("stops");
                     jQuery(this).removeClass("active");                    
                 } else {
-                    setLayerVisibility(layerName, true);
+                    addDataLayer("stops");
                     jQuery(this).addClass("active");
                 }
-
                 hideInfoWindow();
-
                 return false;
             })
             .hover(function(e) {
@@ -1039,10 +994,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
         controlsRoot.find("#toggle-ferry")
             .click(function() {
                 var element = jQuery(this);
-                
                 if(element.hasClass("active")) {
                     element.removeClass("active");
-
                     removeRouteLayerForMode("WSF");
                     hideLayerButtonPopout();
                 } else {
@@ -1054,10 +1007,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
         controlsRoot.find("#toggle-link")
             .click(function() {
                 var element = jQuery(this);
-                
                 if(element.hasClass("active")) {
                     element.removeClass("active");
-
                     removeRouteLayerForMode("LINK");
                     hideLayerButtonPopout();
                 } else {
@@ -1069,10 +1020,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
         controlsRoot.find("#toggle-sounder")
             .click(function() {
                 var element = jQuery(this);
-                
                 if(element.hasClass("active")) {
                     element.removeClass("active");
-
                     removeRouteLayerForMode("SOUNDER");
                     hideLayerButtonPopout();
                 } else {
@@ -1084,10 +1033,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
         controlsRoot.find("#toggle-bus")
             .click(function() {
                 var element = jQuery(this);
-                
                 if(element.hasClass("active")) {
                     element.removeClass("active");
-
                     removeRouteLayerForMode("BUS");
                     hideLayerButtonPopout();                    
                 } else {
@@ -1135,13 +1082,11 @@ OTP.Map = function(_root, _controlsRoot, options) {
     OpenLayers.ImgPath = "js/openlayers/img/";
 
     // setup map 
-    addBaseLayers();    
-    addRouteLayers();    
-    addDataLayers();
-
+    addBaseLayers();
+    setupDataLayers();
+    
     addContextMenuBehavior();
     addMapLayerChooserBehavior();
-    addDataLayerQueryBehavior();
 
     // center on seattle metro area
     var point = new OpenLayers.LonLat(-122.30, 47.45);
@@ -1159,7 +1104,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
         },
 
         beginDisambiguation: function() {
-            reset();
             if(markersDragControl !== null && markersSelectControl !== null) {
                 markersDragControl.deactivate();
                 markersSelectControl.deactivate();
@@ -1167,7 +1111,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
         },
 
         endDisambiguation: function() {
-            reset();
             if(markersDragControl !== null) {
                 markersDragControl.activate();
                 markersSelectControl.activate();
@@ -1206,6 +1149,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                              };
 
                 markersLayer.addFeatures([icon]);
+                tripPlannerMarkerFeatures.push(icon);
         },
         
         // FIXME: we have to pass an encoded polyline into here because we 
@@ -1236,6 +1180,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                          };
 
             markersLayer.addFeatures([icon]);
+            tripPlannerMarkerFeatures.push(icon);
         },
 
         addDisambiguationPoint: function(lon, lat, counter, location) {
@@ -1262,6 +1207,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                          };           
 
             markersLayer.addFeatures([icon]);
+            tripPlannerMarkerFeatures.push(icon);
             map.zoomToExtent(markersLayer.getDataExtent());
 
             return icon.id;
@@ -1301,7 +1247,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
                              graphicTitle: "Disambiguation Point",
                              cursor: "auto"
                          };
-
         },
 
         addLegToPlannedRoute: function(encodedPolyline, type) {

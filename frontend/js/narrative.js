@@ -611,6 +611,8 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 jQuery(element).removeClass('blank');
             }
         };
+
+        
         var zeroPad = function(value) { 
             return (parseInt(value, 10) < 10) ? ("0" + value.toString()) : value;
         };
@@ -648,11 +650,15 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
   
         // to/from
         root.find('#to, #from')
-            .bind('blur, change', function() {
+            .bind('blur', function() {
                 setBlankClassIfEmpty(this);
+                jQuery(this).removeClass('focus');
+            })
+            .bind('focus', function() {
+                jQuery(this).addClass('focus');
             })
             .each(function() {
-                setBlankClassIfEmpty(this);
+                setBlankClassIfEmpty(this); // Initialize to/from blank state
             });
         
         // to/from toggle
