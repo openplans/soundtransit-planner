@@ -560,26 +560,26 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     }
 
     // event handlers
-    function updateToLocation(point, isDrag) {
+    function updateToLocation(point, submitForm) {
         if(point !== null) {
             root.find("#to")
                 .val(parseFloat(point.lat).toFixed(6) + "," + parseFloat(point.lon).toFixed(6))
                 .removeClass('blank');
 
-            if(isDrag === true) {
+            if(submitForm === true) {
                root.find("form#trip-plan-form")
                     .submit();
             }
         }
     }
 
-    function updateFromLocation(point, isDrag) {
+    function updateFromLocation(point, submitForm) {
         if(point !== null) {
             root.find("#from")
                 .val(parseFloat(point.lat).toFixed(6) + "," + parseFloat(point.lon).toFixed(6))
                 .removeClass('blank');            
 
-            if(isDrag === true) {
+            if(submitForm === true) {
                root.find("form#trip-plan-form")
                     .submit();
             }
@@ -712,12 +712,12 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             if (jQuery(this).hasClass('active')) {
                 root.find('#moreoptions').hide();
 
-                jQuery(this).html('More Options<span></span>')
+                jQuery(this).html('More Options<span> </span>')
                     .removeClass('active');
             } else {
                 root.find('#moreoptions').show();
 
-                jQuery(this).html('Fewer Options<span></span>')
+                jQuery(this).html('Fewer Options<span> </span>')
                     .addClass('active');
             }
             
