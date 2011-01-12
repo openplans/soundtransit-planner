@@ -322,6 +322,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
         } else if(typeof featureProperties.accessible !== 'undefined') {
             type = "stop";
             crossbar = '<div class="crossbar"><strong>Stop ID</strong>: ' + featureProperties.localid.replace(/^\D/i, "") + '</div>';
+            // temporary workaround for our stop data having lat and lon transposed. Remove when we're able to fix that.
+            lonlat = new OpenLayers.LonLat(featureProperties.lat, featureProperties.lon);
         } else {
             type = "parkandride";
             crossbar = '<div class="crossbar">' + featureProperties.location + '</div>';
