@@ -512,14 +512,26 @@ list-style-type: none;
 }
 
 #disambiguate-results ol li {
-min-height: 20px;
-padding: 10px 10px 10px 34px;
 background-position: 0 50%;
 background-repeat: no-repeat;
+float: left;
+width: 100%;
+margin-bottom: 10px;
+}
+
+#disambiguate-results ol li .nice-name {
+font-size: 15px;
+line-height: 18px;
+float: left;
+margin: 10px 0 10px 38px;
+width: 265px;
 }
 
 #disambiguate-results ol li a {
+font-size: 12px;
+line-height: 18px;
 float: right;
+margin: 10px 0;
 }
 
 /* ASSUMPTION: no more than 9 ambiguous results at once */
