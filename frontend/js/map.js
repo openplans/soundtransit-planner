@@ -36,7 +36,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     var disambiguationSelectControl = null;
 
     // marker features on markersLayer
-    var tripPlannerMarkerFeatures = null;
+    var tripPlannerMarkerFeatures = [];
     var dataLayerMarkerFeatures = {};
 
     // route-specific features/WFS CQL for system map on routeLayer
@@ -86,7 +86,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
         if(markersLayer !== null && tripPlannerMarkerFeatures !== null) {
             markersLayer.removeFeatures(tripPlannerMarkerFeatures);
-            tripPlannerMarkerFeatures = null;
+            tripPlannerMarkerFeatures = [];
         }
     }
 
