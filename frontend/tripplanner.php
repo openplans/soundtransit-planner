@@ -151,8 +151,8 @@
         <div id="accessible-area"><label><input name="accessible" type="checkbox" id="accessible" /> Accessible trip <img src="img/otp/wheelchair16x16.png" alt="Wheelchair icon" /></label></div>
       </div>
       <div class="ui-widget">
-        <input id="trip-submit" type="submit" value="Plan Trip &rarr;" />
-        <a id="optionstoggle" href="#">More Options<span></span></a>
+        <input id="trip-submit" type="submit" value="Plan Trip" />
+        <a id="optionstoggle" href="#">More Options<span> </span></a>
       </div>
     </form>
     <div id="trip-data">
