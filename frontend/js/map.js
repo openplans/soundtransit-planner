@@ -19,25 +19,20 @@ OTP.Map = function(_root, _controlsRoot, options) {
     var map = null;
 
     // popup-able things
-    var contextMenu = null;
     var infoWindow = null;
+    var contextMenu = null;
     var layerChooserPopout = null;
-
+    var tooManyPopup = null;
+    
     // vector layers
     var routeLayer = null;   
     var markersLayer = null;
-    var markersLimitReachedPopup = null;
+    var dataMarkersLayers = {};
 
-    // controls attached to markersLayer
+    // marker controls
     var markersDragControl = null;
     var markersSelectControl = null;
-    
-    // for clicking and hovering disambiguation candidates on the map
     var disambiguationSelectControl = null;
-
-    // marker features on markersLayer
-    var tripPlannerMarkerFeatures = [];
-    var dataLayerMarkerFeatures = {};
 
     // route-specific features/WFS CQL for system map on routeLayer
     var systemMapRouteCriteria = {};
@@ -84,9 +79,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
             routeLayer.removeAllFeatures();
         }
 
-        if(markersLayer !== null && tripPlannerMarkerFeatures !== []) {
-            markersLayer.removeFeatures(tripPlannerMarkerFeatures);
-            tripPlannerMarkerFeatures = [];
+        if(markersLayer !== null) {
+            markersLayer.removeAllFeatures();
         }
     }
 
@@ -148,9 +142,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                         };
 
                                         markersLayer.addFeatures([icon]);
-
-                                        tripPlannerMarkerFeatures.push(icon);
-                                    
                                     }
 
                                     hideContextMenu();
@@ -191,9 +182,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                         };
 
                                         markersLayer.addFeatures([icon]);
-
-                                        tripPlannerMarkerFeatures.push(icon);
-
                                     }
                                     
                                     hideContextMenu();
@@ -340,9 +328,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
         infoWindowContent
             .css("width", infoWindowContent.width());
-            
+
         infoWindow
-            .css("top", layerContainerPx.y - infoWindow.height() - (feature.style.pointRadius * 2) - 2)
+            .css("top", layerContainerPx.y - infoWindow.height() - Math.floor((map.getZoom() / 18) * 25) - 5)
             .css("left", layerContainerPx.x - (infoWindow.width() / 2));
             
         ensureInfoWindowIsVisible();
@@ -381,7 +369,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
             if (featureProperties.numbikeloc !== 0 && featureProperties.numbikeloc !== "") {amenities += "<strong>Bike Lockers:</strong> " + featureProperties.numbikeloc + "<br />";}
             if (featureProperties.electricca !== 0 && featureProperties.electricca !== "") {amenities += "<strong>Electric Car Chargers:</strong> " + featureProperties.electricca + "<br />";}
             if (featureProperties.notes !== null && featureProperties.notes !== "") {amenities += "<strong>Notes:</strong> " + featureProperties.notes;}
-
         }
     
         var content = jQuery("<div></div>")
@@ -395,12 +382,14 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
         var popupContent = headerWrapper.after(content.append(crossbar).append(amenities).append(ticketText));
 
+/*
         // Leaving in for debug, but we don't want to display all this info to users
         for(k in featureProperties) {
             var v = featureProperties[k];            
             content.append("<!-- " + k + ": " + v + " -->");
         }
-        
+*/
+       
         if (options.hasTripPlanner === true) {
             jQuery('<a href="#">Start Trip Here</a>')
                 .click(function(e) {
@@ -548,106 +537,221 @@ OTP.Map = function(_root, _controlsRoot, options) {
     }
     
     // data layer stuff (fare outlets, etc.)
-    function featureCountForDataLayer(type) {
-        // remove features from map
-        var features = dataLayerMarkerFeatures[type];
+    // FIXME: for stops only now
+    function showTooMany(type) {
+        if(type === null) {
+            return;
+        }
+        
+        hideTooMany();
+        
+        var typeString = "unknown";
+        switch(type) {
+            case "stops":
+                typeString = "stops and stations";
+                break;
+            case "parkandrides":
+                typeString = "park and rides";
+                break;
+            case "fareoutlets":
+                typeString = "fare outlets";
+                break;
+        }
 
-        if(typeof features !== 'undefined' && features !== null) {            
-            return features.length;
-        } else {
-            return null;
+        tooManyPopup = jQuery("<div></div>")
+                            .addClass("too_many")
+                            .append("<p>There are too many " + typeString + " to display. " + 
+                                    "Please <a href='#'>zoom in</a> to see all " + typeString + "</p>")
+                            .appendTo(map.viewPortDiv);
+                            
+        tooManyPopup.find("a").click(function(e) {
+            map.zoomTo(14);
+
+            var stopsToggleButton = controlsRoot.find("#toggle-location");
+            addDataLayer("stops", stopsToggleButton, true);
+            
+            return false;
+        });
+    }
+
+    function hideTooMany() {
+        if(tooManyPopup !== null) {
+            tooManyPopup.remove();
         }
     }
 
-    function addDataLayer(type, array) {
+    function addDataLayer(type, element, constrainToBBOX) {
+        var layer = dataMarkersLayers[type];
+
+        if(layer === null) {
+            return;
+        }
+
+        if(type === "stops") {
+            if(map.getZoom() < 12) {
+                showTooMany(type);
+                layer.removeAllFeatures();
+                return;
+            } else {
+                hideTooMany();
+            }
+        }
+
         var callbackFunction = "addDataLayerCallback" + Math.floor(Math.random() * 1000000000);
+        var data = {
+            request: "GetFeature",
+            outputFormat: "json",
+            format_options: "callback:" + callbackFunction,
+            typeName: "soundtransit:" + type
+        };
+        
+        if(constrainToBBOX === true) {
+            data.BBOX = map.getExtent().toBBOX() + "," + layer.projection;
+            
+            // clear existing features from last BBOX constrained query
+            layer.removeAllFeatures();
+        }
+    
         jQuery.ajax({
              url: "http://sea.dev.openplans.org:8080/geoserver/wfs",
              dataType: "jsonp",
              jsonpCallback: callbackFunction,
-             data: {
-                 request: "GetFeature",
-                 outputFormat: "json",
-                 format_options: "callback:" + callbackFunction,
-                 typeName: "soundtransit:" + type
-             },
-             success: function(data) {
+             data: data,
+             success: function(data) {                 
                 if(typeof data.features === 'undefined') {
                     return;
                 }
 
-                jQuery(data.features).each(function(_, feature) {
-                    if(typeof dataLayerMarkerFeatures[type] === 'undefined' || dataLayerMarkerFeatures[type] === null) {
-                        dataLayerMarkerFeatures[type] = [];
+                if(type === "stops") {
+                    if(data.features.length > 512) {
+                        showTooMany(type);
+                        data = null;
+                        return;
+                    } else {
+                        hideTooMany();
                     }
+                }
+                
+                // if we're going to draw the polyline for this route, add 
+                // active class to its selector indicator
+                if(element !== null) {
+                    jQuery(element).addClass("active");
+                }
 
+                var features = [];
+                jQuery(data.features).each(function(_, feature) {
                     var point = new OpenLayers.Geometry.Point(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
                     var proj = new OpenLayers.Projection("EPSG:4326");
                     var icon = new OpenLayers.Feature.Vector(point.transform(proj, map.getProjectionObject()), feature.properties);
-                    var style = {
-                          pointRadius: 12.5,
-                          graphicXOffset: -12,
-                          graphicYOffset: -12
-                    };
-                    
-                    switch(type) {
-                        case "stops":
-                            style.externalGraphic = "img/otp/location-icon.png";
-                            break;
-                        case "parkandrides":
-                            style.externalGraphic = "img/otp/parking-icon.png";
-                            break;
-                        case "fareoutlets":
-                            style.externalGraphic = "img/otp/fares-icon.png";
-                            break;
-                    }
-                    icon.style = style;
-
-                    dataLayerMarkerFeatures[type].push(icon);
+                    features.push(icon);
                 });
+                layer.addFeatures(features);
 
-                markersLayer.addFeatures(dataLayerMarkerFeatures[type]);
-                map.zoomToExtent(markersLayer.getExtent());
+                if(constrainToBBOX !== true) {
+                    map.zoomToExtent(layer.getDataExtent());
+                }
              }
         });     
     }
-
+    
     function removeDataLayer(type) {
-        // remove features from map
-        var features = dataLayerMarkerFeatures[type];
+        var layer = dataMarkersLayers[type];
+        
+        if(layer !== null) {
+            layer.removeAllFeatures();
+        }
 
-        if(typeof features !== 'undefined' && features !== null) {            
-            markersLayer.removeFeatures(features);
-            dataLayerMarkerFeatures[type] = null;
+        if(type === "stops") {
+            hideTooMany();
         }
     }
 
     function setupDataLayers() {
-        // (markers are in a separate layer because they are draggable, the route is not)
+        // (TP markers are in a separate layer because they are draggable, the route is not)
         routeLayer = new OpenLayers.Layer.Vector("Routes");
+        markersLayer = new OpenLayers.Layer.Vector("Trip Planner Markers");
 
-        markersLayer = new OpenLayers.Layer.Vector("Markers");
+        // data layer markers
+        dataMarkersLayers.stops = new OpenLayers.Layer.Vector("Stop Markers");
+        dataMarkersLayers.parkandrides = new OpenLayers.Layer.Vector("Park and Ride Markers");
+        dataMarkersLayers.fareoutlets = new OpenLayers.Layer.Vector("Fare Outlets Markers");
 
-        // hide info window for this layer when zoom changes
-        markersLayer.events.on({
-                        moveend: function(e) {
-                             if(e.zoomChanged) {
-                                hideInfoWindow();
-                             }
-                        }
-                      });
+        // hide info windows when zoom changes
+        jQuery.each(dataMarkersLayers, function(_, layer) {
+            layer.events.on({
+                moveend: function(e) {
+                   if(e.zoomChanged) {
+                      hideInfoWindow();
+                   }
+                }
+            });
+        });
 
-        map.addLayers([routeLayer, markersLayer]);
+        // layer style configuration
+        var context = {
+            getPointRadius : function() {
+                var ratio = map.getZoom() / 18;
+                return ratio * 12.5;
+            }
+        };
 
-        // enable selection of features
-        markersSelectControl = new OpenLayers.Control.SelectFeature(markersLayer, { onSelect: showInfoWindow });
+        var templateStops = {
+            pointRadius: 12.5,
+            graphicXOffset: -12,
+            graphicYOffset: -12,            
+            pointRadius: "${getPointRadius}",
+            externalGraphic: "img/otp/location-icon.png"
+        };
+        dataMarkersLayers.stops.styleMap = new OpenLayers.StyleMap({
+            default: new OpenLayers.Style(templateStops, {context:context}),
+            select: new OpenLayers.Style(templateStops, {context:context})
+        });
+        dataMarkersLayers.stops.events.on({
+            moveend: function(e) {        
+                var stopsToggleButton = controlsRoot.find("#toggle-location");
+                if(stopsToggleButton.hasClass("active")) {
+                    addDataLayer("stops", stopsToggleButton, true);
+                }
+            }
+        });
+        
+        var templateParking = {
+            pointRadius: 12.5,
+            graphicXOffset: -12,
+            graphicYOffset: -12,            
+            pointRadius: "${getPointRadius}",
+            externalGraphic: "img/otp/parking-icon.png"
+        };
+        dataMarkersLayers.parkandrides.styleMap = new OpenLayers.StyleMap({
+            default: new OpenLayers.Style(templateParking, {context:context}),
+            select: new OpenLayers.Style(templateParking, {context:context})
+        });
+
+        var templateFares = {
+            pointRadius: 12.5,
+            graphicXOffset: -12,
+            graphicYOffset: -12,            
+            pointRadius: "${getPointRadius}",
+            externalGraphic: "img/otp/fares-icon.png"
+        };
+        dataMarkersLayers.fareoutlets.styleMap = new OpenLayers.StyleMap({
+            default: new OpenLayers.Style(templateFares, {context:context}),
+            select: new OpenLayers.Style(templateFares, {context:context})
+        });     
+
+        map.addLayers([routeLayer, markersLayer, dataMarkersLayers.stops, 
+                        dataMarkersLayers.parkandrides, dataMarkersLayers.fareoutlets]);
+
+        // enable selection of features in data layers
+        markersSelectControl = new OpenLayers.Control.SelectFeature([dataMarkersLayers.stops, dataMarkersLayers.parkandrides, 
+                                                                    dataMarkersLayers.fareoutlets], { onSelect: showInfoWindow });
         map.addControl(markersSelectControl);
         markersSelectControl.activate();
 
-        // listener for drag events on markers
-        //markersDragControl = new OpenLayers.Control.DragFeature(markersLayer, { onComplete: onCompleteMarkerMove });
-        //map.addControl(markersDragControl);
-        //markersDragControl.activate();
+        // listener for drag events on trip planner markers
+        markersDragControl = new OpenLayers.Control.DragFeature(markersLayer, { onComplete: onCompleteMarkerMove });
+        map.addControl(markersDragControl);
+        markersDragControl.activate();
     }
 
     // base layer stuff
@@ -666,13 +770,15 @@ OTP.Map = function(_root, _controlsRoot, options) {
         var road = new OpenLayers.Layer.Bing({
             key: apiKey,
             type: "Road",
-            name: "Road"
+            name: "Road",
+            version: "v1"
         });
 
         var hybrid = new OpenLayers.Layer.Bing({
             key: apiKey,
             type: "AerialWithLabels",
-            name: "Hybrid"
+            name: "Hybrid",
+            version: "v1"
         });
 
         map.addLayers([road, hybrid]);
@@ -760,7 +866,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 });
         }, function(content) {
             // reset UI called each time popup is displayed            
-            if(systemMapRouteCriteria.WSF === "" || systemMapRouteCriteria.WSF === null) {
+            if(typeof systemMapRouteCriteria.WSF === 'undefined' ||
+                systemMapRouteCriteria.WSF === "" || systemMapRouteCriteria.WSF === null) {
                 content.find("#ferry").val("");
             }
         });
@@ -790,8 +897,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 });
         }, function(content) {
             // reset UI called each time popup is displayed            
-            if(systemMapRouteCriteria.LINK === "" || systemMapRouteCriteria.LINK === null) {
-                content.find("#link-central, #link-tacoma").attr("checked", false);
+            if(typeof systemMapRouteCriteria.LINK === 'undefined' ||
+                systemMapRouteCriteria.LINK === "" || systemMapRouteCriteria.LINK === null) {
+                content.find("#link-central, #link-tacoma").attr("checked", null);
             }
         });
     }
@@ -824,8 +932,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 });
         }, function(content) {
             // reset UI called each time popup is displayed
-            if(systemMapRouteCriteria.SOUNDER === "" || systemMapRouteCriteria.SOUNDER === null) {
-                content.find("#sounder-tacoma-seattle, #sounder-everett-seattle").attr("checked", false);
+            if(typeof systemMapRouteCriteria.SOUNDER === 'undefined' ||
+                systemMapRouteCriteria.SOUNDER === "" || systemMapRouteCriteria.SOUNDER === null) {
+                content.find("#sounder-tacoma-seattle, #sounder-everett-seattle").attr("checked", null);
             }
         });
     }
@@ -860,7 +969,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
                             },
                             success: function(data) {   
                                 var selectBox = content.find("#bus-route");
-
                                 selectBox.children().remove();
                                 selectBox.append("<option value=''>Select route</option>");
 
@@ -869,8 +977,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                 for(var i = 0; i < data.features.length; i++) {
                                     var feature = data.features[i];
                                     routes.push(feature.properties.designator);
-                                } 
-                                
+                                }
                                 routes.sort();
 
                                 var lastValue = null;
@@ -903,9 +1010,10 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
                         drawRouteLayerForMode("BUS", element);
                     });                
-        }, function(content) {
+        }, function(content) {       
             // reset UI called each time popup is displayed
-            if(systemMapRouteCriteria.BUS === "" || systemMapRouteCriteria.BUS === null) {
+            if(typeof systemMapRouteCriteria.BUS === 'undefined' ||
+                systemMapRouteCriteria.BUS === "" || systemMapRouteCriteria.BUS === null) {
                 content.find("#bus-agency, #bus-route").val("");
             }
         });
@@ -940,13 +1048,13 @@ OTP.Map = function(_root, _controlsRoot, options) {
         // data layer links
         controlsRoot.find("#toggle-fares")
             .click(function() {
+                var element = jQuery(this);
                 var layerName = 'Fare Outlets';
-                if(featureCountForDataLayer("fareoutlets") !== null) {
+                if(element.hasClass("active")) {
                     removeDataLayer("fareoutlets");
                     jQuery(this).removeClass("active");                    
                 } else {
-                    addDataLayer("fareoutlets");
-                    jQuery(this).addClass("active");
+                    addDataLayer("fareoutlets", this, false);
                 }
                 hideInfoWindow();
                 return false;
@@ -961,13 +1069,13 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
         controlsRoot.find("#toggle-parking")
             .click(function() {
+                var element = jQuery(this);
                 var layerName = 'Park and Rides';
-                if(featureCountForDataLayer("parkandrides") !== null) {
+                if(element.hasClass("active")) {
                     removeDataLayer("parkandrides");
                     jQuery(this).removeClass("active");                    
                 } else {
-                    addDataLayer("parkandrides");
-                    jQuery(this).addClass("active");
+                    addDataLayer("parkandrides", this, false);
                 }
                 hideInfoWindow();
                 return false;
@@ -982,13 +1090,13 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
         controlsRoot.find("#toggle-location")
             .click(function() {
+                var element = jQuery(this);
                 var layerName = 'Stops';
-                if(featureCountForDataLayer("stops") !== null) {
+                if(element.hasClass("active")) {
                     removeDataLayer("stops");
                     jQuery(this).removeClass("active");                    
                 } else {
-                    addDataLayer("stops");
-                    jQuery(this).addClass("active");
+                    addDataLayer("stops", this, true);
                 }
                 hideInfoWindow();
                 return false;
@@ -1112,8 +1220,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             }
 
             systemMapRouteCriteria.WSF = "(designator LIKE '" + v + "' AND routetyp LIKE 'P')";
-            drawRouteLayerForMode("WSF", '#toggle-ferry');
-                
+            drawRouteLayerForMode("WSF", '#toggle-ferry');               
         },
 
         showLinkRouteFor: function(v) {
@@ -1122,8 +1229,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             }
 
             systemMapRouteCriteria.LINK = "(designator LIKE '" + v + "' AND routetyp LIKE 'P')";
-            drawRouteLayerForMode("LINK", '#toggle-link');
-                
+            drawRouteLayerForMode("LINK", '#toggle-link');           
         },
 
         showSounderRouteFor: function(v,s) {
@@ -1133,7 +1239,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
             systemMapRouteCriteria.SOUNDER = "(designator LIKE '" + v + "' AND stops=" + s + " AND routetyp LIKE 'P')";
             drawRouteLayerForMode("SOUNDER", '#toggle-sounder');
-
         },
 
         showBusRouteFor: function(v,s) {
@@ -1143,7 +1248,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
             systemMapRouteCriteria.BUS = "(operator LIKE '" + v + "' AND designator LIKE '" + s + "' AND routetyp LIKE 'P')";
             drawRouteLayerForMode("BUS", '#toggle-bus');
-
         },
         
         reset: function() {
@@ -1162,7 +1266,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         },
 
         endDisambiguation: function() {
-            if(markersDragControl !== null) {
+            if(markersDragControl !== null && markersSelectControl !== null) {
                 markersDragControl.activate();
                 markersSelectControl.activate();
             }
@@ -1200,7 +1304,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
                              };
 
                 markersLayer.addFeatures([icon]);
-                tripPlannerMarkerFeatures.push(icon);
         },
         
         // FIXME: we have to pass an encoded polyline into here because we 
@@ -1231,7 +1334,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
                          };
 
             markersLayer.addFeatures([icon]);
-            tripPlannerMarkerFeatures.push(icon);
         },
 
         addDisambiguationPoint: function(lon, lat, counter, location) {
@@ -1258,7 +1360,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
                          };           
 
             markersLayer.addFeatures([icon]);
-            tripPlannerMarkerFeatures.push(icon);
             map.zoomToExtent(markersLayer.getDataExtent());
 
             return icon.id;

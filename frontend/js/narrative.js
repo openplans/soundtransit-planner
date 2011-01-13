@@ -217,6 +217,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             },
             success: function(data, status) {    
                 if (typeof data.geocodeResponse !== 'undefined') {
+                    map.reset();
                     disambiguateResults(data.geocodeResponse);
                 } else {
                     root.find('#trip-data')
