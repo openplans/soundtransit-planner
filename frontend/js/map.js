@@ -426,25 +426,21 @@ OTP.Map = function(_root, _controlsRoot, options) {
         if(mode === "WSF") {
              style = {
                       strokeColor: "#666666",
-                      strokeOpacity: 0.80,
                       strokeWidth: 4
              };
         } else if(mode === "BUS") {
              style = {
                       strokeColor: "#5380B0",
-                      strokeOpacity: 0.80,
                       strokeWidth: 4
              };                
         } else if(mode === "SOUNDER") {
              style = {
                       strokeColor: "#0B9140",
-                      strokeOpacity: 0.80,
                       strokeWidth: 4
              };                                
         } else if(mode === "LINK") {
              style = {
                       strokeColor: "#41B1C1",
-                      strokeOpacity: 0.80,
                       strokeWidth: 4
              };                                
         }
@@ -459,7 +455,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                  outputFormat: "json",
                  format_options: "callback:" + callbackFunction,
                  typeName: "soundtransit:routes",
-                 propertyName: "the_geom",
+                 propertyName: "the_geom,routetyp",
                  cql_filter: cqlQuery
              },
              success: function(data) {
@@ -492,10 +488,18 @@ OTP.Map = function(_root, _controlsRoot, options) {
                              return;
                          }
 
+                         // special styling for secondary routes
+                         if(feature.properties['routetyp'] === "S") {
+                             style.strokeOpacity = 0.5;
+                         } else {
+                             style.strokeOpacity = 0.8;                             
+                         }
+
                          var polyline = new OpenLayers.Geometry.LineString(points);
                          var lineFeature = new OpenLayers.Feature.Vector(polyline, null, style);
+                         
                          routeLayer.addFeatures([lineFeature]);
-                         systemMapRouteFeatures[mode].push(lineFeature);
+                         systemMapRouteFeatures[mode].push(lineFeature);                      
                      }
                      
                      zoomToRouteLayerExtent();
@@ -822,7 +826,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     var v = jQuery(this).val();
                     
                     if(v !== null && v !== "" && v !== "Select route") {
-                        systemMapRouteCriteria.WSF = "(designator LIKE '" + v + "' AND routetyp LIKE 'P')";
+                        systemMapRouteCriteria.WSF = "(designator LIKE '" + v + "')";
                     } else {
                         systemMapRouteCriteria.WSF = "";
                     }
@@ -854,7 +858,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                             if(systemMapRouteCriteria.LINK.length > 0) {
                                 systemMapRouteCriteria.LINK += " OR ";
                             }
-                            systemMapRouteCriteria.LINK += "(designator LIKE '" + checkbox.val() + "' AND routetyp LIKE 'P')";
+                            systemMapRouteCriteria.LINK += "(designator LIKE '" + checkbox.val() + "')";
                         }
                     });
 
@@ -889,7 +893,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                             if(systemMapRouteCriteria.SOUNDER.length > 0) {
                                 systemMapRouteCriteria.SOUNDER += " OR ";
                             }
-                            systemMapRouteCriteria.SOUNDER += "(designator LIKE '" + values[0] + "' AND stops=" + values[1] + " AND routetyp LIKE 'P')";
+                            systemMapRouteCriteria.SOUNDER += "(designator LIKE '" + values[0] + "' AND stops=" + values[1] + ")";
                         }
                     });
                     
@@ -930,7 +934,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                 format_options: "callback:" + callbackFunction,
                                 propertyName: "designator",
                                 typeName: "soundtransit:routes",
-                                cql_filter: "(operator LIKE '" + agency + "' AND routetyp LIKE 'P')"
+                                cql_filter: "(operator LIKE '" + agency + "')"
                             },
                             success: function(data) {   
                                 var selectBox = content.find("#bus-route");
@@ -968,7 +972,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                         var v = jQuery(this).val();
                         
                         if(v !== null && v !== "" && v !== "Select route") {
-                            systemMapRouteCriteria.BUS = "(operator LIKE '" + content.find("#bus-agency").val() + "' AND designator LIKE '" + v + "' AND routetyp LIKE 'P')";
+                            systemMapRouteCriteria.BUS = "(operator LIKE '" + content.find("#bus-agency").val() + "' AND designator LIKE '" + v + "')";
                         } else {
                             systemMapRouteCriteria.BUS = "";
                         }
@@ -1238,7 +1242,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 return;
             }
 
-            systemMapRouteCriteria.WSF = "(designator LIKE '" + v + "' AND routetyp LIKE 'P')";
+            systemMapRouteCriteria.WSF = "(designator LIKE '" + v + "')";
             drawRouteLayerForMode("WSF", '#toggle-ferry');               
         },
 
@@ -1247,7 +1251,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 return;
             }
 
-            systemMapRouteCriteria.LINK = "(designator LIKE '" + v + "' AND routetyp LIKE 'P')";
+            systemMapRouteCriteria.LINK = "(designator LIKE '" + v + "')";
             drawRouteLayerForMode("LINK", '#toggle-link');           
         },
 
@@ -1256,7 +1260,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 return;
             }
 
-            systemMapRouteCriteria.SOUNDER = "(designator LIKE '" + v + "' AND stops=" + s + " AND routetyp LIKE 'P')";
+            systemMapRouteCriteria.SOUNDER = "(designator LIKE '" + v + "' AND stops=" + s + ")";
             drawRouteLayerForMode("SOUNDER", '#toggle-sounder');
         },
 
@@ -1265,7 +1269,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 return;
             }
 
-            systemMapRouteCriteria.BUS = "(operator LIKE '" + v + "' AND designator LIKE '" + s + "' AND routetyp LIKE 'P')";
+            systemMapRouteCriteria.BUS = "(operator LIKE '" + v + "' AND designator LIKE '" + s + "')";
             drawRouteLayerForMode("BUS", '#toggle-bus');
         },
         
