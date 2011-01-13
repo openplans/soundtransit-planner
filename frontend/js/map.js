@@ -362,6 +362,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     if(typeof options.updateFromLocationFunction === 'function') {
                         options.updateFromLocationFunction(lonlat, false);
                     }
+                    return false;
             }).appendTo(startEndTrip);
         
             jQuery('<a href="#">End Trip Here</a>')
@@ -369,6 +370,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     if(typeof options.updateToLocationFunction === 'function') {
                         options.updateToLocationFunction(lonlat, false);
                     }
+                    return false;
             }).appendTo(startEndTrip);
         }
         
@@ -612,11 +614,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     features.push(icon);
                 });
                 layer.addFeatures(features);
-
-                if(constrainToBBOX !== true) {
-                    map.zoomToExtent(layer.getDataExtent());
-                }
-             }
+           }
         });     
     }
     
