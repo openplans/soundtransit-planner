@@ -952,7 +952,7 @@ border-bottom: 1px solid #C0C0C0;
 }
 
 /* - */
-.olControlAttribution {
+.olMapViewport .olControlAttribution {
 left: 5px;
 bottom: 5px;
 }

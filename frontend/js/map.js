@@ -770,13 +770,15 @@ OTP.Map = function(_root, _controlsRoot, options) {
         var road = new OpenLayers.Layer.Bing({
             key: apiKey,
             type: "Road",
-            name: "Road"
+            name: "Road",
+            version: "v1"
         });
 
         var hybrid = new OpenLayers.Layer.Bing({
             key: apiKey,
             type: "AerialWithLabels",
-            name: "Hybrid"
+            name: "Hybrid",
+            version: "v1"
         });
 
         map.addLayers([road, hybrid]);
