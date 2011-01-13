@@ -936,6 +936,17 @@ height: 563px;
 width: 100%;
 }
 
+#map #atis-credits {
+position: absolute;
+bottom: 0;
+right: 0;
+background: url(../img/otp/atis-credits-bg.png) 0 0 repeat;
+color: #fff;
+padding: 3px;
+font-size: 0.75em;
+z-index: 10000000;
+}
+
 /* context menu */
 .context-menu {
 z-index: 10000000;

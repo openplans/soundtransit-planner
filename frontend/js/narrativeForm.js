@@ -17,9 +17,31 @@ OTP.NarrativeForm = function(_root) {
                 jQuery(element).removeClass('blank');
             }
         };
+
+        
         var zeroPad = function(value) { 
             return (parseInt(value, 10) < 10) ? ("0" + value.toString()) : value;
         };
+        
+        var incrementAtMax = function(element) {
+            var hoursField = root.find('#leavehour');
+            if (parseInt(hoursField.val()) > 11) {
+                hoursField.val(1);
+            } else {
+                hoursField.val(parseInt(hoursField.val()) + 1);
+            }
+            element.val('0');
+        }
+
+        var decrementAtMin = function(element) {
+            var hoursField = root.find('#leavehour');
+            if (parseInt(hoursField.val()) < 2) {
+                hoursField.val(12);
+            } else {
+                hoursField.val(parseInt(hoursField.val()) - 1);
+            }
+            element.val('59');
+        }
 
         // clear button behavior
         root.find('#clear').click(function() {
@@ -30,24 +52,49 @@ OTP.NarrativeForm = function(_root) {
                     setBlankClassIfEmpty(this);
                 });
                 
-            root.find('#disambiguation, #trip-data')
-                .fadeOut('slow');
-
+            root.find("#disambiguation")
+                .fadeOut('slow')
+                .empty();
+                
+            root.find('#trip-data')
+                .fadeOut('slow')
+                .empty()
+                .html(
+                    '<div id="how-to-plan">' +
+                    '<h3>2 Ways to Plan Your Trip</h3>' +
+                    '<h4>1. Enter your start and end locations.</h4>' +
+                    '<p>Enter your origin and destination above (don\'t use city or zip) then select "Plan Trip".</p>' +
+                    '<h4>2. Pick points on the map.</h4>' +
+                    '<p>Right-click on the map to set the Start and End locations, then select "Plan Trip".</p>' +
+                    '</div>')
+                 .fadeIn('slow');
+                     
+            map.reset();
+            
             return false;
         });
   
         // to/from
         root.find('#to, #from')
-            .bind('blur, change', function() {
+            .bind('blur', function() {
                 setBlankClassIfEmpty(this);
+                jQuery(this).removeClass('focus');
+            })
+            .bind('focus', function() {
+                jQuery(this).addClass('focus');
             })
             .each(function() {
-                setBlankClassIfEmpty(this);
+                setBlankClassIfEmpty(this); // Initialize to/from blank state
             });
         
         // to/from toggle
         root.find("#tofromtoggle").click(function() {
             var tempSwapVal = root.find("#from").val();
+
+            // FIXME: breaks the setBlankClassIfEmpty function (trying to swap disambiguous classes)
+            var tempSwapClass = root.find("#from").attr("class");
+            root.find("#from").removeClass().addClass(root.find("#to").attr("class"));
+            root.find("#to").removeClass().addClass(tempSwapClass);
 
             root.find("#from").val(root.find("#to").val())
                 .each(function() {
@@ -58,7 +105,7 @@ OTP.NarrativeForm = function(_root) {
                 .each(function() {
                     setBlankClassIfEmpty(this);
                 });
-                
+
             return false;
         });
   
@@ -77,7 +124,17 @@ OTP.NarrativeForm = function(_root) {
             .val((now.getHours() > 12) ? (now.getHours() - 12) : ((now.getHours() === 0) ? 12 : now.getHours()));
 
         root.find('#leaveminute')
-            .spinner({ min: 0, max: 59, increment: 'fast' })
+            .spinner({ 
+                min: 0, 
+                max: 59, 
+                increment: 'fast', 
+                onIncrementWhenMax: function(element) { 
+                    incrementAtMax(element);
+                }, 
+                onDecrementWhenMin: function(element) { 
+                    decrementAtMin(element);
+                }
+            })
             .bind('change', function(event, ui) {
                 this.value = zeroPad(this.value);
             })
@@ -88,24 +145,26 @@ OTP.NarrativeForm = function(_root) {
                 .attr('selected', 'selected');
         }          
 
-        root.find("#leavetype, #leaveampm, #trippriority, #maxwalk").combobox();        
+        root.find("#leavetype, #leaveampm, #trippriority, #maxwalk").selectmenu();
+        //root.find("#leavetype, #leaveampm, #trippriority, #maxwalk").combobox();        
 
         // more options
         root.find('a#optionstoggle').click(function() {
             if (jQuery(this).hasClass('active')) {
                 root.find('#moreoptions').hide();
 
-                jQuery(this).html('More Options<span></span>')
+                jQuery(this).html('More Options<span> </span>')
                     .removeClass('active');
             } else {
                 root.find('#moreoptions').show();
 
-                jQuery(this).html('Fewer Options<span></span>')
+                jQuery(this).html('Fewer Options<span> </span>')
                     .addClass('active');
             }
             
             return false;
-        }); 
+        });
+
     }
 
     // constructor
