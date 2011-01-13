@@ -376,8 +376,10 @@ OTP.Map = function(_root, _controlsRoot, options) {
         
         content.append(startEndTrip);
         
-        var popupContent = headerWrapper.after(content.prepend(ticketText).prepend(amenities).prepend(crossbar));
+        content.prepend(ticketText).prepend(amenities).prepend(crossbar)
         
+        var popupContent = jQuery('<div>').append((headerWrapper).clone()).remove().html() + jQuery('<div>').append((content).clone()).remove().html();
+        //alert(popupContent.html());
         return popupContent;
     }
     

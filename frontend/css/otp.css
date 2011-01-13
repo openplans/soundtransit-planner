@@ -788,8 +788,11 @@ ul.trip-stepbystep li.bus {
 background-image: url(../img/otp/bus-step-bg.png);
 }
 
-ul.trip-stepbystep li:last-child,
 ul.trip-stepbystep li.last-child {
+background-image: none;
+}
+
+ul.trip-stepbystep li:last-child {
 background-image: none;
 }
 
@@ -1105,13 +1108,6 @@ z-index: 10000000;
 color: #4a4a4a;    
 }
 
-.info-window .content {
-background-color: #fff;
-border: 1px solid #bababa;
-border-bottom: none;
-position: relative;
-}
-
 .info-window .info-header {
 font-weight: bold;
 white-space: nowrap;
@@ -1119,9 +1115,16 @@ padding-right: 20px;
 min-width: 225px;
 background: #f4f4f3;
 padding: 5px;
+border: 1px solid #bababa;
+border-bottom: none;
+position: relative;
 }
 
 .info-window .info-content {
+background-color: #fff;
+border: 1px solid #bababa;
+border-bottom: none;
+position: relative;
 padding: 5px;
 }
 
@@ -1155,10 +1158,6 @@ background-repeat: no-repeat;
 background-position: 0 0;
 height: 19px;
 width: 19px;
-}
-
-.info-window .fare-actions {
-/*display: none;*/
 }
 
 .info-window ul {
