@@ -1095,7 +1095,7 @@ padding: 0 0 0 5px;
 }
 
 /* - */
-.limit_reached {
+.too_many {
 position: absolute;
 z-index: 10000000;
 background-color: #efefef;
@@ -1107,6 +1107,6 @@ font-size: 16px;
 width: 400px;
 }
 
-.limit_reached p {
+.too_many p {
 padding: 10px;
 }
