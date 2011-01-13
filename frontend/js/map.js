@@ -142,7 +142,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                         };
 
                                         markersLayer.addFeatures([icon]);
-                                        tripPlannerMarkerFeatures.push(icon);
                                     }
 
                                     hideContextMenu();
@@ -183,7 +182,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                         };
 
                                         markersLayer.addFeatures([icon]);
-                                        tripPlannerMarkerFeatures.push(icon);
                                     }
                                     
                                     hideContextMenu();
@@ -625,7 +623,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 }
 
                 if(type === "stops") {
-                    if(data.features.length > 300) {
+                    if(data.features.length > 512) {
                         showTooMany(type);
                         data = null;
                         return;
