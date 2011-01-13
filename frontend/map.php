@@ -168,7 +168,7 @@
     </div>
 </div>
 <div id="tripplanner-wrap" class="fullsize">
-  <div id="map"><div id="atis-credits">ATIS: Powered by Trapeze</div></div>
+  <div id="map"><div id="atis-credits">ATIS: Powered by Trapeze</div><div id="legend"><div class="toggler">Legend<span class="ui-selectmenu-icon ui-icon ui-icon-triangle-1-s"> </span></div><div class="content">Placeholder legend content. We can pull images or other content into this space.</div></div></div>
 </div><!-- /#tripplanner-wrap -->
 </body>
 </html>
