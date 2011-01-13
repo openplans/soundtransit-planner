@@ -620,6 +620,26 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         var zeroPad = function(value) { 
             return (parseInt(value, 10) < 10) ? ("0" + value.toString()) : value;
         };
+        
+        var incrementAtMax = function(element) {
+            var hoursField = root.find('#leavehour');
+            if (parseInt(hoursField.val()) > 11) {
+                hoursField.val(1);
+            } else {
+                hoursField.val(parseInt(hoursField.val()) + 1);
+            }
+            element.val('0');
+        }
+
+        var decrementAtMin = function(element) {
+            var hoursField = root.find('#leavehour');
+            if (parseInt(hoursField.val()) < 2) {
+                hoursField.val(12);
+            } else {
+                hoursField.val(parseInt(hoursField.val()) - 1);
+            }
+            element.val('59');
+        }
 
         // clear button behavior
         root.find('#clear').click(function() {
@@ -702,7 +722,17 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             .val((now.getHours() > 12) ? (now.getHours() - 12) : ((now.getHours() === 0) ? 12 : now.getHours()));
 
         root.find('#leaveminute')
-            .spinner({ min: 0, max: 59, increment: 'fast' })
+            .spinner({ 
+                min: 0, 
+                max: 59, 
+                increment: 'fast', 
+                onIncrementWhenMax: function(element) { 
+                    incrementAtMax(element);
+                }, 
+                onDecrementWhenMin: function(element) { 
+                    decrementAtMin(element);
+                }
+            })
             .bind('change', function(event, ui) {
                 this.value = zeroPad(this.value);
             })
