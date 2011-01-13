@@ -3,6 +3,8 @@
  *
  * Copyright (c) 2009-2010 Brant Burnett
  * Dual licensed under the MIT or GPL Version 2 licenses.
+ *
+ * NB: this version is edited to add onIncrementWhenMax and onDecrementWhenMin callbacks - CBP
  */
  (function($, undefined) {
 
@@ -76,7 +78,19 @@ $.widget('ui.spinner', {
 			if (options.point != '.')
 				val = val.replace(options.point, '.');
 			return parseFloat(val.replace(/[^0-9\-\.]/g, ''));
+		},
+		
+		// callback for custom functions when we're at max value allowed and increment. 
+		// will be passed self.element as an argument
+		onIncrementWhenMax: function(element) {
+		    
+		},
+		
+		// callback for custom functions when we're at min value allowed and decrement. 
+		// will be passed self.element as an argument
+		onDecrementWhenMin: function(element) {
 		}
+
 	},
 	
 	// * Widget fields *
@@ -541,12 +555,13 @@ $.widget('ui.spinner', {
 		if ((value == null) && !options.allowNull)
 			value = this.curvalue != null ? this.curvalue : min || max || 0; // must confirm not null in case just initializing and had blank value
 
-		if ((max != null) && (value > max))
+		if ((max != null) && (value > max)) {
 			return max;
-		else if ((min != null) && (value < min))
+		} else if ((min != null) && (value < min)) {
 			return min;
-		else
+		} else {
 			return value;
+		}
 	},
 	
 	_change: function() {
@@ -599,10 +614,21 @@ $.widget('ui.spinner', {
 	_setValue: function(value, suppressFireEvent) {
 		var self = this;
 		
+		self.intendedvalue = value;
+		
 		self.curvalue = value = self._validate(value);
 		self.element.val(value != null ? 
 			self.options.format(value, self.places, self.element) :
 			'');
+			
+		// must happen after the value set, to account for functions which modify the field value, odometer-style
+	    if((self.options.max != null) && (self.intendedvalue > parseInt(self.options.max)) && (typeof self.options.onIncrementWhenMax === 'function')) {
+            self.options.onIncrementWhenMax(self.element);
+        }
+        
+        if((self.options.min != null) && (self.intendedvalue < parseInt(self.options.min)) && (typeof self.options.onDecrementWhenMin === 'function')) {
+            self.options.onDecrementWhenMin(self.element);
+        }
 		
 		if (!suppressFireEvent) {
 			self.selfChange = true;
