@@ -134,7 +134,7 @@
                     
                     <label>
                         <input type="checkbox" id="link-tacoma" value="PTLDTC"> 
-                        Everett/Seattle route
+                        Tacoma Link Light Rail
                         <span class="small">(Downtown Tacoma)</span>
                     </label>
                 </form>
