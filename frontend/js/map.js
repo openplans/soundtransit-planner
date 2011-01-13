@@ -674,8 +674,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
             externalGraphic: "img/otp/location-icon.png"
         };
         dataMarkersLayers.stops.styleMap = new OpenLayers.StyleMap({
-            default: new OpenLayers.Style(templateStops, {context:context}),
-            select: new OpenLayers.Style(templateStops, {context:context})
+            'default': new OpenLayers.Style(templateStops, {context:context}),
+            'select': new OpenLayers.Style(templateStops, {context:context})
         });
         dataMarkersLayers.stops.events.on({
             moveend: function(e) {        
@@ -693,8 +693,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
             externalGraphic: "img/otp/parking-icon.png"
         };
         dataMarkersLayers.parkandrides.styleMap = new OpenLayers.StyleMap({
-            default: new OpenLayers.Style(templateParking, {context:context}),
-            select: new OpenLayers.Style(templateParking, {context:context})
+            'default': new OpenLayers.Style(templateParking, {context:context}),
+            'select': new OpenLayers.Style(templateParking, {context:context})
         });
 
         var templateFares = {
@@ -704,8 +704,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
             externalGraphic: "img/otp/fares-icon.png"
         };
         dataMarkersLayers.fareoutlets.styleMap = new OpenLayers.StyleMap({
-            default: new OpenLayers.Style(templateFares, {context:context}),
-            select: new OpenLayers.Style(templateFares, {context:context})
+            'default': new OpenLayers.Style(templateFares, {context:context}),
+            'select': new OpenLayers.Style(templateFares, {context:context})
         });     
 
         map.addLayers([routeLayer, dataMarkersLayers.stops, dataMarkersLayers.parkandrides, 
