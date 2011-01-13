@@ -390,6 +390,9 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             jQuery(itineraryMarkup)
                 .appendTo(tripWrapper);
 
+            // hack to support IE7 last-child selector
+            jQuery(".trip-stepbystep li:last-child").addClass("last-child");
+
             tripWrapper
                 .appendTo(root.find("#trip-data"));
 
@@ -665,6 +668,11 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         root.find("#tofromtoggle").click(function() {
             var tempSwapVal = root.find("#from").val();
 
+            // FIXME: breaks the setBlankClassIfEmpty function (trying to swap disambiguous classes)
+            var tempSwapClass = root.find("#from").attr("class");
+            root.find("#from").removeClass().addClass(root.find("#to").attr("class"));
+            root.find("#to").removeClass().addClass(tempSwapClass);
+
             root.find("#from").val(root.find("#to").val())
                 .each(function() {
                     setBlankClassIfEmpty(this);
@@ -674,7 +682,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 .each(function() {
                     setBlankClassIfEmpty(this);
                 });
-                
+
             return false;
         });
   

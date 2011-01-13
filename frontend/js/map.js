@@ -343,6 +343,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         var type = "";
         var headerContent = featureProperties.name;
         var crossbar = "";
+        var toggle = "";
         var amenities = "";
         var ticketText = "";
         var lonlat = new OpenLayers.LonLat(featureProperties.lon, featureProperties.lat);
@@ -359,16 +360,17 @@ OTP.Map = function(_root, _controlsRoot, options) {
         } else if(typeof featureProperties.accessible !== 'undefined') {
             type = "stop";
             crossbar = '<div class="crossbar"><strong>Stop ID</strong>: ' + featureProperties.localid.replace(/^\D/i, "") + '</div>';
+            if (featureProperties.park2min !== null && featureProperties.park2min !== "") {amenities += "<strong>Nearby Parking</strong>: " + featureProperties.park2min + "<br />";}
             // temporary workaround for our stop data having lat and lon transposed. Remove when we're able to fix that.
             lonlat = new OpenLayers.LonLat(featureProperties.lat, featureProperties.lon);
         } else {
             type = "parkandride";
             crossbar = '<div class="crossbar">' + featureProperties.location + '</div>';
-            if (featureProperties.spaces !== 0 && featureProperties.spaces !== "") {amenities += "Parking spaces: " + featureProperties.spaces;}
+            if (featureProperties.spaces !== 0 && featureProperties.spaces !== "") {amenities += "<strong>Parking spaces:</strong> " + featureProperties.spaces;}
             if (featureProperties.timefull !== 0 && featureProperties.timefull !== "") {amenities += " This parking lot is typically full by " + featureProperties.timefull + "AM<br />"} else {amenities += "<br />"}
-            if (featureProperties.numbikeloc !== 0 && featureProperties.numbikeloc !== "") {amenities += "Bike Lockers: " + featureProperties.numbikeloc + "<br />";}
-            if (featureProperties.electricca !== 0 && featureProperties.electricca !== "") {amenities += "Electric Car Chargers: " + featureProperties.electricca + "<br />";}
-            if (featureProperties.notes !== "") {amenities += "Notes: " + featureProperties.notes;}
+            if (featureProperties.numbikeloc !== 0 && featureProperties.numbikeloc !== "") {amenities += "<strong>Bike Lockers:</strong> " + featureProperties.numbikeloc + "<br />";}
+            if (featureProperties.electricca !== 0 && featureProperties.electricca !== "") {amenities += "<strong>Electric Car Chargers:</strong> " + featureProperties.electricca + "<br />";}
+            if (featureProperties.notes !== null && featureProperties.notes !== "") {amenities += "<strong>Notes:</strong> " + featureProperties.notes;}
         }
     
         var content = jQuery("<div></div>")
