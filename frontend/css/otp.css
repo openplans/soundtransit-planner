@@ -2,8 +2,6 @@
 #tripplanner-wrap {
 width: 966px;
 height: 563px;
-background: #fff;
-position: relative;
 }
 
 #map-controls {
@@ -187,6 +185,7 @@ background: #fff;
 position: relative;
 top: -5px;
 z-index: 4;
+border-bottom: 1px solid #dfdfdf;
 }
 
 #plannerform {
@@ -207,7 +206,7 @@ padding: 15px;
 padding-right: 20px;
 padding-left: 20px;
 overflow: auto;
-overflow-x: hidden
+overflow-x: hidden;
 }
 
 .form-meta {
