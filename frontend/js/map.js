@@ -346,7 +346,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                             .html("<h2>" + headerContent + "</h2>")
                             .append(getInfoWindowClose());
 
-        var popupContent = headerWrapper.after(content.append(crossbar).append(amenities).append(ticketText));
+
 
 /*
         // Leaving in for debug, but we don't want to display all this info to users
@@ -375,6 +375,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }
         
         content.append(startEndTrip);
+        
+        var popupContent = headerWrapper.after(content.prepend(ticketText).prepend(amenities).prepend(crossbar));
         
         return popupContent;
     }
