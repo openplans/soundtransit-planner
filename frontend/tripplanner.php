@@ -24,7 +24,6 @@
   <script type="text/javascript" src="js/jquery/jquery-jsonp.min.js"></script>
   <script type="text/javascript" src="js/jquery/jquery-ui-1.8.6.custom.min.js"></script>
   <script type="text/javascript" src="js/jquery/jquery-ui-selectmenu.min.js"></script>
-  <script type="text/javascript" src="js/jquery/jquery-combobox-support.min.js"></script>
   <script type="text/javascript" src="js/jquery/jquery-ui-spinner.min.js"></script>
   <script type="text/javascript" src="js/openlayers/OpenLayers.js"></script>
   <script type="text/javascript" src="js/narrative.js"></script>
@@ -164,7 +163,7 @@
       </div>
     </div><!-- /#trip-data -->
   </div><!-- /#plannerpanel --> 
-  <div id="map"></div>
+  <div id="map"><div id="atis-credits">ATIS: Powered by Trapeze</div></div>
 </div><!-- /#tripplanner-wrap -->
 </body>
 </html>
