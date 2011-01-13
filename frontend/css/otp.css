@@ -935,6 +935,16 @@ height: 563px;
 width: 100%;
 }
 
+#map #atis-credits {
+position: absolute;
+bottom: 0;
+right: 0;
+color: #333;
+padding: 5px;
+font-size: 0.75em;
+z-index: 10000000;
+}
+
 /* context menu */
 .context-menu {
 z-index: 10000000;

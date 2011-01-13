@@ -168,7 +168,7 @@
     </div>
 </div>
 <div id="tripplanner-wrap" class="fullsize">
-  <div id="map"></div>
+  <div id="map"><div id="atis-credits">ATIS: Powered by Trapeze</div></div>
 </div><!-- /#tripplanner-wrap -->
 </body>
 </html>
