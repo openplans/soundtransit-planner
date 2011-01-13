@@ -45,7 +45,9 @@ vertical-align: middle;
 }
 
 body .ui-spinner-buttons,
-.ui-button { margin-left: -1px; }
+body .ui-button {
+margin-left: -1px;
+}
 
 body .ui-icon-triangle-1-s {
 background-position: -65px -16px;
