@@ -196,6 +196,15 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     .html('<div id="trip-spinner">Planning your trip</div>')
                     .fadeIn("fast");
                 });
+        
+        // Prevent garbage time values from giving false negative for trips
+        if (isNaN(parseInt(root.find('#leavehour').val())) || isNaN(parseInt(root.find('#leaveminute').val()))) {
+            var now = new Date();
+            root.find('#leavehour')
+                .val((now.getHours() > 12) ? (now.getHours() - 12) : ((now.getHours() === 0) ? 12 : now.getHours()));
+            
+                 root.find('#leaveminute').val(now.getMinutes()).change();
+        }
 
         jQuery.jsonp({
             callback: "fn",
