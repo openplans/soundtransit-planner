@@ -395,11 +395,14 @@ margin: 5px 0 0;
 /* remove dotted outline in FireFox */
 #trip-submit::-moz-focus-inner, 
 #trip-submit::-moz-focus-inner {
-border:0;
+border: 0 none transparent;
 }
 /* remove dotted outline in IE8 */
-#trip-submit:focus {
-outline:none;
+#trip-submit:focus, 
+#trip-submit:active, 
+#trip-submit:hover { 
+outline: none; 
+border: 0 none transparent; 
 }
 
 a#optionstoggle {
