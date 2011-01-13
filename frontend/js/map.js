@@ -114,34 +114,17 @@ OTP.Map = function(_root, _controlsRoot, options) {
             var startTripHere = jQuery('<li></li>')
                                 .append('<a href="#">Start Trip Here</a>')
                                 .click(function(e) {
-                                    var proj = new OpenLayers.Projection("EPSG:4326");
+                                    setStartMarker(lonlat);
 
+                                    // if we have known to and from locations, submit the form
                                     var fromFeature = markersLayer.getFeaturesByAttribute('type', "start");
                                     var toFeature = markersLayer.getFeaturesByAttribute('type', "end");
-                                    var submitAfterDone = (toFeature !== null && typeof toFeature[0] !== 'undefined') ? true : false;
-                                    // if we have known to and from locations, submit the form
+                                    var submitAfterDone = (toFeature !== null && typeof toFeature[0] !== 'undefined' 
+                                                            && fromFeature !== null && typeof fromFeature[0] !== 'undefined') ? true : false;
+
                                     if(typeof options.updateFromLocationFunction === 'function') {
+                                        var proj = new OpenLayers.Projection("EPSG:4326");
                                         options.updateFromLocationFunction(lonlat.transform(map.getProjectionObject(), proj), submitAfterDone);
-                                    }
-                                   
-                                    if(fromFeature !== null && typeof fromFeature[0] !== 'undefined') {
-                                        fromFeature[0].move(lonlat.transform(proj,map.getProjectionObject()));
-                                    } else { // create the feature
-                                        // TODO: refactor setStartPoint to accept lonlat in addition to polyline
-                                        var point = new OpenLayers.Geometry.Point(lonlat.lon, lonlat.lat);
-                                        var icon = new OpenLayers.Feature.Vector(point.transform(proj, map.getProjectionObject()), { type: "start" });
-
-                                        icon.style = {
-                                            externalGraphic: "img/otp/a-flag.png",
-                                            graphicWidth: 23,
-                                            graphicHeight: 30,
-                                            graphicXOffset: 0,
-                                            graphicYOffset: -30,
-                                            graphicTitle: "Drag To Change Route",
-                                            cursor: "move"
-                                        };
-
-                                        markersLayer.addFeatures([icon]);
                                     }
 
                                     hideContextMenu();
@@ -154,34 +137,17 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                 .addClass("separator")
                                 .append('<a href="#">End Trip Here</a>')
                                 .click(function(e) {                                    
-                                    var proj = new OpenLayers.Projection("EPSG:4326");
-                                    
-                                    var toFeature = markersLayer.getFeaturesByAttribute('type', "end");
-                                    var fromFeature = markersLayer.getFeaturesByAttribute('type', "start");
-                                    var submitAfterDone = (fromFeature !== null && typeof fromFeature[0] !== 'undefined') ? true : false;
-                                    
-                                    // if we have known to and from locations, submit the form
-                                    if(typeof options.updateToLocationFunction === 'function') {
-                                        options.updateToLocationFunction(lonlat.transform(map.getProjectionObject(), proj), submitAfterDone);
-                                    }
-                                                                         
-                                    if(toFeature !== null && typeof toFeature[0] !== 'undefined') {
-                                        toFeature[0].move(lonlat.transform(proj,map.getProjectionObject()));
-                                    } else { // create the feature
-                                        // TODO: refactor setEndPoint to accept lonlat in addition to polyline
-                                        var point = new OpenLayers.Geometry.Point(lonlat.lon, lonlat.lat);
-                                        var icon = new OpenLayers.Feature.Vector(point.transform(proj, map.getProjectionObject()), { type: "end " });
-                                        icon.style = {
-                                            externalGraphic: "img/otp/b-flag.png",
-                                            graphicWidth: 23,
-                                            graphicHeight: 30,
-                                            graphicXOffset: 0,
-                                            graphicYOffset: -30,
-                                            graphicTitle: "Drag To Change Route",
-                                            cursor: "move"
-                                        };
+                                    setEndMarker(lonlat);
 
-                                        markersLayer.addFeatures([icon]);
+                                    // if we have known to and from locations, submit the form
+                                    var fromFeature = markersLayer.getFeaturesByAttribute('type', "start");
+                                    var toFeature = markersLayer.getFeaturesByAttribute('type', "end");
+                                    var submitAfterDone = (toFeature !== null && typeof toFeature[0] !== 'undefined' 
+                                                            && fromFeature !== null && typeof fromFeature[0] !== 'undefined') ? true : false;
+
+                                    if(typeof options.updateToLocationFunction === 'function') {
+                                        var proj = new OpenLayers.Projection("EPSG:4326");
+                                        options.updateToLocationFunction(lonlat.transform(map.getProjectionObject(), proj), submitAfterDone);
                                     }
                                     
                                     hideContextMenu();
@@ -330,7 +296,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             .css("width", infoWindowContent.width());
 
         infoWindow
-            .css("top", layerContainerPx.y - infoWindow.height() - Math.floor((map.getZoom() / 18) * 25) - 5)
+            .css("top", layerContainerPx.y - infoWindow.height())
             .css("left", layerContainerPx.x - (infoWindow.width() / 2));
             
         ensureInfoWindowIsVisible();
@@ -480,13 +446,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                       strokeWidth: 4
              };                                
         }
-        
-        // if we're going to draw the polyline for this route, add 
-        // active class to its selector indicator
-        if(element !== null) {
-            jQuery(element).addClass("active");
-        }
-              
+
         var callbackFunction = "drawRouteLayerForModeCallback" + Math.floor(Math.random() * 1000000000);
         jQuery.ajax({
              url: "http://sea.dev.openplans.org:8080/geoserver/wfs",
@@ -504,12 +464,18 @@ OTP.Map = function(_root, _controlsRoot, options) {
                  if(typeof data.features === 'undefined') {
                      return;
                  }
+        
+                 // if we're going to draw the polyline for this route, add 
+                 // active class to its selector indicator
+                 if(element !== null) {
+                     jQuery(element).addClass("active");
+                 }
+
+                 if(typeof systemMapRouteFeatures[mode] === 'undefined' || systemMapRouteFeatures[mode] === null) {
+                     systemMapRouteFeatures[mode] = [];
+                 }
 
                  jQuery(data.features).each(function(_, feature) {
-                     if(typeof systemMapRouteFeatures[mode] === 'undefined' || systemMapRouteFeatures[mode] === null) {
-                         systemMapRouteFeatures[mode] = [];
-                     }
-                     
                      for(var z = 0; z < feature.geometry.coordinates.length; z++) {
                          var points = [];
 
@@ -561,7 +527,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         tooManyPopup = jQuery("<div></div>")
                             .addClass("too_many")
                             .append("<p>There are too many " + typeString + " to display. " + 
-                                    "Please <a href='#'>zoom in</a> to see all " + typeString + "</p>")
+                                    "Please <a href='#'>zoom in</a> to see all " + typeString + ".</p>")
                             .appendTo(map.viewPortDiv);
                             
         tooManyPopup.find("a").click(function(e) {
@@ -605,11 +571,11 @@ OTP.Map = function(_root, _controlsRoot, options) {
             typeName: "soundtransit:" + type
         };
         
-        if(constrainToBBOX === true) {
-            data.BBOX = map.getExtent().toBBOX() + "," + layer.projection;
-            
+        if(constrainToBBOX === true) {            
             // clear existing features from last BBOX constrained query
             layer.removeAllFeatures();
+
+            data.BBOX = map.getExtent().toBBOX() + "," + layer.projection;
         }
     
         jQuery.ajax({
@@ -676,7 +642,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         dataMarkersLayers.parkandrides = new OpenLayers.Layer.Vector("Park and Ride Markers");
         dataMarkersLayers.fareoutlets = new OpenLayers.Layer.Vector("Fare Outlets Markers");
 
-        // hide info windows when zoom changes
+        // hide info windows when zoom changes on data layers
         jQuery.each(dataMarkersLayers, function(_, layer) {
             layer.events.on({
                 moveend: function(e) {
@@ -691,14 +657,17 @@ OTP.Map = function(_root, _controlsRoot, options) {
         var context = {
             getPointRadius : function() {
                 var ratio = map.getZoom() / 18;
-                return ratio * 12.5;
-            }
+                return Math.floor(ratio * 12.5);
+            },
+            getOffset : function() {
+                var ratio = map.getZoom() / 18;
+                return Math.ceil(0 - (ratio * 12.5));
+            }            
         };
 
         var templateStops = {
-            pointRadius: 12.5,
-            graphicXOffset: -12,
-            graphicYOffset: -12,            
+            graphicXOffset: "${getOffset}",
+            graphicYOffset: "${getPointRadius}",
             pointRadius: "${getPointRadius}",
             externalGraphic: "img/otp/location-icon.png"
         };
@@ -716,9 +685,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
         });
         
         var templateParking = {
-            pointRadius: 12.5,
-            graphicXOffset: -12,
-            graphicYOffset: -12,            
+            graphicXOffset: "${getOffset}",
+            graphicYOffset: "${getPointRadius}",
             pointRadius: "${getPointRadius}",
             externalGraphic: "img/otp/parking-icon.png"
         };
@@ -728,9 +696,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
         });
 
         var templateFares = {
-            pointRadius: 12.5,
-            graphicXOffset: -12,
-            graphicYOffset: -12,            
+            graphicXOffset: "${getOffset}",
+            graphicYOffset: "${getPointRadius}",
             pointRadius: "${getPointRadius}",
             externalGraphic: "img/otp/fares-icon.png"
         };
@@ -739,8 +706,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
             select: new OpenLayers.Style(templateFares, {context:context})
         });     
 
-        map.addLayers([routeLayer, markersLayer, dataMarkersLayers.stops, 
-                        dataMarkersLayers.parkandrides, dataMarkersLayers.fareoutlets]);
+        map.addLayers([routeLayer, dataMarkersLayers.stops, dataMarkersLayers.parkandrides, 
+                        dataMarkersLayers.fareoutlets, markersLayer]);
 
         // enable selection of features in data layers
         markersSelectControl = new OpenLayers.Control.SelectFeature([dataMarkersLayers.stops, dataMarkersLayers.parkandrides, 
@@ -1163,7 +1130,61 @@ OTP.Map = function(_root, _controlsRoot, options) {
             });             
     }
 
-    // event handlers
+    // markers
+    function setStartMarker(lonlat) {
+        if(lonlat === null) {
+            return;
+        }
+        
+        var startMarker = markersLayer.getFeaturesByAttribute('type', "start");
+
+        if(startMarker !== null && typeof startMarker[0] !== 'undefined') {
+            startMarker[0].move(lonlat);
+        } else { 
+            var point = new OpenLayers.Geometry.Point(lonlat.lon, lonlat.lat);
+            var icon = new OpenLayers.Feature.Vector(point, { type: "start" });
+
+            icon.style = {
+                externalGraphic: "img/otp/a-flag.png",
+                graphicWidth: 23,
+                graphicHeight: 30,
+                graphicXOffset: 0,
+                graphicYOffset: -30,
+                graphicTitle: "Drag To Change Route",
+                cursor: "move"
+            };
+
+            markersLayer.addFeatures([icon]);
+        }        
+    }
+    
+    function setEndMarker(lonlat) {
+        if(lonlat === null) {
+            return;
+        }
+        
+        var endMarker = markersLayer.getFeaturesByAttribute('type', "end");
+
+        if(endMarker !== null && typeof endMarker[0] !== 'undefined') {
+            endMarker[0].move(lonlat);
+        } else { 
+            var point = new OpenLayers.Geometry.Point(lonlat.lon, lonlat.lat);
+            var icon = new OpenLayers.Feature.Vector(point, { type: "end" });
+
+            icon.style = {
+                externalGraphic: "img/otp/b-flag.png",
+                graphicWidth: 23,
+                graphicHeight: 30,
+                graphicXOffset: 0,
+                graphicYOffset: -30,
+                graphicTitle: "Drag To Change Route",
+                cursor: "move"
+            };
+
+            markersLayer.addFeatures([icon]);
+        }        
+    }
+    
     function onCompleteMarkerMove(feature) {
         if(feature) {       
             var point = new OpenLayers.LonLat(feature.geometry.x, feature.geometry.y);
@@ -1290,20 +1311,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 }
 
                 var endPoint = rawPoints[0];
-                var point = new OpenLayers.Geometry.Point(endPoint[1], endPoint[0]);
+                var point = new OpenLayers.LonLat(endPoint[1], endPoint[0]);
                 var proj = new OpenLayers.Projection("EPSG:4326");
-                var icon = new OpenLayers.Feature.Vector(point.transform(proj, map.getProjectionObject()), { type: "start" });
-                icon.style = {
-                                 externalGraphic: "img/otp/a-flag.png",
-                                 graphicWidth: 23,
-                                 graphicHeight: 30,
-                                 graphicXOffset: 0,
-                                 graphicYOffset: -30,
-                                 graphicTitle: "Drag To Change Route",
-                                 cursor: "move"
-                             };
-
-                markersLayer.addFeatures([icon]);
+                setStartMarker(point.transform(proj, map.getProjectionObject()));
         },
         
         // FIXME: we have to pass an encoded polyline into here because we 
@@ -1320,20 +1330,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
             }
 
             var endPoint = rawPoints[rawPoints.length - 1];
-            var point = new OpenLayers.Geometry.Point(endPoint[1], endPoint[0]);
+            var point = new OpenLayers.LonLat(endPoint[1], endPoint[0]);
             var proj = new OpenLayers.Projection("EPSG:4326");
-            var icon = new OpenLayers.Feature.Vector(point.transform(proj, map.getProjectionObject()), { type: "end" });
-            icon.style = {
-                             externalGraphic: "img/otp/b-flag.png",
-                             graphicWidth: 23,
-                             graphicHeight: 30,
-                             graphicXOffset: 0,
-                             graphicYOffset: -30,
-                             graphicTitle: "Drag To Change Route",
-                             cursor: "move"
-                         };
-
-            markersLayer.addFeatures([icon]);
+            setEndMarker(point.transform(proj, map.getProjectionObject()));
         },
 
         addDisambiguationPoint: function(lon, lat, counter, location) {
