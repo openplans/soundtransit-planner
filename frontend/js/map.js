@@ -1162,6 +1162,14 @@ OTP.Map = function(_root, _controlsRoot, options) {
         });
     }
 
+    function addMapToggleWidthBehavior() {
+        jQuery("#toggle-map-width").click(function() {
+            jQuery(this).toggleClass("fullsize");
+            jQuery("#tripplanner-wrap").toggleClass("fullsize");
+            return false;
+        });
+    }
+
     // markers
     function setStartMarker(lonlat) {
         if(lonlat === null) {
@@ -1260,6 +1268,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     addContextMenuBehavior();
     addMapLayerChooserBehavior();
     addLegendBehavior();
+    addMapToggleWidthBehavior();
 
     // center on seattle metro area
     var point = new OpenLayers.LonLat(-122.30, 47.45);
