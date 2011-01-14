@@ -632,20 +632,31 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         
         var incrementAtMax = function(element) {
             var hoursField = root.find('#leavehour');
+            var ampmField = root.find('#leaveampm');
+            
             if (parseInt(hoursField.val()) > 11) {
                 hoursField.val(1);
             } else {
                 hoursField.val(parseInt(hoursField.val()) + 1);
+                if (hoursField.val() == 12) {
+                    ampmField.val((ampmField.val() == 'am') ? 'pm' : 'am').trigger('change');
+                }
             }
             element.val('0');
         }
 
         var decrementAtMin = function(element) {
             var hoursField = root.find('#leavehour');
+            
+            var ampmField = root.find('#leaveampm');
+            
             if (parseInt(hoursField.val()) < 2) {
                 hoursField.val(12);
             } else {
                 hoursField.val(parseInt(hoursField.val()) - 1);
+                if (hoursField.val() == 11) {
+                    ampmField.val((ampmField.val() == 'am') ? 'pm' : 'am').trigger('change');
+                }
             }
             element.val('59');
         }

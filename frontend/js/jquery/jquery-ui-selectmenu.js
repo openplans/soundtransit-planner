@@ -8,7 +8,8 @@
  * http://docs.jquery.com/UI
  * https://github.com/fnagel/jquery-ui/wiki/Selectmenu
  * 
- * NB: this version is edited to clean up some issues JSLint pointed out in order to minify better - CBP
+ * NB: this version is edited to clean up some issues JSLint pointed out in order to minify better
+ * also to listen for changes to the replaced select element - CBP
  */
 
 (function($) {
@@ -79,7 +80,7 @@ $.widget("ui.selectmenu", {
 			.bind('mousedown.selectmenu', function(event){
 				self._toggle(event, true);
 				// make sure a click won't open/close instantly
-				if (o.style == "popup"){
+				if (o.style === "popup"){
 					self._safemouseup = false;
 					setTimeout(function(){self._safemouseup = true;}, 300);
 				}	
@@ -141,7 +142,7 @@ $.widget("ui.selectmenu", {
 
 		//change event on original selectmenu
 		this.element
-			.bind("click.selectmenu", function(){ self._refreshValue(); })
+			.bind("click.selectmenu change", function(){ self._refreshValue(); })
             // newelement can be null under unclear circumstances in IE8 
 			.bind("focus.selectmenu", function () { if (this.newelement) { this.newelement[0].focus(); } });
 		
@@ -237,7 +238,7 @@ $.widget("ui.selectmenu", {
 			});		
 				
 		//active state class is only used in popup style
-		var activeClass = (self.options.style == "popup") ? " ui-state-active" : "";
+		var activeClass = (self.options.style === "popup") ? " ui-state-active" : "";
 		
 		// empty list so we can refresh the selectmenu via selectmenu()
 		this.list.html("");
@@ -250,7 +251,7 @@ $.widget("ui.selectmenu", {
 				.data('optionClasses', selectOptionData[i].classes|| '')
 				.bind("mouseup.selectmenu", function(event){
 						if (self._safemouseup){
-							var changed = $(this).data('index') != self._selectedIndex();
+							var changed = $(this).data('index') !== self._selectedIndex();
 							self.index($(this).data('index'));
 							self.select(event);
 							if (changed){ self.change(event); }
@@ -310,7 +311,7 @@ $.widget("ui.selectmenu", {
 		}	
 				
 		// we need to set and unset the CSS classes for dropdown and popup style
-		var isDropDown = (o.style == 'dropdown') ? true : false;
+		var isDropDown = (o.style === 'dropdown') ? true : false;
 		this.newelement
 			.toggleClass(self.widgetBaseClass+"-dropdown", isDropDown)
 			.toggleClass(self.widgetBaseClass+"-popup", !isDropDown);
@@ -336,7 +337,7 @@ $.widget("ui.selectmenu", {
 		var selectWidth = this.element.width();
 		
 		//set menu width to either menuWidth option value, width option value, or select width 
-		if (o.style == 'dropdown') { 
+		if (o.style === 'dropdown') { 
 			this.list.width( (o.menuWidth) ? o.menuWidth : ((o.width) ? o.width : selectWidth)); 
 		} else { 
 			this.list.width( (o.menuWidth) ? o.menuWidth : ((o.width) ? o.width - o.handleWidth : selectWidth - o.handleWidth)); 
@@ -408,7 +409,7 @@ $.widget("ui.selectmenu", {
 			if(!focusFound){
 				var thisText = $(this).text();
 				if( thisText.indexOf(C) === 0 || thisText.indexOf(c) === 0){
-						if(self._prevChar[0] == C){
+						if(self._prevChar[0] === C){
 							if(self._prevChar[1] < i){ focusOpt(this,i); }	
 						}
 						else{ focusOpt(this,i); }	
@@ -429,7 +430,7 @@ $.widget("ui.selectmenu", {
 	open: function(event){
 		var self = this;
 		var disabledStatus = this.newelement.attr("aria-disabled");
-		if(disabledStatus != 'true'){
+		if(disabledStatus !== 'true'){
 			this._refreshPosition();
 			this._closeOthers(event);
 			this.newelement
@@ -442,7 +443,7 @@ $.widget("ui.selectmenu", {
 			this.list.addClass(self.widgetBaseClass + '-open')
 				.attr('aria-hidden', false)
 				.find('li:not(.'+ self.widgetBaseClass +'-group):eq('+ this._selectedIndex() +') a')[0].focus();	
-			if (this.options.style == "dropdown"){ this.newelement.removeClass('ui-corner-all').addClass('ui-corner-top'); }	
+			if (this.options.style === "dropdown"){ this.newelement.removeClass('ui-corner-all').addClass('ui-corner-top'); }	
 			this._refreshPosition();
 			this._trigger("open", event, this._uiHash());
 		}
@@ -454,7 +455,7 @@ $.widget("ui.selectmenu", {
 			this.list
 				.attr('aria-hidden', true)
 				.removeClass(this.widgetBaseClass+'-open');
-			if (this.options.style == "dropdown"){ this.newelement.removeClass('ui-corner-top').addClass('ui-corner-all'); }
+			if (this.options.style === "dropdown"){ this.newelement.removeClass('ui-corner-top').addClass('ui-corner-all'); }
 			if (retainFocus){this.newelement.focus();}	
 			this._trigger("close", event, this._uiHash());
 		}
@@ -513,12 +514,12 @@ $.widget("ui.selectmenu", {
 	},
 	_scrollPage: function(direction){
 		var numPerPage = Math.floor(this.list.outerHeight() / this.list.find('li:first').outerHeight());
-		numPerPage = (direction == 'up') ? -numPerPage : numPerPage;
+		numPerPage = (direction === 'up') ? -numPerPage : numPerPage;
 		this._moveFocus(numPerPage);
 	},
 	_setOption: function(key, value) {
 		this.options[key] = value;
-		if (key == 'disabled') {
+		if (key === 'disabled') {
 			this.close();
 			this.element
 				.add(this.newelement)
@@ -540,9 +541,9 @@ $.widget("ui.selectmenu", {
 		if (arguments.length) {
 			// FIXME test for number is a kind of legacy support, could be removed at any time (Dez. 2010)
 			// see this post for more info: https://github.com/fnagel/jquery-ui/issues#issue/33
-			if (typeof newValue == "number") {
+			if (typeof newValue === "number") {
 					this.index(newValue);
-			} else if (typeof newValue == "string") {
+			} else if (typeof newValue === "string") {
 				this.element[0].value = newValue;
 				this._refreshValue();
 			}
@@ -551,7 +552,7 @@ $.widget("ui.selectmenu", {
 		}
 	},
 	_refreshValue: function() {
-		var activeClass = (this.options.style == "popup") ? " ui-state-active" : "";
+		var activeClass = (this.options.style === "popup") ? " ui-state-active" : "";
 		var activeID = this.widgetBaseClass + '-item-' + Math.round(Math.random() * 1000);
 		//deselect previous
 		this.list
@@ -587,7 +588,7 @@ $.widget("ui.selectmenu", {
 		var o = this.options;
 		var _offset = "";				
 		// if its a native pop-up we need to calculate the position of the selected li
-		if (o.style == "popup" && !o.positionOptions.offset) {
+		if (o.style === "popup" && !o.positionOptions.offset) {
 			var selected = this._selectedOptionLi();
 			_offset = "0 -" + (selected.outerHeight() + selected.offset().top - this.list.offset().top);
 		}
