@@ -1245,7 +1245,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         controls: [
             new OpenLayers.Control.Navigation({'zoomWheelEnabled': false}),
             new OpenLayers.Control.KeyboardDefaults(),
-            new OpenLayers.Control.PanZoomBar({zoomWorldIcon:false}),
+            new OpenLayers.Control.PanZoomBar({zoomWorldIcon:false, zoomStopHeight: 6}),
             new OpenLayers.Control.Attribution()
         ]
     });
