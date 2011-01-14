@@ -269,11 +269,35 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     function updateNarrative(data) {
         // error returned
         if(typeof data.error !== 'undefined') {
+            var msg = "";
+            
+            // FIXME: Look at having actual error ids returned. 
+            // Right now they're all zero, so we have to do the regexp
+            var match = /^\#(\d+)/.exec(data.error.msg);
+            
+            switch (match[1]) {
+				case '11085':
+					msg = "<p>The trip start and end points are too close for us to plan a trip for you. Please change your origin and/or destination and try again.</p>";
+					break;
+				case '20003':
+					msg = "<p>No transit stops are within walking distance of your desired starting point. Please change your origin by dragging the marker or typing in a new address and try again.</p>";
+					break;
+				case '20004':
+					msg = "<p>No transit stops are within walking distance of your desired destination. Please change your trip's end point by dragging the marker or typing in a new address and try again.</p>";
+					break;
+				case '20008':
+					msg = "<p>No transit available for this trip at the time you've requested. Please change the time above and try again.</p>";
+					break;
+				default:
+					msg = "<p>Something went wrong when trying to plan your trip&mdash;the system reported '" + data.error.msg + "'</p>";
+					break;	
+			}
+
             root.find("#trip-data")
                 .html(
                     '<div id="no-results">' + 
                     '<h3>We\'re sorry!</h3>' + 
-                    '<p>Something went wrong when trying to plan your trip&mdash;the system reported \"' + data.error.msg + '\"</p>' + 
+                     msg + 
                     '</div>');
 
             return;
