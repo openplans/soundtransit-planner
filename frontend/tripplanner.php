@@ -24,7 +24,7 @@
   <script type="text/javascript" src="js/jquery/jquery-1.4.2.min.js"></script>
   <script type="text/javascript" src="js/jquery/jquery-jsonp.min.js"></script>
   <script type="text/javascript" src="js/jquery/jquery-ui-1.8.6.custom.min.js"></script>
-  <script type="text/javascript" src="js/jquery/jquery-ui-selectmenu.js"></script>
+  <script type="text/javascript" src="js/jquery/jquery-ui-selectmenu.min.js"></script>
   <script type="text/javascript" src="js/jquery/jquery-ui-spinner.min.js"></script>
   <script type="text/javascript" src="js/openlayers/OpenLayers.js"></script>
   <script type="text/javascript" src="js/narrative.js"></script>
