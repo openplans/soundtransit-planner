@@ -938,6 +938,21 @@ height: 563px;
 width: 100%;
 }
 
+#toggle-map-width {
+position: absolute;
+left: 0;
+top: 265px;
+background-image: url(../img/otp/toggle-map-width.png);
+background-position: top right;
+width: 18px;
+height: 32px;
+z-index: 10000000;
+zoom:1;
+}
+#toggle-map-width.fullsize {
+background-position: bottom left;
+}
+
 #map #atis-credits {
 position: absolute;
 bottom: 0;

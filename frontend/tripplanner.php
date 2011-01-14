@@ -164,7 +164,10 @@
       </div>
     </div><!-- /#trip-data -->
   </div><!-- /#plannerpanel --> 
-  <div id="map"><div id="atis-credits">ATIS: Powered by Trapeze</div></div>
+  <div id="map">
+    <div id="atis-credits">ATIS: Powered by Trapeze</div>
+    <a id="toggle-map-width" href="#">&nbsp;</a>
+  </div>
 </div><!-- /#tripplanner-wrap -->
 </body>
 </html>
