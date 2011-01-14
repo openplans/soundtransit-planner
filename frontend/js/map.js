@@ -360,11 +360,13 @@ OTP.Map = function(_root, _controlsRoot, options) {
             jQuery('<a href="#">Start Trip Here</a>')
                 .click(function(e) {
                     if(typeof options.updateFromLocationFunction === 'function') {
-                        setStartMarker(lonlat);
                         var toFeature = markersLayer.getFeaturesByAttribute('type', "end");
                         var submitAfterDone = (toFeature !== null && typeof toFeature[0] !== 'undefined') ? true : false;
-                     
                         options.updateFromLocationFunction(lonlat, submitAfterDone);
+
+                        var proj = new OpenLayers.Projection("EPSG:4326");
+                        setStartMarker(lonlat.transform(proj, map.getProjectionObject()));
+                        hideInfoWindow();
                     }
                     return false;
             }).appendTo(startEndTrip);
@@ -372,11 +374,13 @@ OTP.Map = function(_root, _controlsRoot, options) {
             jQuery('<a href="#">End Trip Here</a>')
                 .click(function(e) {
                     if(typeof options.updateToLocationFunction === 'function') {
-                        setEndMarker(lonlat);
                         var fromFeature = markersLayer.getFeaturesByAttribute('type', "start");
                         var submitAfterDone = (fromFeature !== null && typeof fromFeature[0] !== 'undefined') ? true : false;
-
                         options.updateToLocationFunction(lonlat, submitAfterDone);
+                        
+                        var proj = new OpenLayers.Projection("EPSG:4326");
+                        setEndMarker(lonlat.transform(proj, map.getProjectionObject()));
+                        hideInfoWindow();
                     }
                     return false;
             }).appendTo(startEndTrip);
