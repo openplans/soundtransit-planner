@@ -638,7 +638,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     function setupDataLayers() {
         // trip planner vector layers
         routeLayer = new OpenLayers.Layer.Vector("Routes");
-        markersLayer = new OpenLayers.Layer.Vector("Trip Planner Markers");
+        markersLayer = new OpenLayers.Layer.Vector("Trip Planner Markers", { rendererOptions: {zIndexing: true}});
 
         // data layer markers:
         // layer style configuration
@@ -1191,6 +1191,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         jQuery("#toggle-map-width").click(function() {
             jQuery(this).toggleClass("fullsize");
             jQuery("#tripplanner-wrap").toggleClass("fullsize");
+            jQuery("#map-controls").toggleClass("fullsize");
             return false;
         });
     }
@@ -1450,6 +1451,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             
             if(typeof features[0] !== 'undefined') {
                 var newStyle = features[0].style;
+                newStyle.graphicZIndex = 1000000;
                 newStyle.externalGraphic = "img/otp/pin-" + index + "-highlight.png";  
                 markersLayer.drawFeature(features[0], newStyle);
             }
