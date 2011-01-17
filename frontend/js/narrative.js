@@ -270,12 +270,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         // error returned
         if(typeof data.error !== 'undefined') {
             var msg = "";
-            
-            // FIXME: Look at having actual error ids returned. 
-            // Right now they're all zero, so we have to do the regexp
-            var match = /^\#(\d+)/.exec(data.error.msg);
-            
-            switch (match[1]) {
+            switch (data.error.id) {
                 case '11085':
                     msg = "<p>The trip start and end points are too close for us to plan a trip for you. Please change your origin and/or destination and try again.</p>";
                     break;
@@ -292,7 +287,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     msg = "<p>Something went wrong when trying to plan your trip&mdash;the system reported '" + data.error.msg + "'</p>";
                     break;	
             }
-
+            
             root.find("#trip-data")
                 .html(
                     '<div id="no-results">' + 
@@ -531,69 +526,76 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     '</tbody></table>');
     }
 
-    // FIXME
     function disambiguateResults(results) {
-        var disambiguateMarkup = jQuery('<div id="disambiguate-results"></div>');
-        var disambiguateToMarkup = "";
-        var disambiguateFromMarkup = "";
+        var candidateList = null;
+        var locationType = null;
+        var friendlyLocationType = null;
+                     
+        if(typeof results.from !== 'undefined' && results.from.candidate instanceof Array) {
+            candidateList = results.from.candidate;
+            locationType = "from";
+            friendlyLocationType = "starting";
+        } else if(typeof results.to !== 'undefined' && results.to.candidate instanceof Array) {
+            candidateList = results.to.candidate;
+            locationType = "to";
+            friendlyLocationType = "ending";
+        } else {
+            return;
+        }
+        // if we're here, we have a list of things to disambiguate:
+        
+        var disambiguateMarkup = jQuery('<div id="' + locationType + '-possibles">' + 
+                                            '<h3>We found several ' + friendlyLocationType + ' points for your search</h3>' + 
+                                            '<h4>Did you mean?</h4>' + 
+                                        '</div>');
 
-        map.beginDisambiguation();
-
-        if (results.to.candidate instanceof Array) {
-          var disambiguateToMarkup = jQuery('<div id="to-possibles"><h3>We found several ending points for your search</h3><h4>Did you mean?</h4></div>');
-          var toList = jQuery('<ol></ol>');
-          // TODO: Add points to map, select behavior
-          jQuery(results.to.candidate).each(function(_, result) {
-              if (_ >= 9) {return false;} //cap disambiguation somewhere
-              var feature_id = map.addDisambiguationPoint(result.latitude, result.longitude, (_+1), 'to');
-
-              var link = jQuery('<a href="#">select</a>').click(function() {
-                  userHasDisambiguated('to', $(this).parent().children('span.lat-lon').text());
-                  return false;
-              });
-
-              jQuery('<li class="possible-' + (_ + 1) + '"><span class="nice-name">' + result.name + ', ' + result.area + '</span><span class="lat-lon" style="display: none;">' + result.latitude + ',' + result.longitude + '</span></li>') .mouseenter(function() { map.highlightDisambiguationPoint(feature_id, (_ + 1));}).mouseleave(function() { map.unhighlightDisambiguationPoint(feature_id, (_ + 1));}).click(function() {
-                    userHasDisambiguated('to', $(this).children('span.lat-lon').text());
-                    return false;
-                }).append(link).appendTo(toList);
-
-          });
-
-            // account for the fact that we only want to show one set of disambiguation at a time
-            if (results.from.candidate instanceof Array) {
-                disambiguateToMarkup.css('display', 'none');
-            } else {
-                root.find('#to').addClass("ambiguous").focus();
+        var list = jQuery('<ol></ol>');
+        jQuery(candidateList).each(function(i, result) {
+            if (i >= 9) {
+                return false;
             }
-            disambiguateToMarkup.append(toList);
-        }
-
-        if (results.from.candidate instanceof Array) {
-            var disambiguateFromMarkup = jQuery('<div id="from-possibles"><h3>We found several starting points for your search</h3><h4>Did you mean?</h4></div>');
-            var fromList = jQuery('<ol></ol>');
-            // TODO: Add points to map, select behavior
-            jQuery(results.from.candidate).each(function(_, result) {
-                if (_ >= 9) {return false;} //cap disambiguation somewhere
-                var feature_id = map.addDisambiguationPoint(result.latitude, result.longitude, (_+1), 'from');
-  
-                var link = jQuery('<a href="#">select</a>').click(function() {
-                    userHasDisambiguated('from', $(this).parent().children('span.lat-lon').text());
-                    return false;
-                });
-
-                jQuery('<li class="possible-' + (_ + 1) + '"><span class="nice-name">' + result.name + ', ' + result.area + '</span><span class="lat-lon" style="display: none;">' + result.latitude + ',' + result.longitude + '</span></li>') .mouseenter(function() { map.highlightDisambiguationPoint(feature_id, (_ + 1));}).mouseleave(function() { map.unhighlightDisambiguationPoint(feature_id, (_ + 1));}).click(function() {
-                        userHasDisambiguated('from', $(this).children('span.lat-lon').text());
-                        return false;
-                    }).append(link).appendTo(fromList);
-
+        
+            var link = jQuery('<a href="#">select</a>').click(function() {
+                delete results[locationType];
+                userHasDisambiguated(locationType, jQuery(this).parent().children('span.lat-lon').text(), results);
+                return false;
             });
-            
-            root.find('#from').addClass("ambiguous").focus();
-            disambiguateFromMarkup.append(fromList);
-        }
 
-        root.find("#trip-data")
-            .html(disambiguateMarkup.append(disambiguateFromMarkup).append(disambiguateToMarkup));
+            jQuery('<li class="possible-' + (i + 1) + '">' + 
+                        '<span class="nice-name">' + result.name + ', ' + result.area + '</span>' + 
+                            '<span class="lat-lon" style="display: none;">' + result.latitude + ',' + result.longitude + '</span>' + 
+                    '</li>')
+                    .mouseenter(function() { 
+                        map.highlightDisambiguationPoint(i + 1);
+                    })
+                    .mouseleave(function() { 
+                        map.unhighlightDisambiguationPoint(i + 1);
+                    }).click(function() {
+                        delete results[locationType];
+                        userHasDisambiguated(locationType, jQuery(this).children('span.lat-lon').text(), results);
+                        return false;
+                    })
+                    .append(link)
+                    .appendTo(list);
+                    
+            map.addDisambiguationPoint(result.latitude, result.longitude, (i + 1));
+        });
+            
+        map.zoomToDisambiguationExtent();
+            
+        var disambiguateResults = root.find("#disambiguate-results");
+        if(disambiguateResults.length === 0) {
+            disambiguateResults = jQuery("<div></div>")
+                .attr("id", "disambiguate-results")
+                .appendTo(root.find("#trip-data").empty());
+        }
+            
+        disambiguateResults
+            .append(disambiguateMarkup.append(list));
+                
+        root.find('#' + locationType)
+            .addClass("ambiguous")
+            .focus();
     }
 
     // event handlers
@@ -623,18 +625,23 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         }        
     }
 
-    function userHasDisambiguated(location, value) { // location should be either "to" or "from"
-        root.find('#' + location ).val(value).removeClass('ambiguous');
-        
+    function userHasDisambiguated(location, value, disambiguationResponse) {
+        root.find('#' + location )
+                .val(value)
+                .removeClass('ambiguous');
+
         root.find('#' + location + '-possibles').fadeOut('slow', function() { 
-            $(this).remove();
-            map.removeDisambiguationFor(location);
-            if (root.find('#disambiguate-results').children().length == 0) {
-                map.endDisambiguation();
-                root.find("form#trip-plan-form").submit();
+            jQuery(this).remove();
+
+            map.reset();
+
+            // more disambiguation to do still?
+            if((typeof disambiguationResponse.from !== 'undefined' && disambiguationResponse.from.candidate instanceof Array) || 
+                (typeof disambiguationResponse.to !== 'undefined' && disambiguationResponse.to.candidate instanceof Array)) {
+
+                disambiguateResults(disambiguationResponse);
             } else {
-                root.find('#to').addClass('ambiguous').focus();
-                root.find('#disambiguate-results').children().fadeIn('slow');
+                root.find("form#trip-plan-form").submit();
             }
         });
     }

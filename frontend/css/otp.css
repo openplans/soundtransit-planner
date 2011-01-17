@@ -521,6 +521,7 @@ background-repeat: no-repeat;
 float: left;
 width: 100%;
 margin-bottom: 10px;
+cursor: pointer;
 }
 
 #disambiguate-results ol li .nice-name {

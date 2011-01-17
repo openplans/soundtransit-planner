@@ -27,14 +27,14 @@ OTP.Map = function(_root, _controlsRoot, options) {
     // vector layers
     var routeLayer = null;   
     var markersLayer = null;
-    var dataMarkersLayers = {};
+    var dataMarkerLayers = {};
 
     // marker controls
     var markersDragControl = null;
     var markersSelectControl = null;
     var disambiguationSelectControl = null;
 
-    // route-specific features/WFS CQL for system map on routeLayer
+    // route-specific features/WFS CQL for system map items on routeLayer
     var systemMapRouteCriteria = {};
     var systemMapRouteFeatures = {};
 
@@ -82,6 +82,14 @@ OTP.Map = function(_root, _controlsRoot, options) {
         if(markersLayer !== null) {
             markersLayer.removeAllFeatures();
         }
+        
+        if(markersDragControl !== null) {
+            markersDragControl.deactivate();
+        }
+        
+        if(disambiguationSelectControl !== null) {
+            disambiguationSelectControl.deactivate();
+        }
     }
 
     // context menu (right-click menu)
@@ -89,20 +97,10 @@ OTP.Map = function(_root, _controlsRoot, options) {
         if(contextMenu !== null) {
             contextMenu.remove();
         }
-            
-        if(markersDragControl !== null) {
-            markersDragControl.activate();
-        }                 
     }
     
     function showContextMenu(point) {
-        if(contextMenu !== null) {
-            contextMenu.remove();
-        }
-
-        if(markersDragControl !== null) {
-            markersDragControl.deactivate();
-        }
+        hideContextMenu();
 
         contextMenu = jQuery("<ul></ul>")
                         .addClass("context-menu");
@@ -128,7 +126,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                     }
 
                                     hideContextMenu();
-                                    
                                     return false;
                                 });
             contextMenu.append(startTripHere);
@@ -151,7 +148,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                     }
                                     
                                     hideContextMenu();
-                                    
                                     return false;
                                 });
             contextMenu.append(endTripHere);
@@ -558,7 +554,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     }
 
     function addDataLayer(type, element, constrainToBBOX) {
-        var layer = dataMarkersLayers[type];
+        var layer = dataMarkerLayers[type];
 
         if(layer === null) {
             return;
@@ -628,7 +624,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     }
     
     function removeDataLayer(type) {
-        var layer = dataMarkersLayers[type];
+        var layer = dataMarkerLayers[type];
         
         if(layer !== null) {
             layer.removeAllFeatures();
@@ -640,26 +636,11 @@ OTP.Map = function(_root, _controlsRoot, options) {
     }
 
     function setupDataLayers() {
-        // (TP markers are in a separate layer because they are draggable, the route is not)
+        // trip planner vector layers
         routeLayer = new OpenLayers.Layer.Vector("Routes");
         markersLayer = new OpenLayers.Layer.Vector("Trip Planner Markers");
 
-        // data layer markers
-        dataMarkersLayers.stops = new OpenLayers.Layer.Vector("Stop Markers");
-        dataMarkersLayers.parkandrides = new OpenLayers.Layer.Vector("Park and Ride Markers");
-        dataMarkersLayers.fareoutlets = new OpenLayers.Layer.Vector("Fare Outlets Markers");
-
-        // hide info windows when zoom changes on data layers
-        jQuery.each(dataMarkersLayers, function(_, layer) {
-            layer.events.on({
-                moveend: function(e) {
-                   if(e.zoomChanged) {
-                      hideInfoWindow();
-                   }
-                }
-            });
-        });
-
+        // data layer markers:
         // layer style configuration
         var context = {
             getPointRadius : function() {
@@ -678,11 +659,12 @@ OTP.Map = function(_root, _controlsRoot, options) {
             pointRadius: "${getPointRadius}",
             externalGraphic: "img/otp/location-icon.png"
         };
-        dataMarkersLayers.stops.styleMap = new OpenLayers.StyleMap({
+        dataMarkerLayers.stops = new OpenLayers.Layer.Vector("Stop Markers");
+        dataMarkerLayers.stops.styleMap = new OpenLayers.StyleMap({
             'default': new OpenLayers.Style(templateStops, {context:context}),
             'select': new OpenLayers.Style(templateStops, {context:context})
         });
-        dataMarkersLayers.stops.events.on({
+        dataMarkerLayers.stops.events.on({
             moveend: function(e) {        
                 var stopsToggleButton = controlsRoot.find("#toggle-location");
                 if(stopsToggleButton.hasClass("active")) {
@@ -697,7 +679,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
             pointRadius: "${getPointRadius}",
             externalGraphic: "img/otp/parking-icon.png"
         };
-        dataMarkersLayers.parkandrides.styleMap = new OpenLayers.StyleMap({
+        dataMarkerLayers.parkandrides = new OpenLayers.Layer.Vector("Park and Ride Markers");
+        dataMarkerLayers.parkandrides.styleMap = new OpenLayers.StyleMap({
             'default': new OpenLayers.Style(templateParking, {context:context}),
             'select': new OpenLayers.Style(templateParking, {context:context})
         });
@@ -708,24 +691,41 @@ OTP.Map = function(_root, _controlsRoot, options) {
             pointRadius: "${getPointRadius}",
             externalGraphic: "img/otp/fares-icon.png"
         };
-        dataMarkersLayers.fareoutlets.styleMap = new OpenLayers.StyleMap({
+        dataMarkerLayers.fareoutlets = new OpenLayers.Layer.Vector("Fare Outlets Markers");
+        dataMarkerLayers.fareoutlets.styleMap = new OpenLayers.StyleMap({
             'default': new OpenLayers.Style(templateFares, {context:context}),
             'select': new OpenLayers.Style(templateFares, {context:context})
         });     
 
-        map.addLayers([routeLayer, dataMarkersLayers.stops, dataMarkersLayers.parkandrides, 
-                        dataMarkersLayers.fareoutlets, markersLayer]);
+        // hide info windows when zoom changes on data layers
+        jQuery.each(dataMarkerLayers, function(_, layer) {
+            layer.events.on({
+                moveend: function(e) {
+                   if(e.zoomChanged) {
+                      hideInfoWindow();
+                   }
+                }
+            });
+        });
+        
+        map.addLayers([routeLayer, dataMarkerLayers.stops, dataMarkerLayers.parkandrides, 
+                        dataMarkerLayers.fareoutlets, markersLayer]);
 
-        // enable selection of features in data layers
-        markersSelectControl = new OpenLayers.Control.SelectFeature([dataMarkersLayers.stops, dataMarkersLayers.parkandrides, 
-                                                                    dataMarkersLayers.fareoutlets], { onSelect: showInfoWindow });
+        // enable selection of features in data layers and disambiguation markers
+        markersSelectControl = new OpenLayers.Control.SelectFeature([dataMarkerLayers.stops, dataMarkerLayers.parkandrides, dataMarkerLayers.fareoutlets], 
+                                    { onSelect: showInfoWindow });
         map.addControl(markersSelectControl);
         markersSelectControl.activate();
 
-        // listener for drag events on trip planner markers
+        // listener for drag events on trip planner markers--enabled when we add a to/from icon to map
         markersDragControl = new OpenLayers.Control.DragFeature(markersLayer, { onComplete: onCompleteMarkerMove });
         map.addControl(markersDragControl);
         markersDragControl.activate();
+        
+        // enable selection of disambiguation choices on map--enabled when disambiguation markers are added to map
+        disambiguationSelectControl = new OpenLayers.Control.SelectFeature(markersLayer, { onSelect: onSelectDisambiguationOption });
+        map.addControl(disambiguationSelectControl);
+        disambiguationSelectControl.activate();
     }
 
     // base layer stuff
@@ -1185,6 +1185,14 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
             markersLayer.addFeatures([icon]);
         }        
+
+        if(markersDragControl !== null) {
+            markersDragControl.activate();
+        }
+
+        if(disambiguationSelectControl !== null) {
+           disambiguationSelectControl.deactivate();
+        }
     }
     
     function setEndMarker(lonlat) {
@@ -1212,10 +1220,18 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
             markersLayer.addFeatures([icon]);
         }        
+
+        if(markersDragControl !== null) {
+            markersDragControl.activate();
+        }
+
+        if(disambiguationSelectControl !== null) {
+           disambiguationSelectControl.deactivate();
+        }
     }
     
     function onCompleteMarkerMove(feature) {
-        if(feature) {       
+        if(feature !== null) {       
             var point = new OpenLayers.LonLat(feature.geometry.x, feature.geometry.y);
             var proj = new OpenLayers.Projection("EPSG:4326");
 
@@ -1228,10 +1244,13 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     options.updateToLocationFunction(point.transform(map.getProjectionObject(), proj), true);                            
                 }                        
             }
+        }
+    }
 
-            if(markersDragControl !== null) {
-                markersDragControl.deactivate();
-            }
+    function onSelectDisambiguationOption(feature) {
+        if(feature !== null) {
+            jQuery(".possible-" + feature.attributes.index)
+                .trigger("click");
         }
     }
 
@@ -1309,23 +1328,11 @@ OTP.Map = function(_root, _controlsRoot, options) {
         zoomToPlannedRoute: function() {
             zoomToRouteLayerExtent();
         },
-
-        beginDisambiguation: function() {
-            if(markersDragControl !== null && markersSelectControl !== null) {
-                markersDragControl.deactivate();
-                markersSelectControl.deactivate();
+        
+        zoomToDisambiguationExtent: function() {
+            if(markersLayer !== null) {
+                map.zoomToExtent(markersLayer.getDataExtent());
             }
-        },
-
-        endDisambiguation: function() {
-            if(markersDragControl !== null && markersSelectControl !== null) {
-                markersDragControl.activate();
-                markersSelectControl.activate();
-            }
-        },
-
-        removeDisambiguationFor: function(location) {
-            markersLayer.removeFeatures(markersLayer.getFeaturesByAttribute('location', location));
         },
 
         // FIXME: we have to pass an encoded polyline into here because we 
@@ -1366,69 +1373,65 @@ OTP.Map = function(_root, _controlsRoot, options) {
             setEndMarker(point.transform(proj, map.getProjectionObject()));
         },
 
-        addDisambiguationPoint: function(lon, lat, counter, location) {
+        addDisambiguationPoint: function(lon, lat, index) {dataMarkerLayers
             if(lat === null || lon === null) {
                 return;
             }
 
-            if (counter === null) {
-                counter = 1;
+            if (index === null) {
+                index = 1;
             }
 
             var point = new OpenLayers.Geometry.Point(lat, lon);
             var proj = new OpenLayers.Projection("EPSG:4326");
-            var icon = new OpenLayers.Feature.Vector(point.transform(proj, map.getProjectionObject()), { type: "disambiguation", location: location});
-
+            var icon = new OpenLayers.Feature.Vector(point.transform(proj, map.getProjectionObject()), { index: index });
             icon.style = {
-                             externalGraphic: "img/otp/pin-" + counter + ".png",
+                             externalGraphic: "img/otp/pin-" + index + ".png",
                              graphicWidth: 32,
                              graphicHeight: 37,
                              graphicXOffset: -15,
                              graphicYOffset: -37,
                              graphicTitle: "Disambiguation Point",
-                             cursor: "auto"
+                             cursor: "pointer"
                          };           
 
             markersLayer.addFeatures([icon]);
-            map.zoomToExtent(markersLayer.getDataExtent());
+            
+            if(markersDragControl !== null) {
+                markersDragControl.deactivate();
+            }
 
-            return icon.id;
+            if(disambiguationSelectControl !== null) {
+               disambiguationSelectControl.activate();
+            }
         },
 
-        highlightDisambiguationPoint: function(id, counter) {
-            if(id === null || counter === null) {
+        highlightDisambiguationPoint: function(index) {
+            if(index === null) {
                 return;
             }
-            
-            // FIXME: There must be a better way to do this, but I'm not finding a way to specify highlight or select styles on a per-feature basis.
-            markersSelectControl.highlight(markersLayer.getFeatureById(id));
-            markersLayer.getFeatureById(id).style = {
-                             externalGraphic: "img/otp/pin-" + counter + ".png",
-                             graphicWidth: 32,
-                             graphicHeight: 37,
-                             graphicXOffset: -15,
-                             graphicYOffset: -37,
-                             graphicTitle: "Disambiguation Point",
-                             cursor: "auto"
-                         };
 
+            var features = markersLayer.getFeaturesByAttribute("index", index);
+            
+            if(typeof features[0] !== 'undefined') {
+                var newStyle = features[0].style;
+                newStyle.externalGraphic = "img/otp/pin-" + index + "-highlight.png";  
+                markersLayer.drawFeature(features[0], newStyle);
+            }
         },
         
-        unhighlightDisambiguationPoint: function(id, counter) {
-            if(id === null || counter === null) {
+        unhighlightDisambiguationPoint: function(index) {
+            if(index === null) {
                 return;
             }
 
-            markersSelectControl.unhighlight(markersLayer.getFeatureById(id));
-            markersLayer.getFeatureById(id).style = {
-                             externalGraphic: "img/otp/pin-" + counter + "-highlight.png",
-                             graphicWidth: 32,
-                             graphicHeight: 37,
-                             graphicXOffset: -15,
-                             graphicYOffset: -37,
-                             graphicTitle: "Disambiguation Point",
-                             cursor: "auto"
-                         };
+            var features = markersLayer.getFeaturesByAttribute("index", index);
+            
+            if(typeof features[0] !== 'undefined') {
+                var newStyle = features[0].style;
+                newStyle.externalGraphic = "img/otp/pin-" + index + ".png";  
+                markersLayer.drawFeature(features[0], newStyle);
+            }
         },
 
         addLegToPlannedRoute: function(encodedPolyline, type) {
