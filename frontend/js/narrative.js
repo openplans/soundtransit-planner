@@ -208,7 +208,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
 
         jQuery.jsonp({
             callback: "fn",
-            url: "http://sea.dev.openplans.org:8080/translatis-api/ws/planP",
+            url: OTP.Config.atisProxyServiceUrl,
             data: {
                 arriveBy: (root.find("#leavetype").val() === "Arrive By"),
                 date: root.find("#leaveday").val(),
@@ -276,22 +276,22 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             var match = /^\#(\d+)/.exec(data.error.msg);
             
             switch (match[1]) {
-				case '11085':
-					msg = "<p>The trip start and end points are too close for us to plan a trip for you. Please change your origin and/or destination and try again.</p>";
-					break;
-				case '20003':
-					msg = "<p>No transit stops are within walking distance of your desired starting point. Please change your origin by dragging the marker or typing in a new address and try again.</p>";
-					break;
-				case '20004':
-					msg = "<p>No transit stops are within walking distance of your desired destination. Please change your trip's end point by dragging the marker or typing in a new address and try again.</p>";
-					break;
-				case '20008':
-					msg = "<p>No transit available for this trip at the time you've requested. Please change the time above and try again.</p>";
-					break;
-				default:
-					msg = "<p>Something went wrong when trying to plan your trip&mdash;the system reported '" + data.error.msg + "'</p>";
-					break;	
-			}
+                case '11085':
+                    msg = "<p>The trip start and end points are too close for us to plan a trip for you. Please change your origin and/or destination and try again.</p>";
+                    break;
+                case '20003':
+                    msg = "<p>No transit stops are within walking distance of your desired starting point. Please change your origin by dragging the marker or typing in a new address and try again.</p>";
+                    break;
+                case '20004':
+                    msg = "<p>No transit stops are within walking distance of your desired destination. Please change your trip's end point by dragging the marker or typing in a new address and try again.</p>";
+                    break;
+                case '20008':
+                    msg = "<p>No transit available for this trip at the time you've requested. Please change the time above and try again.</p>";
+                    break;
+                default:
+                    msg = "<p>Something went wrong when trying to plan your trip&mdash;the system reported '" + data.error.msg + "'</p>";
+                    break;	
+            }
 
             root.find("#trip-data")
                 .html(
@@ -493,7 +493,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     function formatTransitLeg(legIndex, leg) {
         // determine key that will be used to display mode icons
         var displayType = leg["@mode"];
-
+        
         if(isSounder(leg["@route"])) {
             displayType = 'Sounder';
         } else if(isTheLink(leg["@route"])) {
@@ -788,7 +788,6 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         }          
 
         root.find("#leavetype, #leaveampm, #trippriority, #maxwalk").selectmenu();
-        //root.find("#leavetype, #leaveampm, #trippriority, #maxwalk").combobox();        
 
         // more options
         root.find('a#optionstoggle').click(function() {

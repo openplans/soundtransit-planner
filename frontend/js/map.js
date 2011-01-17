@@ -313,7 +313,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
         var lonlat = new OpenLayers.LonLat(featureProperties.lon, featureProperties.lat);
         var startEndTrip = jQuery('<div class="start-end-area"></div>');
         
-        
         if(typeof featureProperties.outlettype !== 'undefined') {
             type = "fareoutlet";
             var niceOutletType = (featureProperties.outlettype == 'TVM') ? "Ticket Vending Machine" : ((featureProperties.outlettype == 'Retailer') ? "Retailer" : "ORCA Customer service center");
@@ -330,11 +329,11 @@ OTP.Map = function(_root, _controlsRoot, options) {
         } else {
             type = "parkandride";
             crossbar = '<div class="crossbar">' + featureProperties.location + '</div>';
-            if (featureProperties.spaces !== 0 && featureProperties.spaces !== "") {amenities += "<strong>Parking spaces:</strong> " + featureProperties.spaces;}
-            if (featureProperties.timefull !== 0 && featureProperties.timefull !== "") {amenities += " This parking lot is typically full by " + featureProperties.timefull + "AM<br />"} else {amenities += "<br />"}
-            if (featureProperties.numbikeloc !== 0 && featureProperties.numbikeloc !== "") {amenities += "<strong>Bike Lockers:</strong> " + featureProperties.numbikeloc + "<br />";}
-            if (featureProperties.electricca !== 0 && featureProperties.electricca !== "") {amenities += "<strong>Electric Car Chargers:</strong> " + featureProperties.electricca + "<br />";}
-            if (featureProperties.notes !== null && featureProperties.notes !== "") {amenities += "<strong>Notes:</strong> " + featureProperties.notes;}
+            if (featureProperties.spaces !== null && featureProperties.spaces !== 0 && featureProperties.spaces !== "") {amenities += "<strong>Parking spaces:</strong> " + featureProperties.spaces;}
+            if (featureProperties.timefull !== null && featureProperties.timefull !== 0 && featureProperties.timefull !== "") {amenities += " This parking lot is typically full by " + featureProperties.timefull + "AM<br />"} else {amenities += "<br />"}
+            if (featureProperties.numbikeloc !== null && featureProperties.numbikeloc !== 0 && featureProperties.numbikeloc !== "") {amenities += "<strong>Bike Lockers:</strong> " + featureProperties.numbikeloc + "<br />";}
+            if (featureProperties.electricca !== null && featureProperties.electricca !== 0 && featureProperties.electricca !== "") {amenities += "<strong>Electric Car Chargers:</strong> " + featureProperties.electricca + "<br />";}
+            if (featureProperties.notes !== null && featureProperties.notes !== null && featureProperties.notes !== "") {amenities += "<strong>Notes:</strong> " + featureProperties.notes;}
         }
     
         var content = jQuery("<div></div>")
@@ -346,16 +345,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
                             .html("<h2>" + headerContent + "</h2>")
                             .append(getInfoWindowClose());
 
-
-
-/*
-        // Leaving in for debug, but we don't want to display all this info to users
-        for(k in featureProperties) {
-            var v = featureProperties[k];            
-            content.append("<!-- " + k + ": " + v + " -->");
-        }
-*/
-       
         if (options.hasTripPlanner === true) {
             jQuery('<a href="#">Start Trip Here</a>')
                 .click(function(e) {
@@ -440,30 +429,30 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
         var style = null;
         if(mode === "WSF") {
-             style = {
-                      strokeColor: "#666666",
-                      strokeWidth: 4
-             };
+            style = {
+                strokeColor: "#666666",
+                strokeWidth: 4
+            };
         } else if(mode === "BUS") {
-             style = {
-                      strokeColor: "#5380B0",
-                      strokeWidth: 4
-             };                
+            style = {
+                strokeColor: "#5380B0",
+                strokeWidth: 4
+            };                
         } else if(mode === "SOUNDER") {
-             style = {
-                      strokeColor: "#0B9140",
-                      strokeWidth: 4
-             };                                
+            style = {
+                strokeColor: "#0B9140",
+                strokeWidth: 4
+            };                                
         } else if(mode === "LINK") {
-             style = {
-                      strokeColor: "#41B1C1",
-                      strokeWidth: 4
-             };                                
+            style = {
+                strokeColor: "#41B1C1",
+                strokeWidth: 4
+            };                                
         }
 
         var callbackFunction = "drawRouteLayerForModeCallback" + Math.floor(Math.random() * 1000000000);
         jQuery.ajax({
-             url: "http://sea.dev.openplans.org:8080/geoserver/wfs",
+             url: OTP.Config.wfsServiceUrl,
              dataType: "jsonp",
              jsonpCallback: callbackFunction,
              data: {
@@ -601,7 +590,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }
     
         jQuery.ajax({
-             url: "http://sea.dev.openplans.org:8080/geoserver/wfs",
+             url: OTP.Config.wfsServiceUrl,
              dataType: "jsonp",
              jsonpCallback: callbackFunction,
              data: data,
@@ -750,7 +739,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     }
 
     function addBaseLayers() {
-        var apiKey = "AgszXQ8Q5lbiJFYujII-Lcie9XQ-1DK3a2X7xWJmfSeipw8BAAF0ETX8AJ4K-PDm";
+        var apiKey = OTP.Config.bingMapsKey;
 
         var road = new OpenLayers.Layer.Bing({
             key: apiKey,
@@ -937,11 +926,11 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     
                     if(agency === "") {
                         return;
-                    } 
+                    }
 
                     var callbackFunction = "getRouteListCallback" + Math.floor(Math.random() * 1000000000);
                     jQuery.ajax({
-                            url: "http://sea.dev.openplans.org:8080/geoserver/wfs",
+                            url: OTP.Config.wfsServiceUrl,
                             dataType: "jsonp",
                             jsonpCallback: callbackFunction,
                             data: {

@@ -146,7 +146,6 @@ OTP.NarrativeForm = function(_root) {
         }          
 
         root.find("#leavetype, #leaveampm, #trippriority, #maxwalk").selectmenu();
-        //root.find("#leavetype, #leaveampm, #trippriority, #maxwalk").combobox();        
 
         // more options
         root.find('a#optionstoggle').click(function() {
