@@ -560,6 +560,12 @@ OTP.Map = function(_root, _controlsRoot, options) {
             return;
         }
 
+        // if we're going to draw the features for this layer, add 
+        // active class to its selector indicator
+        if(element !== null) {
+            jQuery(element).addClass("active");
+        }
+                
         if(type === "stops") {
             if(map.getZoom() < 12) {
                 showTooMany(type);
@@ -603,12 +609,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     } else {
                         hideTooMany();
                     }
-                }
-                
-                // if we're going to draw the polyline for this route, add 
-                // active class to its selector indicator
-                if(element !== null) {
-                    jQuery(element).addClass("active");
                 }
 
                 var features = [];
@@ -748,6 +748,13 @@ OTP.Map = function(_root, _controlsRoot, options) {
             version: "v1"
         });
 
+        var aerial = new OpenLayers.Layer.Bing({
+            key: apiKey,
+            type: "Aerial",
+            name: "Aerial",
+            version: "v1"
+        });
+        
         var hybrid = new OpenLayers.Layer.Bing({
             key: apiKey,
             type: "AerialWithLabels",
@@ -755,7 +762,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             version: "v1"
         });
 
-        map.addLayers([road, hybrid]);
+        map.addLayers([road, aerial, hybrid]);
     }
 
     // layer selection UI + tooltips
@@ -808,7 +815,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         if(typeof displayFn === 'function') {
             displayFn(layerChooserPopout.find(".content"));
         }
-                 
+           
         // position popout
         var parentElement = jQuery(openingElement.parent());
         var offset = openingElement.offset();
@@ -817,7 +824,13 @@ OTP.Map = function(_root, _controlsRoot, options) {
         var contentElement = layerChooserPopout.find(".content");
         var contentWidth = contentElement.width();
         contentElement.css("width", contentWidth);
-        layerChooserPopout.css("left", Math.floor((offset.left - offsetParent.left) - (contentWidth / 2)) + (openingElement.width() / 2) - 5);
+
+        if(parentElement.css("position") === "absolute") {
+            layerChooserPopout.css("left", Math.floor(offsetParent.left - (contentWidth / 2)) - 5);
+            layerChooserPopout.css("top", 25);
+        } else {
+            layerChooserPopout.css("left", Math.floor((offset.left - offsetParent.left) - (contentWidth / 2)) + (openingElement.width() / 2) - 5);
+        }
     }
 
     function showFerryRouteLayerSelector(element) {
@@ -1002,6 +1015,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     .removeClass("active");
 
                 jQuery(this).addClass("active");
+                hideLayerButtonPopout();
 
                 setBaseLayer("Road");
                 return false;
@@ -1014,8 +1028,30 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     .removeClass("active");
 
                 jQuery(this).addClass("active");
+                hideLayerButtonPopout();
+                
+                setBaseLayer("Aerial");
 
-                setBaseLayer("Hybrid");
+                var hybridSelector = jQuery('<div>' + 
+                                                '<input type="checkbox" id="hybrid">' + 
+                                                '<strong>Show&nbsp;Labels</strong>' + 
+                                            '</div>').addClass("aerialSelector");
+                                            
+                hybridSelector.find("input").change(function() {
+                    var checked = jQuery(this).attr("checked");
+                    
+                    if(checked === true) {
+                        setBaseLayer("Hybrid");
+                    } else {
+                        setBaseLayer("Aerial");
+                    }
+                    
+                    hideLayerButtonPopout();
+                });
+                
+                showLayerButtonPopout(this, hybridSelector, null, function(content) {
+                    content.find("input").attr("checked", null);
+                });
                 return false;
             });
 
@@ -1035,7 +1071,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             })
             .hover(function(e) {
                 if(e.type === "mouseenter") {
-                    showLayerButtonPopout(this, "<strong>Fare&nbsp;Outlets</strong>", null);                    
+                    showLayerButtonPopout(this, "<strong>Fare&nbsp;Outlets</strong>", null, null);                    
                 } else {
                     hideLayerButtonPopout();
                 }
@@ -1056,7 +1092,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             })
             .hover(function(e) {
                 if(e.type === "mouseenter") {
-                    showLayerButtonPopout(this, "<strong>Park&nbsp;and&nbsp;Rides</strong>", null);                    
+                    showLayerButtonPopout(this, "<strong>Park&nbsp;and&nbsp;Rides</strong>", null, null);                    
                 } else {
                     hideLayerButtonPopout();
                 }
@@ -1077,7 +1113,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             })
             .hover(function(e) {
                 if(e.type === "mouseenter") {
-                    showLayerButtonPopout(this, "<strong>Stops</strong>", null);                    
+                    showLayerButtonPopout(this, "<strong>Stops</strong>", null, null);                    
                 } else {
                     hideLayerButtonPopout();
                 }
@@ -1260,7 +1296,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
         maxExtent: new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34),
         controls: [
             new OpenLayers.Control.Navigation({'zoomWheelEnabled': false}),
-            new OpenLayers.Control.KeyboardDefaults(),
             new OpenLayers.Control.PanZoomBar({zoomWorldIcon:false, zoomStopHeight: 6}),
             new OpenLayers.Control.Attribution()
         ]

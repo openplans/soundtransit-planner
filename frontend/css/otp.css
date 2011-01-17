@@ -123,6 +123,10 @@ left: 5px;
 top: 7px;
 }
 
+#base-layers a {
+position: relative;
+}
+
 #base-layers a.active {
 text-decoration: none;
 color: #4a4a4a;
@@ -1205,4 +1209,14 @@ width: 400px;
 
 .too_many p {
 padding: 10px;
+}
+
+/* - */
+.aerialSelector {
+width: 100px;
+}
+
+.aerialSelector input {
+margin-right: 5px;
+display: inline;
 }
