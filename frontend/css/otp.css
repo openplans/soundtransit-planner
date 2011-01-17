@@ -2,8 +2,6 @@
 #tripplanner-wrap {
 width: 966px;
 height: 563px;
-background: #fff;
-position: relative;
 }
 
 #map-controls {
@@ -187,6 +185,7 @@ background: #fff;
 position: relative;
 top: -5px;
 z-index: 4;
+border-bottom: 1px solid #dfdfdf;
 }
 
 #plannerform {
@@ -207,7 +206,7 @@ padding: 15px;
 padding-right: 20px;
 padding-left: 20px;
 overflow: auto;
-overflow-x: hidden
+overflow-x: hidden;
 }
 
 .form-meta {
@@ -789,8 +788,11 @@ ul.trip-stepbystep li.bus {
 background-image: url(../img/otp/bus-step-bg.png);
 }
 
-ul.trip-stepbystep li:last-child,
 ul.trip-stepbystep li.last-child {
+background-image: none;
+}
+
+ul.trip-stepbystep li:last-child {
 background-image: none;
 }
 
@@ -936,6 +938,21 @@ height: 563px;
 width: 100%;
 }
 
+#toggle-map-width {
+position: absolute;
+left: 0;
+top: 265px;
+background-image: url(../img/otp/toggle-map-width.png);
+background-position: top right;
+width: 18px;
+height: 32px;
+z-index: 10000000;
+zoom:1;
+}
+#toggle-map-width.fullsize {
+background-position: bottom left;
+}
+
 #map #atis-credits {
 position: absolute;
 bottom: 0;
@@ -944,6 +961,45 @@ color: #333;
 padding: 5px;
 font-size: 0.75em;
 z-index: 10000000;
+}
+
+#map #legend {
+z-index: 10000001;
+position: absolute;
+bottom: 0;
+left: 0;
+width: 100%;
+}
+
+#map #legend .toggler {
+background: #fff;
+border: 1px solid #c0c0c0;
+border-width: 1px 1px 0;
+position: absolute;
+top: -20px;
+right: 150px;
+width: 3.5em;
+height: 16px;
+padding: 2px 20px 2px 5px;
+}
+
+body #map #legend .toggler .ui-selectmenu-icon {
+position: absolute;
+right: 0;
+top: 3px;
+background-image: url("./jquery/ui-custom/images/ui-icons_454545_256x240.png");
+}
+
+#map #legend .toggler:hover .ui-selectmenu-icon,
+#map #legend .toggler.expanded  .ui-selectmenu-icon {
+background-image: url("./jquery/ui-custom/images/ui-icons_222222_256x240.png");
+}
+
+#map #legend .content {
+display: none;
+clear: both;
+background: #fff;
+border-top: 1px solid #c0c0c0;
 }
 
 /* context menu */
@@ -960,7 +1016,7 @@ color: #656565;
 .context-menu .ui-menu-item.separator {
 padding-bottom: 5px;
 margin-bottom: 5px;
-border-bottom: 1px solid #C0C0C0;    
+border-bottom: 1px solid #c0c0c0;    
 }
 
 /* - */
@@ -985,7 +1041,7 @@ background-repeat: no-repeat;
 }
 
 .layer-popout .content {
-background-color: #FFFFFF;
+background-color: #fff;
 border: 1px solid #bababa;
 border-top: none;
 padding: 5px;
@@ -1067,13 +1123,6 @@ z-index: 10000000;
 color: #4a4a4a;    
 }
 
-.info-window .content {
-background-color: #fff;
-border: 1px solid #bababa;
-border-bottom: none;
-position: relative;
-}
-
 .info-window .info-header {
 font-weight: bold;
 white-space: nowrap;
@@ -1081,9 +1130,16 @@ padding-right: 20px;
 min-width: 225px;
 background: #f4f4f3;
 padding: 5px;
+border: 1px solid #bababa;
+border-bottom: none;
+position: relative;
 }
 
 .info-window .info-content {
+background-color: #fff;
+border: 1px solid #bababa;
+border-bottom: none;
+position: relative;
 padding: 5px;
 }
 
@@ -1119,10 +1175,6 @@ height: 19px;
 width: 19px;
 }
 
-.info-window .fare-actions {
-/*display: none;*/
-}
-
 .info-window ul {
 list-style-position: inside;
 }
@@ -1143,7 +1195,7 @@ position: absolute;
 z-index: 10000000;
 background-color: #efefef;
 color: #666;
-border: 1px solid #C0C0C0;
+border: 1px solid #c0c0c0;
 top: 50px;
 left: 100px;
 font-size: 16px;

@@ -346,7 +346,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                             .html("<h2>" + headerContent + "</h2>")
                             .append(getInfoWindowClose());
 
-        var popupContent = headerWrapper.after(content.append(crossbar).append(amenities).append(ticketText));
+
 
 /*
         // Leaving in for debug, but we don't want to display all this info to users
@@ -360,7 +360,13 @@ OTP.Map = function(_root, _controlsRoot, options) {
             jQuery('<a href="#">Start Trip Here</a>')
                 .click(function(e) {
                     if(typeof options.updateFromLocationFunction === 'function') {
-                        options.updateFromLocationFunction(lonlat, false);
+                        var toFeature = markersLayer.getFeaturesByAttribute('type', "end");
+                        var submitAfterDone = (toFeature !== null && typeof toFeature[0] !== 'undefined') ? true : false;
+                        options.updateFromLocationFunction(lonlat, submitAfterDone);
+
+                        var proj = new OpenLayers.Projection("EPSG:4326");
+                        setStartMarker(lonlat.transform(proj, map.getProjectionObject()));
+                        hideInfoWindow();
                     }
                     return false;
             }).appendTo(startEndTrip);
@@ -368,7 +374,13 @@ OTP.Map = function(_root, _controlsRoot, options) {
             jQuery('<a href="#">End Trip Here</a>')
                 .click(function(e) {
                     if(typeof options.updateToLocationFunction === 'function') {
-                        options.updateToLocationFunction(lonlat, false);
+                        var fromFeature = markersLayer.getFeaturesByAttribute('type', "start");
+                        var submitAfterDone = (fromFeature !== null && typeof fromFeature[0] !== 'undefined') ? true : false;
+                        options.updateToLocationFunction(lonlat, submitAfterDone);
+                        
+                        var proj = new OpenLayers.Projection("EPSG:4326");
+                        setEndMarker(lonlat.transform(proj, map.getProjectionObject()));
+                        hideInfoWindow();
                     }
                     return false;
             }).appendTo(startEndTrip);
@@ -376,6 +388,10 @@ OTP.Map = function(_root, _controlsRoot, options) {
         
         content.append(startEndTrip);
         
+        content.prepend(ticketText).prepend(amenities).prepend(crossbar)
+        
+        var popupContent = jQuery('<div></div>').append(headerWrapper).append(content);
+
         return popupContent;
     }
     
@@ -1132,6 +1148,28 @@ OTP.Map = function(_root, _controlsRoot, options) {
             });             
     }
 
+    function addLegendBehavior() {
+        jQuery("#map #legend .toggler").click(function() {
+            var element = jQuery(this);
+            if(element.hasClass("expanded")) {
+                element.siblings(".content").slideUp();
+                element.removeClass("expanded");                  
+            } else {
+                element.siblings(".content").slideDown();
+                element.addClass("expanded");
+            }
+            return false;
+        });
+    }
+
+    function addMapToggleWidthBehavior() {
+        jQuery("#toggle-map-width").click(function() {
+            jQuery(this).toggleClass("fullsize");
+            jQuery("#tripplanner-wrap").toggleClass("fullsize");
+            return false;
+        });
+    }
+
     // markers
     function setStartMarker(lonlat) {
         if(lonlat === null) {
@@ -1215,7 +1253,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         controls: [
             new OpenLayers.Control.Navigation({'zoomWheelEnabled': false}),
             new OpenLayers.Control.KeyboardDefaults(),
-            new OpenLayers.Control.PanZoomBar({zoomWorldIcon:false}),
+            new OpenLayers.Control.PanZoomBar({zoomWorldIcon:false, zoomStopHeight: 6}),
             new OpenLayers.Control.Attribution()
         ]
     });
@@ -1229,6 +1267,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
     
     addContextMenuBehavior();
     addMapLayerChooserBehavior();
+    addLegendBehavior();
+    addMapToggleWidthBehavior();
 
     // center on seattle metro area
     var point = new OpenLayers.LonLat(-122.30, 47.45);

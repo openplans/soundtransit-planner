@@ -3,6 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=8" />
 	<title>Interactive System Map</title>
 
     <!--INCLUDE ALL OF THESE FILES IN A PRODUCTION DEPLOYMENT, IN THIS ORDER-->
@@ -134,7 +135,7 @@
                     
                     <label>
                         <input type="checkbox" id="link-tacoma" value="PTLDTC"> 
-                        Everett/Seattle route
+                        Tacoma Link Light Rail
                         <span class="small">(Downtown Tacoma)</span>
                     </label>
                 </form>
@@ -168,7 +169,7 @@
     </div>
 </div>
 <div id="tripplanner-wrap" class="fullsize">
-  <div id="map"><div id="atis-credits">ATIS: Powered by Trapeze</div></div>
+  <div id="map"><div id="atis-credits">ATIS: Powered by Trapeze</div><div id="legend"><div class="toggler">Legend<span class="ui-selectmenu-icon ui-icon ui-icon-triangle-1-s"> </span></div><div class="content">Placeholder legend content. We can pull images or other content into this space.</div></div></div>
 </div><!-- /#tripplanner-wrap -->
 </body>
 </html>
