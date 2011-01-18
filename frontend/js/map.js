@@ -32,7 +32,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
     // marker controls
     var markersDragControl = null;
     var markersSelectControl = null;
-    var disambiguationSelectControl = null;
 
     // route-specific features/WFS CQL for system map items on routeLayer
     var systemMapRouteCriteria = {};
@@ -85,10 +84,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
         
         if(markersDragControl !== null) {
             markersDragControl.deactivate();
-        }
-        
-        if(disambiguationSelectControl !== null) {
-            disambiguationSelectControl.deactivate();
         }
     }
 
@@ -712,20 +707,26 @@ OTP.Map = function(_root, _controlsRoot, options) {
                         dataMarkerLayers.fareoutlets, markersLayer]);
 
         // enable selection of features in data layers and disambiguation markers
-        markersSelectControl = new OpenLayers.Control.SelectFeature([dataMarkerLayers.stops, dataMarkerLayers.parkandrides, dataMarkerLayers.fareoutlets], 
-                                    { onSelect: showInfoWindow });
+        // HACK: a hack to get around the OL limitation of only allowing one marker select control per map.
+        var selectFeatureEventDispatcher = function(feature) {
+            if(feature === null) {
+                return;
+            }
+            if(feature.attributes.type === "disambiguation") {
+                onSelectDisambiguationOption(feature);            
+            } else {
+                showInfoWindow(feature);
+            }
+        }
+        markersSelectControl = new OpenLayers.Control.SelectFeature([markersLayer, dataMarkerLayers.stops, dataMarkerLayers.parkandrides, dataMarkerLayers.fareoutlets], 
+																		{ onSelect: selectFeatureEventDispatcher });
         map.addControl(markersSelectControl);
         markersSelectControl.activate();
 
         // listener for drag events on trip planner markers--enabled when we add a to/from icon to map
         markersDragControl = new OpenLayers.Control.DragFeature(markersLayer, { onComplete: onCompleteMarkerMove });
         map.addControl(markersDragControl);
-        markersDragControl.activate();
-        
-        // enable selection of disambiguation choices on map--enabled when disambiguation markers are added to map
-        disambiguationSelectControl = new OpenLayers.Control.SelectFeature(markersLayer, { onSelect: onSelectDisambiguationOption });
-        map.addControl(disambiguationSelectControl);
-        disambiguationSelectControl.activate();
+		markersDragControl.activate();
     }
 
     // base layer stuff
@@ -1226,10 +1227,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
         if(markersDragControl !== null) {
             markersDragControl.activate();
         }
-
-        if(disambiguationSelectControl !== null) {
-           disambiguationSelectControl.deactivate();
-        }
     }
     
     function setEndMarker(lonlat) {
@@ -1260,10 +1257,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
         if(markersDragControl !== null) {
             markersDragControl.activate();
-        }
-
-        if(disambiguationSelectControl !== null) {
-           disambiguationSelectControl.deactivate();
         }
     }
     
@@ -1409,7 +1402,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             setEndMarker(point.transform(proj, map.getProjectionObject()));
         },
 
-        addDisambiguationPoint: function(lon, lat, index) {dataMarkerLayers
+        addDisambiguationPoint: function(lon, lat, index) {
             if(lat === null || lon === null) {
                 return;
             }
@@ -1420,7 +1413,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
             var point = new OpenLayers.Geometry.Point(lat, lon);
             var proj = new OpenLayers.Projection("EPSG:4326");
-            var icon = new OpenLayers.Feature.Vector(point.transform(proj, map.getProjectionObject()), { index: index });
+            var icon = new OpenLayers.Feature.Vector(point.transform(proj, map.getProjectionObject()), { type: "disambiguation", index: index });
             icon.style = {
                              externalGraphic: "img/otp/pin-" + index + ".png",
                              graphicWidth: 32,
@@ -1435,10 +1428,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
             
             if(markersDragControl !== null) {
                 markersDragControl.deactivate();
-            }
-
-            if(disambiguationSelectControl !== null) {
-               disambiguationSelectControl.activate();
             }
         },
 
