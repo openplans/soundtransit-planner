@@ -641,6 +641,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
 
                 disambiguateResults(disambiguationResponse);
             } else {
+				map.reset();
                 root.find("form#trip-plan-form").submit();
             }
         });
