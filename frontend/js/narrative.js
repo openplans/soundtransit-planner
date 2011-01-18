@@ -543,6 +543,8 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             return;
         }
         // if we're here, we have a list of things to disambiguate:
+
+		map.reset();
         
         var disambiguateMarkup = jQuery('<div id="' + locationType + '-possibles">' + 
                                             '<h3>We found several ' + friendlyLocationType + ' points for your search</h3>' + 
@@ -632,8 +634,6 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
 
         root.find('#' + location + '-possibles').fadeOut('slow', function() { 
             jQuery(this).remove();
-
-            map.reset();
 
             // more disambiguation to do still?
             if((typeof disambiguationResponse.from !== 'undefined' && disambiguationResponse.from.candidate instanceof Array) || 
