@@ -579,10 +579,20 @@ OTP.Map = function(_root, _controlsRoot, options) {
             typeName: "soundtransit:" + type
         };
         
-        if(constrainToBBOX === true) {            
-            // clear existing features from last BBOX constrained query
-            layer.removeAllFeatures();
-
+        if(constrainToBBOX === true) {           
+            // clear features not visible anymore from map if we're getting lots of features on this layer
+            if(layer.features.length > 300) {
+                var featuresToRemove = [];             
+                var viewportBounds = map.getExtent();
+                jQuery.each(layer.features, function(_, feature) {
+                    var featureLatLon = new OpenLayers.LonLat(feature.geometry.x, feature.geometry.y);
+                    if(!viewportBounds.containsLonLat(featureLatLon)) {
+                        featuresToRemove.push(feature);
+                    }
+                });
+                layer.removeFeatures(featuresToRemove);
+            }
+            
             data.BBOX = map.getExtent().toBBOX() + "," + layer.projection;
         }
     
@@ -599,6 +609,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 if(type === "stops") {
                     if(data.features.length > 512) {
                         showTooMany(type);
+                        layer.removeAllFeatures();
                         data = null;
                         return;
                     } else {
@@ -719,7 +730,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             }
         }
         markersSelectControl = new OpenLayers.Control.SelectFeature([markersLayer, dataMarkerLayers.stops, dataMarkerLayers.parkandrides, dataMarkerLayers.fareoutlets], 
-																		{ onSelect: selectFeatureEventDispatcher });
+                                                                    { onSelect: selectFeatureEventDispatcher });
         map.addControl(markersSelectControl);
         markersSelectControl.activate();
 
@@ -1296,7 +1307,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     });
 
     // this points OL to our custom icon set
-    OpenLayers.ImgPath = "js/openlayers/img/";
+    OpenLayers.ImgPath = OTP.Config.openLayersUIImagePath;
 
     // setup map 
     addBaseLayers();
