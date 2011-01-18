@@ -73,7 +73,7 @@
                     echo "narrative.planTrip();\n";
                 }
             ?>
-      }
+        }
 
         if(jQuery.browser.msie) {
             window.onload = init;
@@ -84,6 +84,16 @@
 </head>
 
 <body class="tripplanner">
+    
+    <!--THIS BLOCK IS FOR USER TESTING ONLY. REMOVE IN A PRODUCTION DEPLOYMENT-->
+    <div class="demolinks">
+        <a class="home" href="home.php">Home</a>
+        <a class="map" href="map.php">Home</a>
+        <a class="schedule" href="schedule.php">Home</a>
+        <a class="tripplanner" href="tripplanner.php">Home</a>
+    </div>
+    <!--END-->
+    
 <div id="map-controls">
     <div id="map-controls-wrap">
         <div id="base-layers">

@@ -4,7 +4,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<meta http-equiv="X-UA-Compatible" content="IE=8" />
-    <title>Route Maps</title>
+    <title>Schedules/Route Maps</title>
 
     <!--INCLUDE ALL OF THESE FILES IN A PRODUCTION DEPLOYMENT, IN THIS ORDER-->
     <link type="text/css" href="css/screen-reset.css" rel="stylesheet" media="screen, projection" />
@@ -31,7 +31,16 @@
     <script type="text/javascript" src="js/map.js"></script>
 </head>
 
-<body class="home">
+<body class="schedule">
+
+    <!--THIS BLOCK IS FOR USER TESTING ONLY. REMOVE IN A PRODUCTION DEPLOYMENT-->
+    <div class="demolinks">
+        <a class="home" href="home.php">Home</a>
+        <a class="map" href="map.php">Home</a>
+        <a class="schedule" href="schedule.php">Home</a>
+        <a class="tripplanner" href="tripplanner.php">Home</a>
+    </div>
+    <!--END-->
 
     <div>
       <h2>Direct links for Route Map pages</h2>

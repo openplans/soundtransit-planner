@@ -1,3 +1,4 @@
+/* Temp classes for mockups */
 body.map {
 background: url(../img/otp/fpo_map.jpg) 0 0 no-repeat;
 padding: 160px 0 300px 85px;
@@ -8,7 +9,61 @@ background: url(../img/otp/fpo_tripplanner.jpg) 0 0 no-repeat;
 padding: 160px 0 300px 85px;
 }
 
+body.schedule,
 body.home {
 background: url(../img/otp/fpo_home.jpg) 0 0 no-repeat;
 padding: 130px 0 300px 105px;
+}
+
+#tripplanner-wrap {
+width: 966px;
+height: 563px;
+}
+
+#map-controls {
+width: 966px;
+}
+
+.demolinks {
+position: absolute;
+top: 70px;
+left: 90px;
+width: 960px;
+height: 50px;
+}
+
+.demolinks .home {
+position: absolute;
+top: 0px;
+left: 0px;
+width: 40px;
+height: 50px;
+text-indent: -9999px;
+}
+
+.demolinks .map {
+position: absolute;
+top: 0px;
+left: 160px;
+width: 105px;
+height: 50px;
+text-indent: -9999px;
+}
+
+.demolinks .schedule {
+position: absolute;
+top: 0px;
+left: 45px;
+width: 105px;
+height: 50px;
+text-indent: -9999px;
+}
+
+.demolinks .tripplanner {
+position: absolute;
+top: 0px;
+left: 608px;
+width: 105px;
+height: 50px;
+text-indent: -9999px;
 }

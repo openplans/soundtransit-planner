@@ -46,6 +46,15 @@
 
 <body class="home">
 
+  <!--THIS BLOCK IS FOR USER TESTING ONLY. REMOVE IN A PRODUCTION DEPLOYMENT-->
+  <div class="demolinks">
+      <a class="home" href="home.php">Home</a>
+      <a class="map" href="map.php">Home</a>
+      <a class="schedule" href="schedule.php">Home</a>
+      <a class="tripplanner" href="tripplanner.php">Home</a>
+  </div>
+  <!--END-->
+
   <div id="plannerform">
     <div class="form-meta">
       <a id="clear" href="#">Clear</a> <a href="#">Help</a>
