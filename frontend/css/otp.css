@@ -982,7 +982,6 @@ padding: 2px 20px 2px 5px;
 body #map #legend .toggler .ui-selectmenu-icon {
 position: absolute;
 right: 0;
-top: 3px;
 background-image: url("./jquery/ui-custom/images/ui-icons_454545_256x240.png");
 }
 
@@ -996,6 +995,7 @@ display: none;
 clear: both;
 background: #fff;
 border-top: 1px solid #c0c0c0;
+padding: 10px;
 }
 
 /* context menu */
