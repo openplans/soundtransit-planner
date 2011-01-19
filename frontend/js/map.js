@@ -310,6 +310,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
             crossbar = '<div class="crossbar"><strong>' + niceOutletType + '</strong> - ' + featureProperties.location + '</div>';
             amenities += "<strong>What can I do here</strong>";
             amenities += (featureProperties.outlettype == 'TVM') ? '<div class="fare-actions"><ul><li>Buy new ORCA Card (Note: Adult cards only)</li><li>Reload ORCA Card</li><li>Buy new monthly pass on ORCA Card</li><li>Central link tickets</li><li>Sounder tickets</li></ul></div>' : ((featureProperties.outlettype == 'Retailer') ? '<div class="fare-actions"><ul><li>Reload ORCA Card</li><li>Buy new monthly pass on ORCA Card</li></ul>Note: No new ORCA cards sold here</div>' : '<div class="fare-actions"><ul><li>Buy new ORCA Card, including Youth and Senior card</li><li>Reload ORCA Card</li><li>Buy new monthly pass on ORCA Card</li></ul></div>');
+            amenities += "<strong>How can I pay here</strong>";
+            amenities += (featureProperties.outlettype == 'TVM') ? '<div class="payment-actions"><ul><li>Cash</li><li>Visa, MasterCard</li></ul></div>' : ((featureProperties.outlettype == 'Retailer') ? '<div class="payment-actions"><ul><li>Cash</li></ul></div>' : '<div class="payment-actions"><ul><li>Cash</li><li>Visa, MasterCard</li><li>Checks</li></ul></div>');
             
         } else if(typeof featureProperties.accessible !== 'undefined') {
             type = "stop";
