@@ -962,7 +962,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                 request: "GetFeature",
                                 outputFormat: "json",
                                 format_options: "callback:" + callbackFunction,
-                                propertyName: "designator",
+                                propertyName: "designator,routedescription",
                                 typeName: "soundtransit:routes",
                                 cql_filter: "(operator LIKE '" + agency + "')"
                             },
@@ -972,27 +972,43 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                 selectBox.append("<option value=''>Select route</option>");
 
                                 // push routes into an array and sort to remove dupes (can't do this in geoserver, unfortunately)
-                                var routes = [];
+                                var routesToAdd = [];
                                 for(var i = 0; i < data.features.length; i++) {
-                                    var feature = data.features[i];
-                                    routes.push(feature.properties.designator);
+                                    var route = data.features[i];
+                                    routesToAdd.push(route.properties);
                                 }
-                                routes.sort();
+                                
+                                // sort features
+                                routesToAdd.sort(function(a, b) {
+                                    if (a.designator < b.designator) { return -1; }
+                                    else if (a.designator > b.designator) { return 1; }
+                                    else { return 0; }
+                                });
 
                                 var lastValue = null;
-                                for(var i = 0; i < routes.length; i++) {
+                                jQuery.each(routesToAdd, function(_, route) {
                                     // remove duplicates
                                     if(lastValue !== null) {
-                                        if(lastValue === routes[i]) {
-                                            continue;
+                                        if(lastValue === route.designator) {
+                                            return;
                                         }
                                     }
-                                    lastValue = routes[i];
-                                    var option = jQuery("<option></option")
-                                                .text(routes[i])
-                                                .val(routes[i]);
+                                    lastValue = route.designator;
+                                    
+                                    var label = route.designator;
+                                    if(route.routedescription !== null) {
+                                        if(route.routedescription.length > 40) {
+                                            label += " " + route.routedescription.substr(0, 35) + "...";
+                                        } else {
+                                            label += " " + route.routedescription;
+                                        }
+                                    }
+                                    
+                                    var option = jQuery("<option></option>")
+                                                .text(label)
+                                                .val(route.designator);
                                     selectBox.append(option);
-                                }
+                                });
                             }
                     });
                 });

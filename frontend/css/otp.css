@@ -1110,6 +1110,10 @@ line-height: 75%;
 padding-left: 25px;
 }
 
+#bus-layer-chooser {
+    width: 325px;
+}
+
 /* - */
 
 .info-window {
