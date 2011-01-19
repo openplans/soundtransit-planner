@@ -37,16 +37,20 @@
             // SET PROPERTIES PASSED TO US FROM THE HOMEPAGE OR ANOTHER FORM
             <?php
                 if(isset($_REQUEST['WSFRoute'])) {
-                    echo "map.showFerryRouteFor('" . $_REQUEST['WSFRoute'] . "');\n";  
+                    echo "map.showFerryRouteFor('" . $_REQUEST['WSFRoute'] . "');\n";
+                    echo "map.setModeChooserUIVisibility(false);\n";
                 }
                 if(isset($_REQUEST['LINKRoute'])) {
                     echo "map.showLinkRouteFor('" . $_REQUEST['LINKRoute'] . "');\n";  
+                    echo "map.setModeChooserUIVisibility(false);\n";
                 }
                 if(isset($_REQUEST['SOUNDERRoute']) && isset($_REQUEST['SOUNDERStops'])) {
                     echo "map.showSounderRouteFor('" . $_REQUEST['SOUNDERRoute'] . "','" . $_REQUEST['SOUNDERStops'] . "');\n";  
+                    echo "map.setModeChooserUIVisibility(false);\n";
                 }
                 if(isset($_REQUEST['BUSOperator']) && isset($_REQUEST['BUSRoute'])) {
                     echo "map.showBusRouteFor('" . $_REQUEST['BUSOperator'] . "','" . $_REQUEST['BUSRoute'] . "');\n";  
+                    echo "map.setModeChooserUIVisibility(false);\n";
                 }
             ?>        
         }

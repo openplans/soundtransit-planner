@@ -977,6 +977,7 @@ right: 150px;
 width: 3.5em;
 height: 16px;
 padding: 2px 20px 2px 5px;
+cursor: pointer;
 }
 
 body #map #legend .toggler .ui-selectmenu-icon {

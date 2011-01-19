@@ -177,6 +177,15 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     agencyName = '<a href="http://www.soundtransit.org">Sound Transit</a>';
                 } else if(agencyIdentifier === "CT") {
                     agencyName = '<a href="http://www.commtrans.org/">Community Transit</a>';
+                } else {
+                    // if there is no route identifier, it's a CT route, except if it's between 500 and 599. 
+                    try {
+                        var agencyIdentifierNum = parseInt(agencyIdentifier);
+                        if(agencyIdentifierNum >= 500 && agencyIdentifierNum <= 599) {
+                            agencyName = '<a href="http://www.soundtransit.org">Sound Transit</a>';                            
+                        }
+                    } catch(e) {}
+                    agencyName = '<a href="http://www.commtrans.org/">Community Transit</a>';
                 }
             }
         }

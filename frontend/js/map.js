@@ -425,8 +425,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 strokeWidth: 4
             };
         } else if(mode === "BUS") {
+            // (color set below, per feature)
             style = {
-                strokeColor: "#5380B0",
                 strokeWidth: 4
             };                
         } else if(mode === "SOUNDER") {
@@ -484,11 +484,13 @@ OTP.Map = function(_root, _controlsRoot, options) {
                              return;
                          }
 
-                         // special styling for secondary routes
-                         if(feature.properties['routetyp'] === "S") {
-                             style.strokeOpacity = 0.5;
-                         } else {
-                             style.strokeOpacity = 0.8;                             
+                         // special styling for secondary bus routes
+                         if(mode === "BUS") {
+                            if(feature.properties['routetyp'] === "S") {
+                                style.strokeColor = "#3A7BBE";
+                            } else {
+                                style.strokeColor = "#5380B0";
+                            }
                          }
 
                          var polyline = new OpenLayers.Geometry.LineString(points);
@@ -1341,6 +1343,16 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
     // public methods    
     return {
+        setModeChooserUIVisibility: function(v) {
+            var modeChooserButtons = controlsRoot.find("#toggle-bus,#toggle-sounder,#toggle-link,#toggle-ferry");
+
+            if(v === false) {
+                modeChooserButtons.hide();
+            } else {
+                modeChooserButtons.show();
+            }
+        },
+        
         showFerryRouteFor: function(v) {
             if(v === null || v === "") {
                 return;

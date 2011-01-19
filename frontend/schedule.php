@@ -48,7 +48,7 @@
         <li><a href="./map.php?SOUNDERRoute=MSOUNDER&amp;SOUNDERStops=7">Sounder: Tacoma/Seattle route</a></li>
         <li><a href="./map.php?SOUNDERRoute=MSOUNDER&amp;SOUNDERStops=4">Sounder: Everett/Seattle route</a></li>
         <li><a href="./map.php?LINKRoute=M599">Central Link Light Rail</a></li>
-        <li><a href="./map.php?LINKRoute=PTLDTC">Everett/Seattle route</a></li>
+        <li><a href="./map.php?LINKRoute=PTLDTC">Tacoma Link Light Rail</a></li>
         <li><a href="./map.php?BUSOperator=ST&amp;BUSRoute=510">Bus Route 510</a></li>
         <li><a href="./map.php?BUSOperator=ST&amp;BUSRoute=P590">Bus Route 590</a></li>
       </ul>
