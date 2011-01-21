@@ -1221,3 +1221,65 @@ width: 100px;
 margin-right: 5px;
 display: inline;
 }
+
+/* - */
+
+.olPopup {
+position: absolute;
+background-image: url(../img/otp/bubble-bottom-callout.png);
+background-position: 50% 100%;
+padding-bottom: 11px;
+background-repeat: no-repeat;
+z-index: 10000000000;
+color: #4a4a4a;
+}
+
+.olPopupContent {
+background-color: #fff;
+border: 1px solid #bababa;
+border-bottom: none;
+position: relative;
+padding: 5px;
+overflow: hidden;
+}
+
+.olPopupContent .route-label {
+font-weight: bold;
+padding-left: 32px;
+line-height: 115%;
+}
+
+.olPopupContent .route-label span {
+font-size: 8px;
+white-space:nowrap;
+display: block;
+padding: 0px;
+margin: 0px;
+}
+
+.olPopupContent .leg-mode {
+position: absolute;
+left: 5px;
+top: 5px;
+height: 26px;
+width: 26px;
+background-position: 0 0;
+text-indent: -9999px;
+float: left;
+}
+
+.olPopupContent .leg-mode.WSF {
+background-image: url(../img/otp/ferry-modal-icon.png);
+}
+
+.olPopupContent .leg-mode.LINK {
+background-image: url(../img/otp/link-modal-icon.png);
+}
+
+.olPopupContent .leg-mode.SOUNDER {
+background-image: url(../img/otp/sounder-modal-icon.png);
+}
+
+.olPopupContent .leg-mode.BUS {
+background-image: url(../img/otp/bus-modal-icon.png);
+}

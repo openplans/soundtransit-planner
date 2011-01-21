@@ -149,48 +149,72 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         return string.toLowerCase().replace(/(^\s*\w|[\.\!\?]\s*\w)/g,function(c){return c.toUpperCase();});
     }
 
-    function prettyRoute(route, includeAgencyName) {
+    function getAgencyForRoute(route, includeLink) {
+        var agencyName = "Unknown Agency";
+        var agencyUrl = null;
+        
         if(route === null) {
-            return "Unknown";
+            return agencyName;
         }
 
-        var agencyName = "Unknown Agency";
-
         if(isSounder(route)) {
-            agencyName = '<a href="http://www.soundtransit.org/sounder">Sounder</a>';
-            route = "";
+            agencyUrl = "http://www.soundtransit.org/sounder";
+            agencyName = "Sounder";
         } else if(isTheLink(route)) {
-            agencyName = '<a href="http://www.soundtransit.org/link">Link Light Rail</a>';
-            route = "";
+            agencyUrl = "http://www.soundtransit.org/link";
+            agencyName = "Link Light Rail";
         } else {
             var agencyIdentifier = (route + '').toUpperCase().match('^[M|P|CT|ST]');
 
             if(agencyIdentifier !== null && typeof agencyIdentifier[0] !== 'undefined') {
                 agencyIdentifier = agencyIdentifier[0];
-                route = route.substring(agencyIdentifier.length);
-
                 if(agencyIdentifier === "M") {
-                    agencyName = '<a href="http://metro.kingcounty.gov/">King County Metro</a>';
+                    agencyUrl = "http://metro.kingcounty.gov/";
+                    agencyName = "King County Metro";
                 } else if(agencyIdentifier === "P") {
-                    agencyName = '<a href="http://www.piercetransit.org/">Pierce Transit</a>';
+                    agencyUrl = "http://www.piercetransit.org/";
+                    agencyName = "Pierce Transit";
                 } else if(agencyIdentifier === "ST") {
-                    agencyName = '<a href="http://www.soundtransit.org">Sound Transit</a>';
+                    agencyUrl = "http://www.soundtransit.org";
+                    agencyName = "Sound Transit";
                 } else if(agencyIdentifier === "CT") {
-                    agencyName = '<a href="http://www.commtrans.org/">Community Transit</a>';
+                    agencyUrl = "http://www.commtrans.org/";
+                    agencyName = "Community Transit";
                 } else {
                     // if there is no route identifier, it's a CT route, except if it's between 500 and 599. 
                     try {
                         var agencyIdentifierNum = parseInt(agencyIdentifier);
                         if(agencyIdentifierNum >= 500 && agencyIdentifierNum <= 599) {
-                            agencyName = '<a href="http://www.soundtransit.org">Sound Transit</a>';                            
+                            agencyUrl = "http://www.soundtransit.org";
+                            agencyName = "Sound Transit";
                         }
                     } catch(e) {}
-                    agencyName = '<a href="http://www.commtrans.org/">Community Transit</a>';
+
+                    agencyUrl = "http://www.commtrans.org/";
+                    agencyName = "Community Transit";
                 }
             }
         }
 
-        return ((includeAgencyName === true) ? agencyName + ' ' : '') + '<strong>' + route + '</strong>';
+        if(includeLink) {
+            return '<a href="' + agencyUrl + '">' + agencyName + '</a>';
+        } else {
+            return agencyName;
+        }
+    }
+
+    function getRouteName(route) {
+        if(route === null) {
+            return "Unknown";
+        }
+
+        var agencyIdentifier = (route + '').toUpperCase().match('^[M|P|CT|ST]');
+
+        if(agencyIdentifier !== null && typeof agencyIdentifier[0] !== 'undefined') {
+            return route.substring(agencyIdentifier[0].length);
+        } else {
+            return route;
+        }
     }
 
     // narrative logic
@@ -260,7 +284,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         });
     }
 
-    // FIXME: better (pluggable?) system for handling special route formatting cases? e.g. color, icons, etc.?
+    // FIXME: better (pluggable?) system for handling special route formatting cases? e.g. color, icons, formatting, etc.?
     function isSounder(route) {
         if(route === null) {
             return false;
@@ -278,27 +302,31 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     function updateNarrative(data) {
         // error returned
         if(typeof data.error !== 'undefined') {
-            var msg = "";
-			var errorId_r = data.error.msg.match(/[0-9]*/ig);
-			if(errorId_r !== null && typeof errorId_r[1] !== 'undefined') {
-				var errorId = errorId_r[1];
-				switch (errorId) {
-					case '11085':
-						msg = "<p>The trip start and end points are too close for us to plan a trip for you. Please change your origin and/or destination and try again.</p>";
-						break;
-					case '20003':
-						msg = "<p>No transit stops are within walking distance of your desired starting point. Please change your origin by dragging the marker or typing in a new address and try again.</p>";
-						break;
-					case '20004':
-						msg = "<p>No transit stops are within walking distance of your desired destination. Please change your trip's end point by dragging the marker or typing in a new address and try again.</p>";
-						break;
-					case '20008':
-						msg = "<p>No transit available for this trip at the time you've requested. Please change the time above and try again.</p>";
-						break;
-					default:
-						msg = "<p>Something went wrong when trying to plan your trip&mdash;the system reported '" + data.error.msg + "'</p>";
-						break;	
-				}
+            var msg = "<p>Something went wrong when trying to plan your trip.</p>";
+
+            var errorId_r = data.error.msg.match(/[0-9]*/ig);
+            if(errorId_r !== null && typeof errorId_r[1] !== 'undefined') {
+                var errorId = errorId_r[1];
+                switch (errorId) {
+                    case '11085':
+                        msg = "<p>The trip start and end points are too close for us to plan a trip for you. Please change your origin and/or destination and try again.</p>";
+                        break;
+                    case '20003':
+                        msg = "<p>No transit stops are within walking distance of your desired starting point. Please change your origin by dragging the marker or typing in a new address and try again.</p>";
+                        break;
+                    case '20004':
+                        msg = "<p>No transit stops are within walking distance of your desired destination. Please change your trip's end point by dragging the marker or typing in a new address and try again.</p>";
+                        break;
+                    case '20007':
+                        msg = "<p>We were unable to find a trip that meets your specifications. Try changing the date and time of your trip, the start and end locations or check the schedule.</p>";
+                        break;
+                    case '20008':
+                        msg = "<p>No transit available for this trip at the time you've requested. Please change the time above and try again.</p>";
+                        break;
+                    default:
+                        msg = "<p>Something went wrong when trying to plan your trip&mdash;the system reported '" + data.error.msg + "'</p>";
+                        break;
+                }
             }
             
             root.find("#trip-data")
@@ -370,7 +398,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     var modeText = '<img src="img/otp/' + leg["@mode"].toLowerCase() + '16x16.png" alt="' + leg["@mode"] + '" /> ';
 
                     if(leg["@mode"] !== "WALK") {
-                        modeText += prettyRoute(leg["@route"], false) + ' ';
+                        modeText += '<strong>' + getRouteName(leg["@route"]) + '</strong> ';
                     }
                     
                     tripModes.push(modeText);                    
@@ -461,26 +489,31 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         } else {
             itineraryCollection = data.plan.itineraries.itinerary;
         }
-        
+
         // draw each leg on map
         var tripNumber = 1;
         jQuery.each(itineraryCollection, function(_, trip) {
             if(tripNumber === targetTripNumber) {
                 jQuery.each(trip.legs.leg, function(legIndex, leg) {
+                    var lonlat = new OpenLayers.LonLat(leg.from.lon, leg.from.lat);
+
                     // add each travel leg to map
                     if(isSounder(leg["@route"])) {
-                        map.addLegToPlannedRoute(leg.legGeometry.points, "SOUNDER");
+                        map.addLegToPlannedRoute(leg, "SOUNDER");
+                        map.addLegInfoMarker(getRouteName(leg["@route"]), getAgencyForRoute(leg["@route"], false), "SOUNDER", lonlat);
                     } else if(isTheLink(leg["@route"])) {
-                        map.addLegToPlannedRoute(leg.legGeometry.points, "LINK");
+                        map.addLegToPlannedRoute(leg, "LINK");
+                        map.addLegInfoMarker(getRouteName(leg["@route"]), getAgencyForRoute(leg["@route"], false), "LINK", lonlat);
                     } else {
-                        map.addLegToPlannedRoute(leg.legGeometry.points, leg["@mode"]);
+                        map.addLegToPlannedRoute(leg, leg["@mode"]);
+                        map.addLegInfoMarker(getRouteName(leg["@route"]), getAgencyForRoute(leg["@route"], false), leg["@mode"], lonlat);
                     }
 
                     // add start finish icons to map
                     if(trip.legs.leg.length - 1 === legIndex) {
-                        map.setEndPoint(leg.legGeometry.points);
+                        map.setEndPoint(leg.to.lon, leg.to.lat);
                     } else if(legIndex === 0) {
-                        map.setStartPoint(leg.legGeometry.points);
+                        map.setStartPoint(leg.from.lon, leg.from.lat);
                     }
                 });
 
@@ -527,7 +560,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         }
         
         return jQuery('<li class="' + displayType.toLowerCase() + ' leg-' + legIndex + '"></li>').html(
-                    '<img class="mode-icon" src="img/otp/' + displayType.toLowerCase() + '16x16.png" alt="' + displayType + '" />' + prettyCase(leg["@mode"]) + ' - ' + prettyRoute(leg["@route"], true) + 
+                    '<img class="mode-icon" src="img/otp/' + displayType.toLowerCase() + '16x16.png" alt="' + displayType + '" />' + prettyCase(leg["@mode"]) + ' - ' + getAgencyForRoute(leg["@route"], true) + ' <strong>' + getRouteName(leg["@route"]) + '</strong>' +
                     '<table class="substeps"><tbody>' + 
                     '<tr><td>' + prettyTime(ISO8601StringToDate(leg.startTime)) + '</td><td>Depart ' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '</div></td></tr>' + 
                     '<tr><td>' + prettyTime(ISO8601StringToDate(leg.endTime)) + '</td><td>Arrive ' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + 
@@ -863,7 +896,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         { 
             updateToLocationFunction: updateToLocation, 
             updateFromLocationFunction: updateFromLocation,
-            hasTripPlanner: true 
+            hasTripPlanner: true
         }
     );
 

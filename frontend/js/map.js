@@ -23,6 +23,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     var contextMenu = null;
     var layerChooserPopout = null;
     var tooManyPopup = null;
+    var legInfoMarkers = [];
     
     // vector layers
     var routeLayer = null;   
@@ -36,6 +37,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     // route-specific features/WFS CQL for system map items on routeLayer
     var systemMapRouteCriteria = {};
     var systemMapRouteFeatures = {};
+    var systemMapRouteInfoMarkers = {};
 
     // decodes google-encoded polyline data
     function decodePolyline(encoded) {
@@ -73,6 +75,55 @@ OTP.Map = function(_root, _controlsRoot, options) {
         return array;
     }
 
+    function addInfoLegMarker(routeName, routeAgency, type, lonlat) {
+        if(routeName === null || type === null || type === "WALK") {
+            return;
+        }
+        
+        var html = '<div>';
+        html += '<p class="leg-mode ' + type + '">';
+        html += type;
+        html += '</p>';
+
+        html += '<p class="route-label">';
+        html += routeName;
+        if(routeAgency !== null) {
+            html += '<span>' + routeAgency + '</span>';
+        }
+        html += '</p>';
+        html += '</div>';
+
+        var infoMarker = new OpenLayers.Popup.Anchored(routeName,
+                               lonlat,
+                               new OpenLayers.Size(null, null),
+                               html,
+                               null,
+                               false);
+
+        infoMarker.calculateRelativePosition = function(px) { return 'br'; };
+        infoMarker.calculateNewPx = function(px) {
+            var infoMarkerWrapped = jQuery(this.div);
+            return new OpenLayers.Pixel(px.x - (infoMarkerWrapped.width() / 2), px.y - infoMarkerWrapped.height() - 9);
+        }
+
+        infoMarker.backgroundColor = "none";
+        infoMarker.border = "none";
+        map.addPopup(infoMarker);
+
+        var contentWrapped = jQuery(infoMarker.contentDiv);
+        contentWrapped.height(contentWrapped.height());
+        contentWrapped.width(contentWrapped.width());
+        
+        var infoMarkerWrapped = jQuery(infoMarker.div);
+        infoMarkerWrapped.height(infoMarkerWrapped.height());
+        infoMarkerWrapped.width(infoMarkerWrapped.width());
+        
+        // redraw at proper position to make sure offset is recalc'd
+        infoMarker.updatePosition();
+        
+        return infoMarker;
+    }
+
     function reset() {
         if(routeLayer !== null) {
             routeLayer.removeAllFeatures();
@@ -80,6 +131,17 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
         if(markersLayer !== null) {
             markersLayer.removeAllFeatures();
+        }
+        
+        if(legInfoMarkers !== null) {
+            jQuery.each(legInfoMarkers, function(_, m) {
+                if(m !== null) {
+                    try {
+                        m.hide();
+                        m.destroy();
+                    } catch(e) {}
+                }
+            });
         }
         
         if(markersDragControl !== null) {
@@ -393,7 +455,10 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
     function removeRouteLayerForMode(mode) {
         systemMapRouteCriteria[mode] = "";
+        removeRouteLayerFeaturesForMode(mode);
+    }
 
+    function removeRouteLayerFeaturesForMode(mode) {
         // remove features from map
         var features = systemMapRouteFeatures[mode];
         
@@ -401,16 +466,25 @@ OTP.Map = function(_root, _controlsRoot, options) {
             routeLayer.removeFeatures(features);
             systemMapRouteFeatures[mode] = null;
         }
+        
+        // remove old existing feature info markers
+        var infoMarkers = systemMapRouteInfoMarkers[mode];
+        
+        if(typeof infoMarkers !== 'undefined' && infoMarkers !== null) {
+            jQuery.each(infoMarkers, function(_, m) {
+                if(m !== null) {
+                    try {
+                        m.hide();
+                        m.destroy();
+                    } catch(e) {}
+                }
+            });
+            systemMapRouteInfoMarkers[mode] = null;
+        }        
     }
 
     function drawRouteLayerForMode(mode, element) {
-        // remove old existing features (FIXME?)
-        var features = systemMapRouteFeatures[mode];
-
-        if(features !== null) {            
-            routeLayer.removeFeatures(features);
-            systemMapRouteFeatures[mode] = null;
-        }
+        removeRouteLayerFeaturesForMode(mode);
 
         var cqlQuery = systemMapRouteCriteria[mode];
 
@@ -451,14 +525,14 @@ OTP.Map = function(_root, _controlsRoot, options) {
                  outputFormat: "json",
                  format_options: "callback:" + callbackFunction,
                  typeName: "soundtransit:routes",
-                 propertyName: "the_geom,routetyp",
+                 propertyName: "the_geom,designator,routetyp",
                  cql_filter: cqlQuery
              },
              success: function(data) {
                  if(typeof data.features === 'undefined') {
                      return;
                  }
-        
+
                  // if we're going to draw the polyline for this route, add 
                  // active class to its selector indicator
                  if(element !== null) {
@@ -469,39 +543,59 @@ OTP.Map = function(_root, _controlsRoot, options) {
                      systemMapRouteFeatures[mode] = [];
                  }
 
+                 var addedFlag = false;
                  jQuery(data.features).each(function(_, feature) {
-                     for(var z = 0; z < feature.geometry.coordinates.length; z++) {
-                         var points = [];
+                    for(var z = 0; z < feature.geometry.coordinates.length; z++) {
+                        var points = [];
 
-                         for(var i = 0; i < feature.geometry.coordinates[z].length; i++) {
-                             var wgsPoint = new OpenLayers.Geometry.Point(feature.geometry.coordinates[z][i][1], feature.geometry.coordinates[z][i][0]);
-                             var proj = new OpenLayers.Projection("EPSG:4326");
-                             var point = wgsPoint.transform(proj, map.getProjectionObject());
-                             points.push(point);
-                         }
+                        for(var i = 0; i < feature.geometry.coordinates[z].length; i++) {
+                            var wgsPoint = new OpenLayers.Geometry.Point(feature.geometry.coordinates[z][i][1], feature.geometry.coordinates[z][i][0]);
+                            var proj = new OpenLayers.Projection("EPSG:4326");
+                            var point = wgsPoint.transform(proj, map.getProjectionObject());
+                            points.push(point);
+                        }
 
-                         if(points.length === 0) {
-                             return;
-                         }
+                        if(points.length === 0) {
+                            return;
+                        }
 
-                         // special styling for secondary bus routes
-                         if(mode === "BUS") {
+                        if(addedFlag === false) {
+                            var infoMarkerPoint = new OpenLayers.LonLat(points[0].x, points[0].y);
+    
+                            var routeName = feature.properties.designator;
+                            var agencyIdentifier = (routeName + '').toUpperCase().match('^[M|P|CT|ST]');
+                            if(agencyIdentifier !== null && typeof agencyIdentifier[0] !== 'undefined') {
+                                routeName = routeName.substring(agencyIdentifier[0].length);
+                            }
+
+                            var infoMarker = addInfoLegMarker(routeName, '<a href="#">Schedule</a>', mode, infoMarkerPoint);
+
+                            if(typeof systemMapRouteInfoMarkers[mode] === 'undefined' || systemMapRouteInfoMarkers[mode] === null) {
+                                systemMapRouteInfoMarkers[mode] = [];
+                            }
+                            systemMapRouteInfoMarkers[mode].push(infoMarker);
+
+                            addedFlag = true;
+                        }
+
+                        // special styling for secondary bus routes
+                        if(mode === "BUS") {
                             if(feature.properties['routetyp'] === "S") {
                                 style.strokeColor = "#3A7BBE";
                             } else {
                                 style.strokeColor = "#5380B0";
                             }
-                         }
+                        }
 
-                         var polyline = new OpenLayers.Geometry.LineString(points);
-                         var lineFeature = new OpenLayers.Feature.Vector(polyline, null, style);
-                         
-                         routeLayer.addFeatures([lineFeature]);
-                         systemMapRouteFeatures[mode].push(lineFeature);                      
-                     }
-                     
-                     zoomToRouteLayerExtent();
+                        var polyline = new OpenLayers.Geometry.LineString(points);
+                        var lineFeature = new OpenLayers.Feature.Vector(polyline, null, style);
+                        routeLayer.addFeatures([lineFeature]);
+                        systemMapRouteFeatures[mode].push(lineFeature);                      
+                    }
+
+                    zoomToRouteLayerExtent();
                  });
+
              }
         });        
     }
@@ -1403,40 +1497,22 @@ OTP.Map = function(_root, _controlsRoot, options) {
             }
         },
 
-        // FIXME: we have to pass an encoded polyline into here because we 
-        // don't have access to just the start/end points for some leg types. Change API?
-        setStartPoint: function(encodedPolyline) {
-                if(encodedPolyline === null) {
-                    return;
-                }
-
-                var rawPoints = decodePolyline(encodedPolyline);
-
-                if(rawPoints.length === 0) {
-                    return;
-                }
-
-                var endPoint = rawPoints[0];
-                var point = new OpenLayers.LonLat(endPoint[1], endPoint[0]);
-                var proj = new OpenLayers.Projection("EPSG:4326");
-                setStartMarker(point.transform(proj, map.getProjectionObject()));
+        setStartPoint: function(lon, lat) {
+            if(lon === null || lat === null) {
+                return;
+            }
+            
+            var point = new OpenLayers.LonLat(lon, lat);
+            var proj = new OpenLayers.Projection("EPSG:4326");
+            setStartMarker(point.transform(proj, map.getProjectionObject()));
         },
         
-        // FIXME: we have to pass an encoded polyline into here because we 
-        // don't have access to just the start/end points for some leg types. Change API?
-        setEndPoint: function(encodedPolyline) {
-            if(encodedPolyline === null) {
+        setEndPoint: function(lon, lat) {
+            if(lon === null || lat === null) {
                 return;
             }
 
-            var rawPoints = decodePolyline(encodedPolyline);
-
-            if(rawPoints.length === 0) {
-                return;
-            }
-
-            var endPoint = rawPoints[rawPoints.length - 1];
-            var point = new OpenLayers.LonLat(endPoint[1], endPoint[0]);
+            var point = new OpenLayers.LonLat(lon, lat);
             var proj = new OpenLayers.Projection("EPSG:4326");
             setEndMarker(point.transform(proj, map.getProjectionObject()));
         },
@@ -1499,12 +1575,12 @@ OTP.Map = function(_root, _controlsRoot, options) {
             }
         },
 
-        addLegToPlannedRoute: function(encodedPolyline, type) {
-            if(encodedPolyline === null || type === null) {
+        addLegToPlannedRoute: function(leg, type) {
+            if(leg === null || type === null) {
                 return;
             }
-    
-            var rawPoints = decodePolyline(encodedPolyline);
+
+            var rawPoints = decodePolyline(leg.legGeometry.points);
             var points = [];
             for(var i = 0; i < rawPoints.length; i++) {
                 var wgsPoint = new OpenLayers.Geometry.Point(rawPoints[i][1], rawPoints[i][0]);
@@ -1547,6 +1623,13 @@ OTP.Map = function(_root, _controlsRoot, options) {
             var polyline = new OpenLayers.Geometry.LineString(points);
             var lineFeature = new OpenLayers.Feature.Vector(polyline, null, style);
             routeLayer.addFeatures([lineFeature]);
+        },
+
+        addLegInfoMarker: function(routeName, routeAgency, type, wgsLonlat) {
+            var proj = new OpenLayers.Projection("EPSG:4326");
+            var lonlat = wgsLonlat.transform(proj, map.getProjectionObject())
+            var infoMarker = addInfoLegMarker(routeName, routeAgency, type, lonlat);            
+            legInfoMarkers.push(infoMarker);
         }
     };
 };
