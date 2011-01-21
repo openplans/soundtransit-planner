@@ -476,40 +476,6 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         plannerResponse = data;
     }
 
-    function getLegMarkerInfoWindowHtml(leg) {
-        if(leg === null || leg["@mode"] === "WALK") {
-            return null;
-        }
-
-        // previous stop at end point + stops passed on leg
-        var stopsPassed = -1;
-        var previousToStop = "unknown";
-
-        if(typeof leg.intermediateStops !== 'undefined' && leg.intermediateStops !== null) {
-            var intermediateLegs = null;
-            if(typeof leg.intermediateStops.stop.name !== 'undefined') {
-                intermediateLegs = [leg.intermediateStops.stop];
-            } else {
-                intermediateLegs = leg.intermediateStops.stop;
-            }
-        
-            if(intermediateLegs.length >= 1) {
-                previousToStop = intermediateLegs[intermediateLegs.length - 1].name;
-                stopsPassed = intermediateLegs.length;
-            }
-        }
-
-        return jQuery('<table class="substeps"><tbody>' + 
-                        '<tr><td>' + prettyTime(ISO8601StringToDate(leg.startTime)) + '</td><td>Depart ' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '</div></td></tr>' + 
-                        '<tr><td>' + prettyTime(ISO8601StringToDate(leg.endTime)) + '</td><td>Arrive ' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + 
-                            '<div class="stepmeta">' +
-                                millisecondsToString(leg.duration) + ((stopsPassed >= 0) ? ' (' + stopsPassed + ' stop' + ((stopsPassed === 1) ? '' : 's') + ')' : '') +
-                                '<br />Previous stop is ' + previousToStop + 
-                            '</div>' + 
-                        '</td></tr>' + 
-                    '</tbody></table>');
-    }
-
     function updateMap(data, targetTripNumber) {
         if(data === null) {
             return;
@@ -557,6 +523,40 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             
             tripNumber++;
         });
+    }
+
+    function getLegMarkerInfoWindowHtml(leg) {
+        if(leg === null || leg["@mode"] === "WALK") {
+            return null;
+        }
+
+        // previous stop at end point + stops passed on leg
+        var stopsPassed = -1;
+        var previousToStop = "unknown";
+
+        if(typeof leg.intermediateStops !== 'undefined' && leg.intermediateStops !== null) {
+            var intermediateLegs = null;
+            if(typeof leg.intermediateStops.stop.name !== 'undefined') {
+                intermediateLegs = [leg.intermediateStops.stop];
+            } else {
+                intermediateLegs = leg.intermediateStops.stop;
+            }
+        
+            if(intermediateLegs.length >= 1) {
+                previousToStop = intermediateLegs[intermediateLegs.length - 1].name;
+                stopsPassed = intermediateLegs.length;
+            }
+        }
+
+        return jQuery('<table class="substeps"><tbody>' + 
+                        '<tr><td>' + prettyTime(ISO8601StringToDate(leg.startTime)) + '</td><td>Depart ' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '</div></td></tr>' + 
+                        '<tr><td>' + prettyTime(ISO8601StringToDate(leg.endTime)) + '</td><td>Arrive ' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + 
+                            '<div class="stepmeta">' +
+                                millisecondsToString(leg.duration) + ((stopsPassed >= 0) ? ' (' + stopsPassed + ' stop' + ((stopsPassed === 1) ? '' : 's') + ')' : '') +
+                                '<br />Previous stop is ' + previousToStop + 
+                            '</div>' + 
+                        '</td></tr>' + 
+                    '</tbody></table>');
     }
 
     function formatWalkLeg(legIndex, leg) {
@@ -607,6 +607,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     '</tbody></table>');
     }
 
+    // disambiguation
     function disambiguateResults(results) {
         var candidateList = null;
         var locationType = null;
@@ -681,6 +682,26 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             .focus();
     }
 
+    function userHasDisambiguated(location, value, disambiguationResponse) {
+        root.find('#' + location )
+                .val(value)
+                .removeClass('ambiguous');
+
+        root.find('#' + location + '-possibles').fadeOut('slow', function() { 
+            jQuery(this).remove();
+
+            // more disambiguation to do still?
+            if((typeof disambiguationResponse.from !== 'undefined' && disambiguationResponse.from.candidate instanceof Array) || 
+                (typeof disambiguationResponse.to !== 'undefined' && disambiguationResponse.to.candidate instanceof Array)) {
+
+                disambiguateResults(disambiguationResponse);
+            } else {
+                map.reset();
+                root.find("form#trip-plan-form").submit();
+            }
+        });
+    }
+
     // event handlers
     function updateToLocation(point, submitForm) {
         if(point !== null) {
@@ -706,26 +727,6 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     .submit();
             }
         }        
-    }
-
-    function userHasDisambiguated(location, value, disambiguationResponse) {
-        root.find('#' + location )
-                .val(value)
-                .removeClass('ambiguous');
-
-        root.find('#' + location + '-possibles').fadeOut('slow', function() { 
-            jQuery(this).remove();
-
-            // more disambiguation to do still?
-            if((typeof disambiguationResponse.from !== 'undefined' && disambiguationResponse.from.candidate instanceof Array) || 
-                (typeof disambiguationResponse.to !== 'undefined' && disambiguationResponse.to.candidate instanceof Array)) {
-
-                disambiguateResults(disambiguationResponse);
-            } else {
-				map.reset();
-                root.find("form#trip-plan-form").submit();
-            }
-        });
     }
 
     // behaviors

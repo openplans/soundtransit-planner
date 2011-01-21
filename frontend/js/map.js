@@ -97,7 +97,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }
     }
 
-    // leg info marker
+    // leg info markers
     function updateLegInfoMarkerPositions() {
         if(legInfoMarkers !== null) {
             jQuery.each(legInfoMarkers, function(i, infoMarker) {
@@ -1348,6 +1348,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             });             
     }
 
+    // legend/chrome behaviors
     function addLegendBehavior() {
         jQuery("#map #legend .toggler").click(function() {
             var element = jQuery(this);
@@ -1371,7 +1372,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         });
     }
 
-    // markers
+    // to/from markers
     function setStartMarker(lonlat) {
         if(lonlat === null) {
             return;
@@ -1434,6 +1435,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }
     }
     
+    // event handlers
     function onCompleteMarkerMove(feature) {
         if(feature !== null) {       
             var point = new OpenLayers.LonLat(feature.geometry.x, feature.geometry.y);
