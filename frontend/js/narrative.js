@@ -476,6 +476,40 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         plannerResponse = data;
     }
 
+    function getLegMarkerInfoWindowHtml(leg) {
+        if(leg === null || leg["@mode"] === "WALK") {
+            return null;
+        }
+
+        // previous stop at end point + stops passed on leg
+        var stopsPassed = -1;
+        var previousToStop = "unknown";
+
+        if(typeof leg.intermediateStops !== 'undefined' && leg.intermediateStops !== null) {
+            var intermediateLegs = null;
+            if(typeof leg.intermediateStops.stop.name !== 'undefined') {
+                intermediateLegs = [leg.intermediateStops.stop];
+            } else {
+                intermediateLegs = leg.intermediateStops.stop;
+            }
+        
+            if(intermediateLegs.length >= 1) {
+                previousToStop = intermediateLegs[intermediateLegs.length - 1].name;
+                stopsPassed = intermediateLegs.length;
+            }
+        }
+
+        return jQuery('<table class="substeps"><tbody>' + 
+                        '<tr><td>' + prettyTime(ISO8601StringToDate(leg.startTime)) + '</td><td>Depart ' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '</div></td></tr>' + 
+                        '<tr><td>' + prettyTime(ISO8601StringToDate(leg.endTime)) + '</td><td>Arrive ' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + 
+                            '<div class="stepmeta">' +
+                                millisecondsToString(leg.duration) + ((stopsPassed >= 0) ? ' (' + stopsPassed + ' stop' + ((stopsPassed === 1) ? '' : 's') + ')' : '') +
+                                '<br />Previous stop is ' + previousToStop + 
+                            '</div>' + 
+                        '</td></tr>' + 
+                    '</tbody></table>');
+    }
+
     function updateMap(data, targetTripNumber) {
         if(data === null) {
             return;
@@ -500,13 +534,14 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     // add each travel leg to map
                     if(isSounder(leg["@route"])) {
                         map.addLegToPlannedRoute(leg, "SOUNDER");
-                        map.addLegInfoMarker(getRouteName(leg["@route"]), getAgencyForRoute(leg["@route"], false), "SOUNDER", lonlat);
+                        map.addLegInfoMarker(getRouteName(leg["@route"]), "SOUNDER", getLegMarkerInfoWindowHtml(leg), lonlat);
                     } else if(isTheLink(leg["@route"])) {
+                        var legNarrative = formatTransitLeg(leg, 0);
                         map.addLegToPlannedRoute(leg, "LINK");
-                        map.addLegInfoMarker(getRouteName(leg["@route"]), getAgencyForRoute(leg["@route"], false), "LINK", lonlat);
+                        map.addLegInfoMarker(getRouteName(leg["@route"]), "LINK", getLegMarkerInfoWindowHtml(leg), lonlat);
                     } else {
                         map.addLegToPlannedRoute(leg, leg["@mode"]);
-                        map.addLegInfoMarker(getRouteName(leg["@route"]), getAgencyForRoute(leg["@route"], false), leg["@mode"], lonlat);
+                        map.addLegInfoMarker(getRouteName(leg["@route"]), leg["@mode"], getLegMarkerInfoWindowHtml(leg), lonlat);
                     }
 
                     // add start finish icons to map

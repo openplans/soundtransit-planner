@@ -1147,6 +1147,10 @@ position: relative;
 padding: 5px;
 }
 
+.info-window .info-content.leg-info-marker {
+width: 300px;
+}
+
 .crossbar {
 background-position: 0 50%;
 background-repeat: no-repeat;
@@ -1167,6 +1171,7 @@ background-image: url(../img/otp/fares-icon.png);
 background-image: url(../img/otp/parking-icon.png);
 }
 
+.info-window .info-content .close,
 .info-window .content .close {
 position: absolute;
 top: 2px;
@@ -1224,62 +1229,64 @@ display: inline;
 
 /* - */
 
-.olPopup {
+.info_marker {
 position: absolute;
 background-image: url(../img/otp/bubble-bottom-callout.png);
 background-position: 50% 100%;
 padding-bottom: 11px;
 background-repeat: no-repeat;
-z-index: 10000000000;
+z-index: 10000000;
 color: #4a4a4a;
 }
 
-.olPopupContent {
+.info_marker .content {
 background-color: #fff;
 border: 1px solid #bababa;
 border-bottom: none;
 position: relative;
-padding: 5px;
 overflow: hidden;
+padding: 2px;
+height: 16px;
+cursor:pointer;
 }
 
-.olPopupContent .route-label {
+.info_marker .content .route-label {
 font-weight: bold;
-padding-left: 32px;
-line-height: 115%;
+padding-left: 20px;
+line-height: 100%;
+padding-top: 2px;
 }
 
-.olPopupContent .route-label span {
+.info_marker .content .route-label span {
 font-size: 8px;
 white-space:nowrap;
 display: block;
-padding: 0px;
-margin: 0px;
+line-height: 100%;
 }
 
-.olPopupContent .leg-mode {
+.info_marker .content .leg-mode {
 position: absolute;
-left: 5px;
-top: 5px;
-height: 26px;
-width: 26px;
+left: 2px;
+top: 2px;
+height: 16px;
+width: 16px;
 background-position: 0 0;
 text-indent: -9999px;
 float: left;
 }
 
-.olPopupContent .leg-mode.WSF {
-background-image: url(../img/otp/ferry-modal-icon.png);
+.info_marker .content .leg-mode.WSF {
+background-image: url(../img/otp/ferry16x16.png);
 }
 
-.olPopupContent .leg-mode.LINK {
-background-image: url(../img/otp/link-modal-icon.png);
+.info_marker .content .leg-mode.LINK {
+background-image: url(../img/otp/link16x16.png);
 }
 
-.olPopupContent .leg-mode.SOUNDER {
-background-image: url(../img/otp/sounder-modal-icon.png);
+.info_marker .content .leg-mode.SOUNDER {
+background-image: url(../img/otp/sounder16x16.png);
 }
 
-.olPopupContent .leg-mode.BUS {
-background-image: url(../img/otp/bus-modal-icon.png);
+.info_marker .content .leg-mode.BUS {
+background-image: url(../img/otp/bus16x16.png);
 }

@@ -75,55 +75,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
         return array;
     }
 
-    function addInfoLegMarker(routeName, routeAgency, type, lonlat) {
-        if(routeName === null || type === null || type === "WALK") {
-            return;
-        }
-        
-        var html = '<div>';
-        html += '<p class="leg-mode ' + type + '">';
-        html += type;
-        html += '</p>';
-
-        html += '<p class="route-label">';
-        html += routeName;
-        if(routeAgency !== null) {
-            html += '<span>' + routeAgency + '</span>';
-        }
-        html += '</p>';
-        html += '</div>';
-
-        var infoMarker = new OpenLayers.Popup.Anchored(routeName,
-                               lonlat,
-                               new OpenLayers.Size(null, null),
-                               html,
-                               null,
-                               false);
-
-        infoMarker.calculateRelativePosition = function(px) { return 'br'; };
-        infoMarker.calculateNewPx = function(px) {
-            var infoMarkerWrapped = jQuery(this.div);
-            return new OpenLayers.Pixel(px.x - (infoMarkerWrapped.width() / 2), px.y - infoMarkerWrapped.height() - 9);
-        }
-
-        infoMarker.backgroundColor = "none";
-        infoMarker.border = "none";
-        map.addPopup(infoMarker);
-
-        var contentWrapped = jQuery(infoMarker.contentDiv);
-        contentWrapped.height(contentWrapped.height());
-        contentWrapped.width(contentWrapped.width());
-        
-        var infoMarkerWrapped = jQuery(infoMarker.div);
-        infoMarkerWrapped.height(infoMarkerWrapped.height());
-        infoMarkerWrapped.width(infoMarkerWrapped.width());
-        
-        // redraw at proper position to make sure offset is recalc'd
-        infoMarker.updatePosition();
-        
-        return infoMarker;
-    }
-
     function reset() {
         if(routeLayer !== null) {
             routeLayer.removeAllFeatures();
@@ -135,11 +86,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
         
         if(legInfoMarkers !== null) {
             jQuery.each(legInfoMarkers, function(_, m) {
-                if(m !== null) {
-                    try {
-                        m.hide();
-                        m.destroy();
-                    } catch(e) {}
+                if(m !== null && typeof m !== 'undefined') {
+                    m.remove();
                 }
             });
         }
@@ -149,13 +97,109 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }
     }
 
+    // leg info marker
+    function updateLegInfoMarkerPositions() {
+        if(legInfoMarkers !== null) {
+            jQuery.each(legInfoMarkers, function(i, infoMarker) {
+                var lonlat = new OpenLayers.LonLat(infoMarker.data("lon"), infoMarker.data("lat"));
+                var viewPortPx = map.getViewPortPxFromLonLat(lonlat);
+                var layerContainerPx = map.getLayerPxFromViewPortPx(viewPortPx);
+
+                if(layerContainerPx === null) {
+                    return;
+                }
+
+                infoMarker
+                    .css("top", layerContainerPx.y - infoMarker.height() - 11)
+                    .css("left", layerContainerPx.x - (infoMarker.width() / 2));
+            });
+        }
+    }
+
+    function showLegInfoMarkerInfoWindow(lonlat, legInfoMarker, legInfoWindowHtml) {
+        hideInfoWindow();
+
+        var infoWindowContent = jQuery("<div></div>")
+                                    .addClass("info-content")
+                                    .addClass("leg-info-marker")
+                                    .append(getInfoWindowClose())
+                                    .append(legInfoWindowHtml);
+
+        infoWindow = jQuery("<div></div>")
+                            .addClass("info-window")
+                            .append(infoWindowContent)
+                            .appendTo(jQuery(map.layerContainerDiv));
+
+        // set position of infowindow
+        var viewPortPx = map.getViewPortPxFromLonLat(lonlat);
+        var layerContainerPx = map.getLayerPxFromViewPortPx(viewPortPx);
+
+        infoWindowContent
+            .css("width", infoWindowContent.width());
+
+        infoWindow
+            .css("top", layerContainerPx.y - infoWindow.height() - legInfoMarker.height() - 20)
+            .css("left", layerContainerPx.x - (infoWindow.width() / 2));
+
+        ensureInfoWindowIsVisible();
+    }
+
+    function addLegInfoMarker(routeName, type, legInfoWindowHtml, lonlat) {
+        if(routeName === null || type === null || type === "WALK") {
+            return null;
+        }
+
+        var infoMarker = jQuery("<div></div>")
+                            .addClass("info_marker")
+                            .appendTo(jQuery(map.layerContainerDiv))
+                            .data("lon", lonlat.lon)
+                            .data("lat", lonlat.lat);
+
+        var contentWrapper = jQuery("<div></div>")
+                            .addClass("content")
+                            .appendTo(infoMarker);
+
+        var modeIcon = jQuery("<p></p>")
+                            .addClass("leg-mode")
+                            .addClass(type)
+                            .appendTo(contentWrapper);
+
+        var contentLabel = jQuery("<p></p>")
+                            .addClass("route-label")
+                            .html(routeName)
+                            .appendTo(contentWrapper);
+
+        var viewPortPx = map.getViewPortPxFromLonLat(lonlat);
+        var layerContainerPx = map.getLayerPxFromViewPortPx(viewPortPx);
+
+        infoMarker
+            .css("width", contentWrapper.width() + 8);
+
+        infoMarker
+            .css("top", layerContainerPx.y - infoMarker.height() - 11)
+            .css("left", layerContainerPx.x - (infoMarker.width() / 2));
+
+        // info bubble on this info marker
+        if(legInfoWindowHtml !== null && typeof legInfoWindowHtml !== 'undefined') {
+            contentWrapper.click(function(e) {
+                var legInfoMarker = jQuery(this).parent();
+                showLegInfoMarkerInfoWindow(lonlat, legInfoMarker, legInfoWindowHtml);
+                return false; 
+            });
+        }
+
+        legInfoMarkers.push(infoMarker);
+
+        return infoMarker;
+    }
+
     // context menu (right-click menu)
     function hideContextMenu() {
         if(contextMenu !== null) {
             contextMenu.remove();
         }
     }
-    
+
     function showContextMenu(point) {
         hideContextMenu();
 
@@ -461,26 +505,23 @@ OTP.Map = function(_root, _controlsRoot, options) {
     function removeRouteLayerFeaturesForMode(mode) {
         // remove features from map
         var features = systemMapRouteFeatures[mode];
-        
-        if(typeof features !== 'undefined' && features !== null) {            
+
+        if(typeof features !== 'undefined' && features !== null) {
             routeLayer.removeFeatures(features);
             systemMapRouteFeatures[mode] = null;
         }
-        
+
         // remove old existing feature info markers
         var infoMarkers = systemMapRouteInfoMarkers[mode];
-        
+
         if(typeof infoMarkers !== 'undefined' && infoMarkers !== null) {
             jQuery.each(infoMarkers, function(_, m) {
                 if(m !== null) {
-                    try {
-                        m.hide();
-                        m.destroy();
-                    } catch(e) {}
+                    m.remove();
                 }
             });
             systemMapRouteInfoMarkers[mode] = null;
-        }        
+        }
     }
 
     function drawRouteLayerForMode(mode, element) {
@@ -543,8 +584,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
                      systemMapRouteFeatures[mode] = [];
                  }
 
-                 var addedFlag = false;
                  jQuery(data.features).each(function(_, feature) {
+debugger;
+                    var addedFlag = false;
                     for(var z = 0; z < feature.geometry.coordinates.length; z++) {
                         var points = [];
 
@@ -559,16 +601,17 @@ OTP.Map = function(_root, _controlsRoot, options) {
                             return;
                         }
 
+                        // add info marker to first leg
                         if(addedFlag === false) {
                             var infoMarkerPoint = new OpenLayers.LonLat(points[0].x, points[0].y);
-    
+
                             var routeName = feature.properties.designator;
                             var agencyIdentifier = (routeName + '').toUpperCase().match('^[M|P|CT|ST]');
                             if(agencyIdentifier !== null && typeof agencyIdentifier[0] !== 'undefined') {
                                 routeName = routeName.substring(agencyIdentifier[0].length);
                             }
 
-                            var infoMarker = addInfoLegMarker(routeName, '<a href="#">Schedule</a>', mode, infoMarkerPoint);
+                            var infoMarker = addLegInfoMarker(routeName, mode, null, infoMarkerPoint);
 
                             if(typeof systemMapRouteInfoMarkers[mode] === 'undefined' || systemMapRouteInfoMarkers[mode] === null) {
                                 systemMapRouteInfoMarkers[mode] = [];
@@ -727,7 +770,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     
     function removeDataLayer(type) {
         var layer = dataMarkerLayers[type];
-        
+
         if(layer !== null) {
             layer.removeAllFeatures();
         }
@@ -773,7 +816,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     addDataLayer("stops", stopsToggleButton, true);
                 }
             }
-        });
+        });        
         
         var templateParking = {
             graphicXOffset: "${getOffset}",
@@ -809,18 +852,27 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 }
             });
         });
-        
+
         map.addLayers([routeLayer, dataMarkerLayers.stops, dataMarkerLayers.parkandrides, 
                         dataMarkerLayers.fareoutlets, markersLayer]);
 
+        // events for infoLegMarkers placed on map
+        map.events.on({
+            zoomend: function(e) {
+                // redraw info leg markers at new zoom level.
+                updateLegInfoMarkerPositions();
+            }
+        });
+                        
         // enable selection of features in data layers and disambiguation markers
         // HACK: a hack to get around the OL limitation of only allowing one marker select control per map.
         var selectFeatureEventDispatcher = function(feature) {
             if(feature === null) {
                 return;
             }
+
             if(feature.attributes.type === "disambiguation") {
-                onSelectDisambiguationOption(feature);            
+                onSelectDisambiguationOption(feature);
             } else {
                 showInfoWindow(feature);
             }
@@ -833,7 +885,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         // listener for drag events on trip planner markers--enabled when we add a to/from icon to map
         markersDragControl = new OpenLayers.Control.DragFeature(markersLayer, { onComplete: onCompleteMarkerMove });
         map.addControl(markersDragControl);
-		markersDragControl.activate();
+        markersDragControl.activate();
     }
 
     // base layer stuff
@@ -1625,11 +1677,13 @@ OTP.Map = function(_root, _controlsRoot, options) {
             routeLayer.addFeatures([lineFeature]);
         },
 
-        addLegInfoMarker: function(routeName, routeAgency, type, wgsLonlat) {
+        addLegInfoMarker: function(routeName, type, legInfoWindowHtml, wgsLonlat) {
+            if(wgsLonlat === null || routeName === null || type === null || type === 'WALK') {
+                return;
+            }
             var proj = new OpenLayers.Projection("EPSG:4326");
             var lonlat = wgsLonlat.transform(proj, map.getProjectionObject())
-            var infoMarker = addInfoLegMarker(routeName, routeAgency, type, lonlat);            
-            legInfoMarkers.push(infoMarker);
+            addLegInfoMarker(routeName, type, legInfoWindowHtml, lonlat); 
         }
     };
 };
