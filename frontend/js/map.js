@@ -585,7 +585,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
                  }
 
                  jQuery(data.features).each(function(_, feature) {
-debugger;
                     var addedFlag = false;
                     for(var z = 0; z < feature.geometry.coordinates.length; z++) {
                         var points = [];
