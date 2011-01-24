@@ -460,14 +460,22 @@ OTP.Map = function(_root, _controlsRoot, options) {
                         return;
                     }
                     var routes = [];
-                    for(var i = 0; i < data.service.length; i++) {
-                        routes.push(data.service[i].route);
-                    }
                     
+                    // We may be handed an array of objects or a single object, depending on how many routes stop here
+                    // TODO: handle grouping by transit agency
+                    if(data.service instanceof Array) {
+                        for(var i = 0; i < data.service.length; i++) {
+                            routes.push(data.service[i].route);
+                        }
+                    } else {
+                        routes.push(data.service.route);
+                    }
+
                     var routeDiv = root.find('.info-window .info-routes');
 
                     if (routes.length > 0) { //only show if we have routes returned
                         routeDiv.html('<strong>Services Routes</strong>:<br />' + routes.unique().join(", "));
+                        
                         // some browsers will append "px" to the css value so we need to force coversion to integer
                         infoWindow.css("top", (parseInt(infoWindow.css("top")) - routeDiv.height()));
                         ensureInfoWindowIsVisible();
