@@ -1,3 +1,20 @@
+/* 
+Copyright 2011, Sound Transit
+
+This program is free software: you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public License
+as published by the Free Software Foundation, either version 3 of
+the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /* - */
 
 body {
@@ -977,12 +994,12 @@ right: 150px;
 width: 3.5em;
 height: 16px;
 padding: 2px 20px 2px 5px;
+cursor: pointer;
 }
 
 body #map #legend .toggler .ui-selectmenu-icon {
 position: absolute;
 right: 0;
-top: 3px;
 background-image: url("./jquery/ui-custom/images/ui-icons_454545_256x240.png");
 }
 
@@ -996,6 +1013,7 @@ display: none;
 clear: both;
 background: #fff;
 border-top: 1px solid #c0c0c0;
+padding: 10px;
 }
 
 /* context menu */
@@ -1146,6 +1164,10 @@ position: relative;
 padding: 5px;
 }
 
+.info-window .info-content.leg-info-marker {
+width: 315px;
+}
+
 .crossbar {
 background-position: 0 50%;
 background-repeat: no-repeat;
@@ -1166,6 +1188,7 @@ background-image: url(../img/otp/fares-icon.png);
 background-image: url(../img/otp/parking-icon.png);
 }
 
+.info-window .info-content .close,
 .info-window .content .close {
 position: absolute;
 top: 2px;
@@ -1219,4 +1242,68 @@ width: 100px;
 .aerialSelector input {
 margin-right: 5px;
 display: inline;
+}
+
+/* - */
+
+.info_marker {
+position: absolute;
+background-image: url(../img/otp/bubble-bottom-callout.png);
+background-position: 50% 100%;
+padding-bottom: 11px;
+background-repeat: no-repeat;
+z-index: 10000000;
+color: #4a4a4a;
+}
+
+.info_marker .content {
+background-color: #fff;
+border: 1px solid #bababa;
+border-bottom: none;
+position: relative;
+overflow: hidden;
+padding: 2px;
+height: 16px;
+cursor:pointer;
+}
+
+.info_marker .content .route-label {
+font-weight: bold;
+padding-left: 20px;
+line-height: 100%;
+padding-top: 2px;
+}
+
+.info_marker .content .route-label span {
+font-size: 8px;
+white-space:nowrap;
+display: block;
+line-height: 100%;
+}
+
+.info_marker .content .leg-mode {
+position: absolute;
+left: 2px;
+top: 2px;
+height: 16px;
+width: 16px;
+background-position: 0 0;
+text-indent: -9999px;
+float: left;
+}
+
+.info_marker .content .leg-mode.WSF {
+background-image: url(../img/otp/ferry16x16.png);
+}
+
+.info_marker .content .leg-mode.LINK {
+background-image: url(../img/otp/link16x16.png);
+}
+
+.info_marker .content .leg-mode.SOUNDER {
+background-image: url(../img/otp/sounder16x16.png);
+}
+
+.info_marker .content .leg-mode.BUS {
+background-image: url(../img/otp/bus16x16.png);
 }

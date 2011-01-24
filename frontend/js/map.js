@@ -1,3 +1,19 @@
+/* 
+Copyright 2011, Sound Transit
+
+This program is free software: you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public License
+as published by the Free Software Foundation, either version 3 of
+the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 var OTP = window.OTP || {};
 
 OTP.Map = function(_root, _controlsRoot, options) {
@@ -23,6 +39,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     var contextMenu = null;
     var layerChooserPopout = null;
     var tooManyPopup = null;
+    var legInfoMarkers = [];
     
     // vector layers
     var routeLayer = null;   
@@ -36,6 +53,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     // route-specific features/WFS CQL for system map items on routeLayer
     var systemMapRouteCriteria = {};
     var systemMapRouteFeatures = {};
+    var systemMapRouteInfoMarkers = {};
 
     // decodes google-encoded polyline data
     function decodePolyline(encoded) {
@@ -82,9 +100,113 @@ OTP.Map = function(_root, _controlsRoot, options) {
             markersLayer.removeAllFeatures();
         }
         
+        if(legInfoMarkers !== null) {
+            jQuery.each(legInfoMarkers, function(_, m) {
+                if(m !== null && typeof m !== 'undefined') {
+                    m.remove();
+                }
+            });
+        }
+        
         if(markersDragControl !== null) {
             markersDragControl.deactivate();
         }
+    }
+
+    // leg info markers
+    function updateLegInfoMarkerPositions() {
+        if(legInfoMarkers !== null) {
+            jQuery.each(legInfoMarkers, function(i, infoMarker) {
+                var lonlat = new OpenLayers.LonLat(infoMarker.data("lon"), infoMarker.data("lat"));
+                var viewPortPx = map.getViewPortPxFromLonLat(lonlat);
+                var layerContainerPx = map.getLayerPxFromViewPortPx(viewPortPx);
+
+                if(layerContainerPx === null) {
+                    return;
+                }
+
+                infoMarker
+                    .css("top", layerContainerPx.y - infoMarker.height() - 11)
+                    .css("left", layerContainerPx.x - (infoMarker.width() / 2));
+            });
+        }
+    }
+
+    function showLegInfoMarkerInfoWindow(lonlat, legInfoMarker, legInfoWindowHtml) {
+        hideInfoWindow();
+
+        var infoWindowContent = jQuery("<div></div>")
+                                    .addClass("info-content")
+                                    .addClass("leg-info-marker")
+                                    .append(getInfoWindowClose())
+                                    .append(legInfoWindowHtml);
+
+        infoWindow = jQuery("<div></div>")
+                            .addClass("info-window")
+                            .append(infoWindowContent)
+                            .appendTo(jQuery(map.layerContainerDiv));
+
+        // set position of infowindow
+        var viewPortPx = map.getViewPortPxFromLonLat(lonlat);
+        var layerContainerPx = map.getLayerPxFromViewPortPx(viewPortPx);
+
+        infoWindowContent
+            .css("width", infoWindowContent.width());
+
+        infoWindow
+            .css("top", layerContainerPx.y - infoWindow.height() - legInfoMarker.height() - 20)
+            .css("left", layerContainerPx.x - (infoWindow.width() / 2));
+
+        ensureInfoWindowIsVisible();
+    }
+
+    function addLegInfoMarker(routeName, type, legInfoWindowHtml, lonlat) {
+        if(routeName === null || type === null || type === "WALK") {
+            return null;
+        }
+
+        var infoMarker = jQuery("<div></div>")
+                            .addClass("info_marker")
+                            .appendTo(jQuery(map.layerContainerDiv))
+                            .data("lon", lonlat.lon)
+                            .data("lat", lonlat.lat);
+
+        var contentWrapper = jQuery("<div></div>")
+                            .addClass("content")
+                            .appendTo(infoMarker);
+
+        var modeIcon = jQuery("<p></p>")
+                            .addClass("leg-mode")
+                            .addClass(type)
+                            .appendTo(contentWrapper);
+
+        var contentLabel = jQuery("<p></p>")
+                            .addClass("route-label")
+                            .html(routeName)
+                            .appendTo(contentWrapper);
+
+        var viewPortPx = map.getViewPortPxFromLonLat(lonlat);
+        var layerContainerPx = map.getLayerPxFromViewPortPx(viewPortPx);
+
+        infoMarker
+            .css("width", contentWrapper.width() + 8);
+
+        infoMarker
+            .css("top", layerContainerPx.y - infoMarker.height() - 11)
+            .css("left", layerContainerPx.x - (infoMarker.width() / 2));
+
+        // info bubble on this info marker
+        if(legInfoWindowHtml !== null && typeof legInfoWindowHtml !== 'undefined') {
+            contentWrapper.click(function(e) {
+                var legInfoMarker = jQuery(this).parent();
+                showLegInfoMarkerInfoWindow(lonlat, legInfoMarker, legInfoWindowHtml);
+                return false; 
+            });
+        }
+
+        legInfoMarkers.push(infoMarker);
+
+        return infoMarker;
     }
 
     // context menu (right-click menu)
@@ -93,7 +215,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             contextMenu.remove();
         }
     }
-    
+
     function showContextMenu(point) {
         hideContextMenu();
 
@@ -395,24 +517,33 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
     function removeRouteLayerForMode(mode) {
         systemMapRouteCriteria[mode] = "";
+        removeRouteLayerFeaturesForMode(mode);
+    }
 
+    function removeRouteLayerFeaturesForMode(mode) {
         // remove features from map
         var features = systemMapRouteFeatures[mode];
-        
-        if(typeof features !== 'undefined' && features !== null) {            
+
+        if(typeof features !== 'undefined' && features !== null) {
             routeLayer.removeFeatures(features);
             systemMapRouteFeatures[mode] = null;
+        }
+
+        // remove old existing feature info markers
+        var infoMarkers = systemMapRouteInfoMarkers[mode];
+
+        if(typeof infoMarkers !== 'undefined' && infoMarkers !== null) {
+            jQuery.each(infoMarkers, function(_, m) {
+                if(m !== null) {
+                    m.remove();
+                }
+            });
+            systemMapRouteInfoMarkers[mode] = null;
         }
     }
 
     function drawRouteLayerForMode(mode, element) {
-        // remove old existing features (FIXME?)
-        var features = systemMapRouteFeatures[mode];
-
-        if(features !== null) {            
-            routeLayer.removeFeatures(features);
-            systemMapRouteFeatures[mode] = null;
-        }
+        removeRouteLayerFeaturesForMode(mode);
 
         var cqlQuery = systemMapRouteCriteria[mode];
 
@@ -427,8 +558,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 strokeWidth: 4
             };
         } else if(mode === "BUS") {
+            // (color set below, per feature)
             style = {
-                strokeColor: "#5380B0",
                 strokeWidth: 4
             };                
         } else if(mode === "SOUNDER") {
@@ -453,14 +584,14 @@ OTP.Map = function(_root, _controlsRoot, options) {
                  outputFormat: "json",
                  format_options: "callback:" + callbackFunction,
                  typeName: "soundtransit:routes",
-                 propertyName: "the_geom,routetyp",
+                 propertyName: "the_geom,designator,routetyp",
                  cql_filter: cqlQuery
              },
              success: function(data) {
                  if(typeof data.features === 'undefined') {
                      return;
                  }
-        
+
                  // if we're going to draw the polyline for this route, add 
                  // active class to its selector indicator
                  if(element !== null) {
@@ -472,36 +603,59 @@ OTP.Map = function(_root, _controlsRoot, options) {
                  }
 
                  jQuery(data.features).each(function(_, feature) {
-                     for(var z = 0; z < feature.geometry.coordinates.length; z++) {
-                         var points = [];
+                    var addedFlag = false;
+                    for(var z = 0; z < feature.geometry.coordinates.length; z++) {
+                        var points = [];
 
-                         for(var i = 0; i < feature.geometry.coordinates[z].length; i++) {
-                             var wgsPoint = new OpenLayers.Geometry.Point(feature.geometry.coordinates[z][i][1], feature.geometry.coordinates[z][i][0]);
-                             var proj = new OpenLayers.Projection("EPSG:4326");
-                             var point = wgsPoint.transform(proj, map.getProjectionObject());
-                             points.push(point);
-                         }
+                        for(var i = 0; i < feature.geometry.coordinates[z].length; i++) {
+                            var wgsPoint = new OpenLayers.Geometry.Point(feature.geometry.coordinates[z][i][1], feature.geometry.coordinates[z][i][0]);
+                            var proj = new OpenLayers.Projection("EPSG:4326");
+                            var point = wgsPoint.transform(proj, map.getProjectionObject());
+                            points.push(point);
+                        }
 
-                         if(points.length === 0) {
-                             return;
-                         }
+                        if(points.length === 0) {
+                            return;
+                        }
 
-                         // special styling for secondary routes
-                         if(feature.properties['routetyp'] === "S") {
-                             style.strokeOpacity = 0.5;
-                         } else {
-                             style.strokeOpacity = 0.8;                             
-                         }
+                        // add info marker to first leg
+                        if(addedFlag === false) {
+                            var infoMarkerPoint = new OpenLayers.LonLat(points[0].x, points[0].y);
 
-                         var polyline = new OpenLayers.Geometry.LineString(points);
-                         var lineFeature = new OpenLayers.Feature.Vector(polyline, null, style);
-                         
-                         routeLayer.addFeatures([lineFeature]);
-                         systemMapRouteFeatures[mode].push(lineFeature);                      
-                     }
-                     
-                     zoomToRouteLayerExtent();
+                            var routeName = feature.properties.designator;
+                            var agencyIdentifier = (routeName + '').toUpperCase().match('^[M|P|CT|ST]');
+                            if(agencyIdentifier !== null && typeof agencyIdentifier[0] !== 'undefined') {
+                                routeName = routeName.substring(agencyIdentifier[0].length);
+                            }
+
+                            var infoMarker = addLegInfoMarker(routeName, mode, null, infoMarkerPoint);
+
+                            if(typeof systemMapRouteInfoMarkers[mode] === 'undefined' || systemMapRouteInfoMarkers[mode] === null) {
+                                systemMapRouteInfoMarkers[mode] = [];
+                            }
+                            systemMapRouteInfoMarkers[mode].push(infoMarker);
+
+                            addedFlag = true;
+                        }
+
+                        // special styling for secondary bus routes
+                        if(mode === "BUS") {
+                            if(feature.properties['routetyp'] === "S") {
+                                style.strokeColor = "#3A7BBE";
+                            } else {
+                                style.strokeColor = "#5380B0";
+                            }
+                        }
+
+                        var polyline = new OpenLayers.Geometry.LineString(points);
+                        var lineFeature = new OpenLayers.Feature.Vector(polyline, null, style);
+                        routeLayer.addFeatures([lineFeature]);
+                        systemMapRouteFeatures[mode].push(lineFeature);                      
+                    }
+
+                    zoomToRouteLayerExtent();
                  });
+
              }
         });        
     }
@@ -633,7 +787,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     
     function removeDataLayer(type) {
         var layer = dataMarkerLayers[type];
-        
+
         if(layer !== null) {
             layer.removeAllFeatures();
         }
@@ -679,7 +833,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     addDataLayer("stops", stopsToggleButton, true);
                 }
             }
-        });
+        });        
         
         var templateParking = {
             graphicXOffset: "${getOffset}",
@@ -715,18 +869,27 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 }
             });
         });
-        
+
         map.addLayers([routeLayer, dataMarkerLayers.stops, dataMarkerLayers.parkandrides, 
                         dataMarkerLayers.fareoutlets, markersLayer]);
 
+        // events for infoLegMarkers placed on map
+        map.events.on({
+            zoomend: function(e) {
+                // redraw info leg markers at new zoom level.
+                updateLegInfoMarkerPositions();
+            }
+        });
+                        
         // enable selection of features in data layers and disambiguation markers
         // HACK: a hack to get around the OL limitation of only allowing one marker select control per map.
         var selectFeatureEventDispatcher = function(feature) {
             if(feature === null) {
                 return;
             }
+
             if(feature.attributes.type === "disambiguation") {
-                onSelectDisambiguationOption(feature);            
+                onSelectDisambiguationOption(feature);
             } else {
                 showInfoWindow(feature);
             }
@@ -739,7 +902,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         // listener for drag events on trip planner markers--enabled when we add a to/from icon to map
         markersDragControl = new OpenLayers.Control.DragFeature(markersLayer, { onComplete: onCompleteMarkerMove });
         map.addControl(markersDragControl);
-		markersDragControl.activate();
+        markersDragControl.activate();
     }
 
     // base layer stuff
@@ -1203,6 +1366,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             });             
     }
 
+    // legend/chrome behaviors
     function addLegendBehavior() {
         jQuery("#map #legend .toggler").click(function() {
             var element = jQuery(this);
@@ -1226,7 +1390,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         });
     }
 
-    // markers
+    // to/from markers
     function setStartMarker(lonlat) {
         if(lonlat === null) {
             return;
@@ -1289,6 +1453,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }
     }
     
+    // event handlers
     function onCompleteMarkerMove(feature) {
         if(feature !== null) {       
             var point = new OpenLayers.LonLat(feature.geometry.x, feature.geometry.y);
@@ -1343,6 +1508,16 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
     // public methods    
     return {
+        setModeChooserUIVisibility: function(v) {
+            var modeChooserButtons = controlsRoot.find("#toggle-bus,#toggle-sounder,#toggle-link,#toggle-ferry");
+
+            if(v === false) {
+                modeChooserButtons.hide();
+            } else {
+                modeChooserButtons.show();
+            }
+        },
+        
         showFerryRouteFor: function(v) {
             if(v === null || v === "") {
                 return;
@@ -1393,40 +1568,22 @@ OTP.Map = function(_root, _controlsRoot, options) {
             }
         },
 
-        // FIXME: we have to pass an encoded polyline into here because we 
-        // don't have access to just the start/end points for some leg types. Change API?
-        setStartPoint: function(encodedPolyline) {
-                if(encodedPolyline === null) {
-                    return;
-                }
-
-                var rawPoints = decodePolyline(encodedPolyline);
-
-                if(rawPoints.length === 0) {
-                    return;
-                }
-
-                var endPoint = rawPoints[0];
-                var point = new OpenLayers.LonLat(endPoint[1], endPoint[0]);
-                var proj = new OpenLayers.Projection("EPSG:4326");
-                setStartMarker(point.transform(proj, map.getProjectionObject()));
+        setStartPoint: function(lon, lat) {
+            if(lon === null || lat === null) {
+                return;
+            }
+            
+            var point = new OpenLayers.LonLat(lon, lat);
+            var proj = new OpenLayers.Projection("EPSG:4326");
+            setStartMarker(point.transform(proj, map.getProjectionObject()));
         },
         
-        // FIXME: we have to pass an encoded polyline into here because we 
-        // don't have access to just the start/end points for some leg types. Change API?
-        setEndPoint: function(encodedPolyline) {
-            if(encodedPolyline === null) {
+        setEndPoint: function(lon, lat) {
+            if(lon === null || lat === null) {
                 return;
             }
 
-            var rawPoints = decodePolyline(encodedPolyline);
-
-            if(rawPoints.length === 0) {
-                return;
-            }
-
-            var endPoint = rawPoints[rawPoints.length - 1];
-            var point = new OpenLayers.LonLat(endPoint[1], endPoint[0]);
+            var point = new OpenLayers.LonLat(lon, lat);
             var proj = new OpenLayers.Projection("EPSG:4326");
             setEndMarker(point.transform(proj, map.getProjectionObject()));
         },
@@ -1489,12 +1646,12 @@ OTP.Map = function(_root, _controlsRoot, options) {
             }
         },
 
-        addLegToPlannedRoute: function(encodedPolyline, type) {
-            if(encodedPolyline === null || type === null) {
+        addLegToPlannedRoute: function(leg, type) {
+            if(leg === null || type === null) {
                 return;
             }
-    
-            var rawPoints = decodePolyline(encodedPolyline);
+
+            var rawPoints = decodePolyline(leg.legGeometry.points);
             var points = [];
             for(var i = 0; i < rawPoints.length; i++) {
                 var wgsPoint = new OpenLayers.Geometry.Point(rawPoints[i][1], rawPoints[i][0]);
@@ -1537,6 +1694,15 @@ OTP.Map = function(_root, _controlsRoot, options) {
             var polyline = new OpenLayers.Geometry.LineString(points);
             var lineFeature = new OpenLayers.Feature.Vector(polyline, null, style);
             routeLayer.addFeatures([lineFeature]);
+        },
+
+        addLegInfoMarker: function(routeName, type, legInfoWindowHtml, wgsLonlat) {
+            if(wgsLonlat === null || routeName === null || type === null || type === 'WALK') {
+                return;
+            }
+            var proj = new OpenLayers.Projection("EPSG:4326");
+            var lonlat = wgsLonlat.transform(proj, map.getProjectionObject())
+            addLegInfoMarker(routeName, type, legInfoWindowHtml, lonlat); 
         }
     };
 };

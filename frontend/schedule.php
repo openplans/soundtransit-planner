@@ -1,3 +1,19 @@
+<!--
+    Copyright 2011, Sound Transit
+    
+    This program is free software: you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public License
+    as published by the Free Software Foundation, either version 3 of
+    the License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -48,7 +64,7 @@
         <li><a href="./map.php?SOUNDERRoute=MSOUNDER&amp;SOUNDERStops=7">Sounder: Tacoma/Seattle route</a></li>
         <li><a href="./map.php?SOUNDERRoute=MSOUNDER&amp;SOUNDERStops=4">Sounder: Everett/Seattle route</a></li>
         <li><a href="./map.php?LINKRoute=M599">Central Link Light Rail</a></li>
-        <li><a href="./map.php?LINKRoute=PTLDTC">Everett/Seattle route</a></li>
+        <li><a href="./map.php?LINKRoute=PTLDTC">Tacoma Link Light Rail</a></li>
         <li><a href="./map.php?BUSOperator=ST&amp;BUSRoute=510">Bus Route 510</a></li>
         <li><a href="./map.php?BUSOperator=ST&amp;BUSRoute=P590">Bus Route 590</a></li>
       </ul>
