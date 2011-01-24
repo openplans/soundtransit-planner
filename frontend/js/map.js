@@ -54,6 +54,14 @@ OTP.Map = function(_root, _controlsRoot, options) {
     var systemMapRouteCriteria = {};
     var systemMapRouteFeatures = {};
     var systemMapRouteInfoMarkers = {};
+    
+    // Add hash-sieving function to find unique elements in array
+    Array.prototype.unique = function() {
+        var o = {}, i, l = this.length, r = [];
+        for(i=0; i<l;i++) o[this[i]] = this[i];
+        for(i in o) r.push(o[i]);
+        return r;
+    };
 
     // decodes google-encoded polyline data
     function decodePolyline(encoded) {
@@ -422,6 +430,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         var crossbar = "";
         var toggle = "";
         var amenities = "";
+        var routesServed = "";
         var ticketText = "";
         var lonlat = new OpenLayers.LonLat(featureProperties.lon, featureProperties.lat);
         var startEndTrip = jQuery('<div class="start-end-area"></div>');
@@ -437,6 +446,35 @@ OTP.Map = function(_root, _controlsRoot, options) {
             
         } else if(typeof featureProperties.accessible !== 'undefined') {
             type = "stop";
+            var routesServed = '<div class="info-routes"></div>';
+            var callbackFunction = "getRoutesServingStop" + Math.floor(Math.random() * 1000000000);
+            jQuery.ajax({
+                 url: OTP.Config.atisProxyScheduleUrl,
+                 dataType: "jsonp",
+                 jsonpCallback: callbackFunction,
+                 data: {
+                     atisstopid: featureProperties.atisid
+                 },
+                 success: function(data) {                 
+                    if(typeof data.service === 'undefined') {
+                        return;
+                    }
+                    var routes = [];
+                    for(var i = 0; i < data.service.length; i++) {
+                        routes.push(data.service[i].route);
+                    }
+                    
+                    var routeDiv = root.find('.info-window .info-routes');
+
+                    if (routes.length > 0) { //only show if we have routes returned
+                        routeDiv.html('<strong>Services Routes</strong>:<br />' + routes.unique().join(", "));
+                        // some browsers will append "px" to the css value so we need to force coversion to integer
+                        infoWindow.css("top", (parseInt(infoWindow.css("top")) - routeDiv.height()));
+                        ensureInfoWindowIsVisible();
+                    }
+                    
+               }
+            });
             crossbar = '<div class="crossbar"><strong>Stop ID</strong>: ' + featureProperties.localid.replace(/^\D/i, "") + '</div>';
             if (featureProperties.park2min !== null && featureProperties.park2min !== "") {amenities += "<strong>Nearby Parking</strong>: " + featureProperties.park2min + "<br />";}
             // temporary workaround for our stop data having lat and lon transposed. Remove when we're able to fix that.
@@ -492,7 +530,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         
         content.append(startEndTrip);
         
-        content.prepend(ticketText).prepend(amenities).prepend(crossbar)
+        content.prepend(ticketText).prepend(amenities).prepend(routesServed).prepend(crossbar);
         
         var popupContent = jQuery('<div></div>').append(headerWrapper).append(content);
 
