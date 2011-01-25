@@ -492,6 +492,34 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         plannerResponse = data;
     }
 
+    function updateMapForHover(data, targetTripNumber) {
+        var itineraryCollection = null;
+        if(typeof data.plan.itineraries.itinerary.duration !== 'undefined') {
+            itineraryCollection = [data.plan.itineraries.itinerary];
+        } else {
+            itineraryCollection = data.plan.itineraries.itinerary;
+        }
+
+        // draw each leg on map
+        var tripNumber = 1;
+        jQuery.each(itineraryCollection, function(_, trip) {
+            if(tripNumber === targetTripNumber) {
+                jQuery.each(trip.legs.leg, function(legIndex, leg) {
+                    // add each travel leg to map
+                    if(isSounder(leg["@route"])) {
+                        map.addLegToHoverRoute(leg, "SOUNDER");
+                    } else if(isTheLink(leg["@route"])) {
+                        map.addLegToHoverRoute(leg, "LINK");
+                    } else {
+                        map.addLegToHoverRoute(leg, leg["@mode"]);
+                    }
+                });
+            }
+            
+            tripNumber++;
+        });
+    }
+
     function updateMap(data, targetTripNumber) {
         if(data === null) {
             return;
@@ -930,13 +958,27 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
 
             root.find('#trip' + tripNumber + '-results')
                 .slideDown()
-                .addClass("active");            
+                .addClass("active");
 
             root.find('.results').not('#trip' + tripNumber + '-results')
                 .slideUp()
                 .removeClass("active");
                 
             updateMap(plannerResponse, tripNumber);
+        }).hover(function(e) {
+            // line is already on map as the active route
+            if(jQuery(this).hasClass("active")) {
+                return;
+            }
+
+            var tripNumber = parseInt((this.id).split('-')[0].match(/([0-9]*)$/ig)[0], 10);
+
+            if(e.type === "mouseenter") {
+                map.removeHoverRoute();
+                updateMapForHover(plannerResponse, tripNumber);
+            } else {
+                map.removeHoverRoute();
+            }
         });
     }
 

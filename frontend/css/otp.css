@@ -1233,6 +1233,18 @@ width: 400px;
 padding: 10px;
 }
 
+.too_many .close {
+position: absolute;
+top: 2px;
+right: 2px;
+text-indent: -9999px;
+background-image: url(../img/otp/close.png);
+background-repeat: no-repeat;
+background-position: 0 0;
+height: 19px;
+width: 19px;
+}
+
 /* - */
 
 .aerialSelector {

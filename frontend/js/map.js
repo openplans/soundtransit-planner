@@ -190,8 +190,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
         return (route.toUpperCase() === "M599");
     }
 
-
-
     // leg info markers
     function updateLegInfoMarkerPositions() {
         if(legInfoMarkers !== null) {
@@ -865,20 +863,19 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 break;
         }
 
+        var closeButton = jQuery('<a class="close" href="#">Close</a>')
+                                .click(function(e) {
+                                    controlsRoot.find("#toggle-location").removeClass("active");
+                                    removeDataLayer("stops");
+                                    return false;
+                                });
+
         tooManyPopup = jQuery("<div></div>")
                             .addClass("too_many")
                             .append("<p>There are too many " + typeString + " to display. " + 
-                                    "Please <a href='#'>zoom in</a> to see all " + typeString + ".</p>")
-                            .appendTo(map.viewPortDiv);
-                            
-        tooManyPopup.find("a").click(function(e) {
-            map.zoomTo(14);
-
-            var stopsToggleButton = controlsRoot.find("#toggle-location");
-            addDataLayer("stops", stopsToggleButton, true);
-            
-            return false;
-        });
+                                    "Please zoom in to see all " + typeString + ".</p>")
+                            .appendTo(map.viewPortDiv)
+                            .append(closeButton);
     }
 
     function hideTooMany() {
@@ -1769,6 +1766,64 @@ OTP.Map = function(_root, _controlsRoot, options) {
             var point = new OpenLayers.LonLat(lon, lat);
             var proj = new OpenLayers.Projection("EPSG:4326");
             setEndMarker(point.transform(proj, map.getProjectionObject()));
+        },
+
+        removeHoverRoute: function() {
+            var features = routeLayer.getFeaturesByAttribute("type", "hover");
+
+            if(features !== null) {
+                routeLayer.removeFeatures(features);
+            }
+        },
+        
+        addLegToHoverRoute: function(leg, type) {
+            if(leg === null || type === null) {
+                return;
+            }
+
+            var rawPoints = decodePolyline(leg.legGeometry.points);
+            var points = [];
+            for(var i = 0; i < rawPoints.length; i++) {
+                var wgsPoint = new OpenLayers.Geometry.Point(rawPoints[i][1], rawPoints[i][0]);
+                var proj = new OpenLayers.Projection("EPSG:4326");
+                var point = wgsPoint.transform(proj, map.getProjectionObject());
+                points.push(point);
+            }
+
+            if(points.length === 0) {
+                return;
+            }
+
+            var style = {};
+            if(type === "WALK") {
+                style = {
+                         strokeColor: "#666666",
+                         strokeOpacity: 0.50,
+                         strokeWidth: 4
+                };
+            } else if(type === "BUS") {
+                style = {
+                         strokeColor: "#5380B0",
+                         strokeOpacity: 0.50,
+                         strokeWidth: 4
+                };                
+            } else if(type === "SOUNDER") {
+                style = {
+                         strokeColor: "#0B9140",
+                         strokeOpacity: 0.50,
+                         strokeWidth: 4
+                };                                
+            } else if(type === "LINK") {
+                style = {
+                         strokeColor: "#41B1C1",
+                         strokeOpacity: 0.50,
+                         strokeWidth: 4
+                };                                
+            }
+
+            var polyline = new OpenLayers.Geometry.LineString(points);
+            var lineFeature = new OpenLayers.Feature.Vector(polyline, { type: "hover" }, style);
+            routeLayer.addFeatures([lineFeature]);
         },
 
         addDisambiguationPoint: function(lon, lat, index) {
