@@ -110,7 +110,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         
         if(legInfoMarkers !== null) {
             jQuery.each(legInfoMarkers, function(_, m) {
-                if(m !== null && typeof m !== 'undefined') {
+                if(m !== null) {
                     m.remove();
                 }
             });
@@ -1050,7 +1050,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             });
         });
 
-        map.addLayers([routeLayer, dataMarkerLayers.stops, dataMarkerLayers.parkandrides, 
+        map.addLayers([dataMarkerLayers.stops, dataMarkerLayers.parkandrides, 
                         dataMarkerLayers.fareoutlets, markersLayer]);
 
         // events for infoLegMarkers placed on map
@@ -1083,6 +1083,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
         markersDragControl = new OpenLayers.Control.DragFeature(markersLayer, { onComplete: onCompleteMarkerMove });
         map.addControl(markersDragControl);
         markersDragControl.activate();
+        
+        // add this layer separately after the drag control so the event handlers don't accidently catch it.
+        map.addLayers([routeLayer]);
     }
 
     // base layer stuff
@@ -1658,6 +1661,22 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }
     }
 
+    // welcome message
+    function showWelcomeMessage() {
+        var closeButton = jQuery('<a class="close" href="#">Close</a>')
+                                    .click(function(e) {
+                                        jQuery(this).parent().remove();
+                                        return false;
+                                    });
+
+        jQuery("<div></div>")
+            .addClass("welcome")
+            .append("<h1>It's easy to get started!</h1>" + 
+                    "<p>Right-click (PC) or Control-click (Macintosh) on the map to select a starting/ending location and plan your trip.</p>")
+            .appendTo(map.viewPortDiv)
+            .append(closeButton);
+    }
+
     // constructor
     map = new OpenLayers.Map(root.attr("id"), {
         projection: new OpenLayers.Projection("EPSG:900913"),
@@ -1680,6 +1699,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
     addMapLayerChooserBehavior();
     addLegendBehavior();
     addMapToggleWidthBehavior();
+
+    showWelcomeMessage();
 
     // center on seattle metro area
     var point = new OpenLayers.LonLat(-122.30, 47.45);

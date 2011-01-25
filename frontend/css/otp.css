@@ -1227,6 +1227,9 @@ top: 50px;
 left: 100px;
 font-size: 16px;
 width: 400px;
+-moz-border-radius: 3px;
+-webkit-border-radius: 3px;
+border-radius: 3px;
 }
 
 .too_many p {
@@ -1318,4 +1321,45 @@ background-image: url(../img/otp/sounder16x16.png);
 
 .info_marker .content .leg-mode.BUS {
 background-image: url(../img/otp/bus16x16.png);
+}
+
+/* - */
+
+.welcome {
+position: absolute;
+z-index: 10000000;
+background-color: #F8FBD8;
+color: #666;
+border: 1px solid #c0c0c0;
+top: 50px;
+left: 100px;
+font-size: 14px;
+width: 300px;
+-moz-border-radius: 3px;
+-webkit-border-radius: 3px;
+border-radius: 3px;
+}
+
+.welcome p {
+padding: 10px;
+padding-top: 0px;
+}
+
+.welcome h1 {
+padding: 10px;
+padding-bottom: 0px;
+font-weight: bold;
+font-size: 18px;
+}
+
+.welcome .close {
+position: absolute;
+top: 2px;
+right: 2px;
+text-indent: -9999px;
+background-image: url(../img/otp/close.png);
+background-repeat: no-repeat;
+background-position: 0 0;
+height: 19px;
+width: 19px;
 }
