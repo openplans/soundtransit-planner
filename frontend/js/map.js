@@ -120,6 +120,77 @@ OTP.Map = function(_root, _controlsRoot, options) {
             markersDragControl.deactivate();
         }
     }
+    
+    // Dupe of narrative.js - TODO: consolidate these - probably in a OTP.Util namespace with some other general-purpose functions
+    function getAgencyForRoute(route, includeLink) {
+        var agencyName = "Unknown Agency";
+        var agencyUrl = null;
+        
+        if(route === null) {
+            return agencyName;
+        }
+
+        if(isSounder(route)) {
+            agencyUrl = "http://www.soundtransit.org/sounder";
+            agencyName = "Sounder";
+        } else if(isTheLink(route)) {
+            agencyUrl = "http://www.soundtransit.org/link";
+            agencyName = "Link Light Rail";
+        } else {
+            var agencyIdentifier = (route + '').toUpperCase().match('^[M|P|CT|ST]');
+
+            if(agencyIdentifier !== null && typeof agencyIdentifier[0] !== 'undefined') {
+                agencyIdentifier = agencyIdentifier[0];
+                if(agencyIdentifier === "M") {
+                    agencyUrl = "http://metro.kingcounty.gov/";
+                    agencyName = "King County Metro";
+                } else if(agencyIdentifier === "P") {
+                    agencyUrl = "http://www.piercetransit.org/";
+                    agencyName = "Pierce Transit";
+                } else if(agencyIdentifier === "ST") {
+                    agencyUrl = "http://www.soundtransit.org";
+                    agencyName = "Sound Transit";
+                } else if(agencyIdentifier === "CT") {
+                    agencyUrl = "http://www.commtrans.org/";
+                    agencyName = "Community Transit";
+                } else {
+                    // if there is no route identifier, it's a CT route, except if it's between 500 and 599. 
+                    try {
+                        var agencyIdentifierNum = parseInt(agencyIdentifier);
+                        if(agencyIdentifierNum >= 500 && agencyIdentifierNum <= 599) {
+                            agencyUrl = "http://www.soundtransit.org";
+                            agencyName = "Sound Transit";
+                        }
+                    } catch(e) {}
+
+                    agencyUrl = "http://www.commtrans.org/";
+                    agencyName = "Community Transit";
+                }
+            }
+        }
+
+        if(includeLink) {
+            return '<a href="' + agencyUrl + '">' + agencyName + '</a>';
+        } else {
+            return agencyName;
+        }
+    }
+    
+    function isSounder(route) {
+        if(route === null) {
+            return false;
+        }
+        return (route.toUpperCase() === "MSOUNDER");
+    }
+
+    function isTheLink(route) {
+        if(route === null) {
+            return false;
+        }
+        return (route.toUpperCase() === "M599");
+    }
+
+
 
     // leg info markers
     function updateLegInfoMarkerPositions() {
@@ -459,22 +530,88 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     if(typeof data.service === 'undefined') {
                         return;
                     }
-                    var routes = [];
+                    
+                    routes = [];
+                    sounderRoutes = [];
+                    linkRoutes = [];
+                    metroRoutes = [];
+                    pierceRoutes = [];
+                    soundTransRoutes = [];
+                    commTransRoutes = [];
                     
                     // We may be handed an array of objects or a single object, depending on how many routes stop here
                     // TODO: handle grouping by transit agency
                     if(data.service instanceof Array) {
                         for(var i = 0; i < data.service.length; i++) {
                             routes.push(data.service[i].route);
+                            switch(getAgencyForRoute(data.service[i].route, false)) {
+                                case "Sounder":
+                                    sounderRoutes.push(data.service[i].route);
+                                    break;
+                                case "Link Light Rail":
+                                    linkRoutes.push(data.service[i].route);
+                                    break;
+                                case "King County Metro":
+                                    metroRoutes.push(data.service[i].route);
+                                    break;
+                                case "Pierce Transit":
+                                    pierceRoutes.push(data.service[i].route);
+                                    break;
+                                case "Sound Transit":
+                                    soundTransRoutes.push(data.service[i].route);
+                                    break;
+                                case "Community Transit":
+                                    commTransRoutes.push(data.service[i].route);
+                                    break;
+                            }
                         }
                     } else {
                         routes.push(data.service.route);
+                        switch(getAgencyForRoute(data.service.route, false)) {
+                            case "Sounder":
+                                sounderRoutes.push(data.service.route);
+                                break;
+                            case "Link Light Rail":
+                                linkRoutes.push(data.service.route);
+                                break;
+                            case "King County Metro":
+                                metroRoutes.push(data.service.route);
+                                break;
+                            case "Pierce Transit":
+                                pierceRoutes.push(data.service.route);
+                                break;
+                            case "Sound Transit":
+                                soundTransRoutes.push(data.service.route);
+                                break;
+                            case "Community Transit":
+                                commTransRoutes.push(data.service.route);
+                        }
                     }
 
                     var routeDiv = root.find('.info-window .info-routes');
 
                     if (routes.length > 0) { //only show if we have routes returned
-                        routeDiv.html('<strong>Services Routes</strong>:<br />' + routes.unique().join(", "));
+                        var routeMarkup = "";
+                        if (sounderRoutes.length > 0) {
+                            routeMarkup += getAgencyForRoute(sounderRoutes[0], false) + " " + sounderRoutes.unique().join(", ");
+                        }
+                        if (linkRoutes.length > 0) {
+                            routeMarkup += getAgencyForRoute(linkRoutes[0], false) + " "  + linkRoutes.unique().join(", ");
+                        }
+                        if (metroRoutes.length > 0) {
+                            routeMarkup += getAgencyForRoute(metroRoutes[0], false) + " "  + metroRoutes.unique().join(", ");
+                        }
+                        if (pierceRoutes.length > 0) {
+                            routeMarkup += getAgencyForRoute(pierceRoutes[0], false) + " "  + pierceRoutes.unique().join(", ");
+                        }
+                        if (soundTransRoutes.length > 0) {
+                            routeMarkup += getAgencyForRoute(soundTransRoutes[0], false) + " "  + soundTransRoutes.unique().join(", ");
+                        }
+                        if (commTransRoutes.length > 0) {
+                            routeMarkup += getAgencyForRoute(commTransRoutes[0], false) + " "  + commTransRoutes.unique().join(", ");
+                        }
+                        
+                        routeDiv.html('<strong>Services Routes</strong>:<br />' + routeMarkup);
                         
                         // some browsers will append "px" to the css value so we need to force coversion to integer
                         infoWindow.css("top", (parseInt(infoWindow.css("top")) - routeDiv.height()));
