@@ -518,7 +518,6 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                         map.addLegToPlannedRoute(leg, "SOUNDER");
                         map.addLegInfoMarker(getRouteName(leg["@route"]), "SOUNDER", getLegMarkerInfoWindowHtml(leg), lonlat);
                     } else if(isTheLink(leg["@route"])) {
-                        var legNarrative = formatTransitLeg(leg, 0);
                         map.addLegToPlannedRoute(leg, "LINK");
                         map.addLegInfoMarker(getRouteName(leg["@route"]), "LINK", getLegMarkerInfoWindowHtml(leg), lonlat);
                     } else {
