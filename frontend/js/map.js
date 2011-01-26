@@ -864,18 +864,26 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }
 
         var closeButton = jQuery('<a class="close" href="#">Close</a>')
-                                .click(function(e) {
-                                    controlsRoot.find("#toggle-location").removeClass("active");
-                                    removeDataLayer("stops");
-                                    return false;
-                                });
+                                    .click(function(e) {
+                                        jQuery(this).parent().remove();
+                                        return false;
+                                    });
 
         tooManyPopup = jQuery("<div></div>")
                             .addClass("too_many")
                             .append("<p>There are too many " + typeString + " to display. " + 
-                                    "Please zoom in to see all " + typeString + ".</p>")
+                                    "Please <a href='#' class='zoom'>zoom in</a> to see all " + typeString + ".</p>")
                             .appendTo(map.viewPortDiv)
                             .append(closeButton);
+                            
+        tooManyPopup.find("a.zoom").click(function(e) {
+                   map.zoomTo(13);
+                   
+                   var stopsToggleButton = controlsRoot.find("#toggle-location");
+                   addDataLayer("stops", stopsToggleButton, true);
+
+                   return false;
+               });                            
     }
 
     function hideTooMany() {

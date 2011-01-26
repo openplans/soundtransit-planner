@@ -318,29 +318,33 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     function updateNarrative(data) {
         // error returned
         if(typeof data.error !== 'undefined') {
-            var msg = "<p>Something went wrong when trying to plan your trip.</p>";
-
+            var msg = null;
             var errorId_r = data.error.msg.match(/[0-9]*/ig);
             if(errorId_r !== null && typeof errorId_r[1] !== 'undefined') {
                 var errorId = errorId_r[1];
                 switch (errorId) {
                     case '11085':
-                        msg = "<p>The trip start and end points are too close for us to plan a trip for you. Please change your origin and/or destination and try again.</p>";
+                        msg = "<p>The start and end locations are too close. We can’t plan a trip for you.</p>Please try to:</br>" + 
+                                "<ul><li>Type in a new start or end location and try again, or</li><li>Change the start or end point on the map by dragging the A or B markers</li></ul>";
                         break;
                     case '20003':
-                        msg = "<p>No transit stops are within walking distance of your desired starting point. Please change your origin by dragging the marker or typing in a new address and try again.</p>";
+                        msg = "<p>There are no transit stops within walking distance of your starting location.</p>Please try to:</br>" + 
+                                "<ul><li>Increase your walking distance to 1 mile (see “more options” above), or</li><li>Change the starting point by dragging the A marker on the map, or</li><li>Type in a new address, intersection or landmark for your starting location</li></ul>" + 
+                                "<div><strong>Tip</strong>: You can show the stops on the map by clicking on the <img src='img/otp/location-icon.png'> icon.</div>";
                         break;
                     case '20004':
-                        msg = "<p>No transit stops are within walking distance of your desired destination. Please change your trip's end point by dragging the marker or typing in a new address and try again.</p>";
-                        break;
-                    case '20007':
-                        msg = "<p>We were unable to find a trip that meets your specifications. Try changing the date and time of your trip, the start and end locations or check the schedule.</p>";
+                        msg = "<p>There are no transit stops within walking distance of your destination.</p>Please try to:</br>" + 
+                                "<ul><li>Increase your walking distance to 1 mile (see “more options” above), or</li><li>Change the starting point by dragging the A marker on the map, or</li><li>Type in a new address, intersection or landmark for your starting location</li></ul>" +
+                                "<div><strong>Tip</strong>: You can show the stops on the map by clicking on the <img src='img/otp/location-icon.png'> icon.</div>";
                         break;
                     case '20008':
-                        msg = "<p>No transit available for this trip at the time you've requested. Please change the time above and try again.</p>";
+                        msg = "<p>There is no trip available for the time you specified</p>Please try to:</br>" + 
+                                "<ul><li>Change the date and time of your trip</li></ul>";
                         break;
+                    case '20007':
                     default:
-                        msg = "<p>Something went wrong when trying to plan your trip&mdash;the system reported '" + data.error.msg + "'</p>";
+                        msg = "<p>We were unable to find a trip</p>Please try to:</br>" + 
+                                "<ul><li>Change the date and time of your trip, or</li><li>Change the start or end point of the trip by selecting them on the map, or</li><li>Type in a new address, intersection or landmark for your start or end locations, or</li><li>Look up <a href='#'>schedules</a></li></ul>";
                         break;
                 }
             }

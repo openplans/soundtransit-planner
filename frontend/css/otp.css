@@ -487,12 +487,18 @@ font-weight: bold;
 font-size: 18px;
 }
 
+#no-results div,
+#no-results ul,
 #no-results p {
 margin-bottom: 1em;
 }
 
 #no-results ul {
 list-style: square inside none;
+}
+
+#no-results ul li {
+padding-left: 5px;
 }
 
 /* - */
