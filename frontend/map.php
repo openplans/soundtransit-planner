@@ -42,6 +42,8 @@
     <script type="text/javascript" src="js/jquery/jquery-ui-spinner.min.js"></script>
     <script type="text/javascript" src="js/openlayers/OpenLayers.js"></script>
     <script type="text/javascript" src="js/config.js"></script>
+    <script type="text/javascript" src="js/util.js"></script>
+    <script type="text/javascript" src="js/agency.js"></script>
     <script type="text/javascript" src="js/narrativeForm.js"></script>
     <script type="text/javascript" src="js/narrative.js"></script>
     <script type="text/javascript" src="js/map.js"></script>

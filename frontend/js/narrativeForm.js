@@ -24,41 +24,50 @@ OTP.NarrativeForm = function(_root) {
     // DOM elements
     var root = jQuery(_root);
 
+    function setBlankClassIfEmpty(element) {
+        if(jQuery(element).val() === "") {
+            jQuery(element).addClass('blank');
+        } else {
+            jQuery(element).removeClass('blank');
+        }
+    };
+
+    function incrementAtMax(element) {
+        var hoursField = root.find('#leavehour');
+        var ampmField = root.find('#leaveampm');
+
+        if (parseInt(hoursField.val()) > 11) {
+            hoursField.val(1);
+        } else {
+            hoursField.val(parseInt(hoursField.val()) + 1);
+            if (hoursField.val() == 12) {
+                ampmField.val((ampmField.val() == 'am') ? 'pm' : 'am').trigger('change');
+            }
+        }
+        element.val('0');
+    }
+
+    function decrementAtMin(element) {
+        var hoursField = root.find('#leavehour');
+        var ampmField = root.find('#leaveampm');
+        
+        if (parseInt(hoursField.val()) < 2) {
+            hoursField.val(12);
+        } else {
+            hoursField.val(parseInt(hoursField.val()) - 1);
+            if (hoursField.val() == 11) {
+                ampmField.val((ampmField.val() == 'am') ? 'pm' : 'am').trigger('change');
+            }
+        }
+        element.val('59');
+    }
+
+    function zeroPad(value) {
+        return (parseInt(value, 10) < 10) ? ("0" + value.toString()) : value;
+    };
+
     // behaviors
     function addFormUIBehavior() {
-        var setBlankClassIfEmpty = function(element) { 
-            if(jQuery(element).val() === "") {
-                jQuery(element).addClass('blank');
-            } else {
-                jQuery(element).removeClass('blank');
-            }
-        };
-
-        
-        var zeroPad = function(value) { 
-            return (parseInt(value, 10) < 10) ? ("0" + value.toString()) : value;
-        };
-        
-        var incrementAtMax = function(element) {
-            var hoursField = root.find('#leavehour');
-            if (parseInt(hoursField.val()) > 11) {
-                hoursField.val(1);
-            } else {
-                hoursField.val(parseInt(hoursField.val()) + 1);
-            }
-            element.val('0');
-        }
-
-        var decrementAtMin = function(element) {
-            var hoursField = root.find('#leavehour');
-            if (parseInt(hoursField.val()) < 2) {
-                hoursField.val(12);
-            } else {
-                hoursField.val(parseInt(hoursField.val()) - 1);
-            }
-            element.val('59');
-        }
-
         // clear button behavior
         root.find('#clear').click(function() {
             root.find('#to, #from')
@@ -84,9 +93,11 @@ OTP.NarrativeForm = function(_root) {
                     '<p>Right-click on the map to set the Start and End locations, then select "Plan Trip".</p>' +
                     '</div>')
                  .fadeIn('slow');
-                     
-            map.reset();
-            
+
+            if(typeof map !== 'undefined' && map !== null) {
+                map.reset();
+            }
+
             return false;
         });
   
@@ -137,8 +148,20 @@ OTP.NarrativeForm = function(_root) {
             });
   
         root.find('#leavehour')
-            .val((now.getHours() > 12) ? (now.getHours() - 12) : ((now.getHours() === 0) ? 12 : now.getHours()));
-
+            .val((now.getHours() > 12) ? (now.getHours() - 12) : ((now.getHours() === 0) ? 12 : now.getHours()))
+            .bind('change', function(event, ui) {
+                try {
+                    var v = parseInt(this.value);
+                    if(v <= 0 || isNaN(v)) {
+                        this.value = "1";
+                    } else if(v > 12) {
+                        this.value = "12";
+                    }
+                } catch(e) {
+                    this.value = "1";
+                }
+            });
+            
         root.find('#leaveminute')
             .spinner({ 
                 min: 0, 
@@ -168,23 +191,163 @@ OTP.NarrativeForm = function(_root) {
             if (jQuery(this).hasClass('active')) {
                 root.find('#moreoptions').hide();
 
-                jQuery(this).html('More Options<span> </span>')
+                jQuery(this).html('Advanced Search<span> </span>')
                     .removeClass('active');
             } else {
                 root.find('#moreoptions').show();
 
-                jQuery(this).html('Fewer Options<span> </span>')
+                jQuery(this).html('Simple Search<span> </span>')
                     .addClass('active');
             }
             
             return false;
         });
-
     }
 
     // constructor
     addFormUIBehavior();
 
     // public methods
-    return {};
+    return {
+        setFrom: function(v) {
+            if(v === null || v === "") {
+                return;
+            }
+                
+            root.find('#from')
+                .val(v)
+                .trigger("change");
+        },
+
+        setTo: function(v) {
+            if(v === null || v === "") {
+                return;
+            }
+                
+            root.find('#to')
+                .val(v)
+                .trigger("change");
+        },
+
+        setLeaveType: function(v) {
+            if(v === null || v === "") {
+                return;
+            }
+                
+            root.find('#leavetype')
+                .val(v);
+        },
+
+        setDay: function(v) {
+            if(v === null || v === "") {
+                return;
+            }
+
+            root.find('#leaveday')
+                .val(v);
+        },
+
+        setHour: function(v) {
+            if(v === null || v === "") {
+                return;
+            }
+
+            root.find('#leavehour')
+                .val(v);
+        },
+
+        setMinute: function(v) {
+            if(v === null || v === "") {
+                return;
+            }
+                
+            root.find('#leaveminute')
+                .val(v)
+                .trigger("change");
+        },
+
+        setAmPm: function(v) {
+            if(v === null || v === "") {
+                return;
+            }
+            
+            var realSelect = root.find('#leaveampm-wrap select');
+            var styledSelect = root.find('#leaveampm-wrap input');
+
+            realSelect.children().each(function(_, option) {
+               if(option.value === v) {
+                   styledSelect.val(option.text);
+                   return false;
+               } 
+            });
+        },
+
+        setTripPriority: function(v) {
+            if(v === null || v === "") {
+                return;
+            }
+            
+            // deploy extras section if value was changed
+            var currentValue = root.find('#trippriority-wrap select').val();
+            if(currentValue !== v) {
+                root.find('#moreoptions').show();
+
+                root.find('a#optionstoggle').html('Fewer Options<span></span>')
+                    .addClass('active');
+            }
+ 
+            var realSelect = root.find('#trippriority-wrap select');
+            var styledSelect = root.find('#trippriority-wrap input');
+
+            realSelect.children().each(function(_, option) {
+                if(option.value === v) {
+                   styledSelect.val(option.text);
+                   return false;
+               } 
+            });
+        },
+
+        setMaxWalk: function(v) {
+            if(v === null || v === "") {
+                return;
+            }
+            
+            // deploy extras section if value was changed
+            var currentValue = root.find('#maxwalk-wrap select').val();
+            if(currentValue !== v) {
+                root.find('#moreoptions').show();
+
+                root.find('a#optionstoggle').html('Fewer Options<span></span>')
+                    .addClass('active');
+            }
+                    
+            var realSelect = root.find('#maxwalk-wrap select');
+            var styledSelect = root.find('#maxwalk-wrap input');
+
+            realSelect.children().each(function(_, option) { 
+               if(option.value === v) {
+                   styledSelect.val(option.text);
+                   return false;
+               } 
+            });
+        },
+
+        setAccessible: function(v) {
+            if(v === null || v === "") {
+                return;
+            }
+
+            // deploy extras section if value was changed
+            var currentValue = root.find('accessible').attr("checked");
+            if(currentValue !== v) {
+                root.find('#moreoptions').show();
+
+                root.find('a#optionstoggle').html('Fewer Options<span></span>')
+                    .addClass('active');
+            }
+
+            root.find('accessible')
+                .attr('checked', v);
+        }        
+    };
 };

@@ -42,6 +42,8 @@
     <script type="text/javascript" src="js/jquery/jquery-ui-spinner.min.js"></script>
     <script type="text/javascript" src="js/openlayers/OpenLayers.js"></script>
     <script type="text/javascript" src="js/config.js"></script>
+    <script type="text/javascript" src="js/util.js"></script>
+    <script type="text/javascript" src="js/agency.js"></script>
     <script type="text/javascript" src="js/narrativeForm.js"></script>
     <script type="text/javascript" src="js/narrative.js"></script>
     <script type="text/javascript" src="js/map.js"></script>
@@ -140,7 +142,7 @@
           <label for="to"><img class="tripflag" src="img/otp/b-flag.png" alt="B" /> <strong>End</strong> Address, intersection, or landmark</label>
           <input name="to" id="to" type="text" value="" />
         </div>
-        <a id="tofromtoggle" href="#">toggle</a>
+        <a id="tofromtoggle" href="#" title="Reverse To/From Locations">toggle</a>
       </div>
       <div class="ui-widget">
         <span id="leavetype-wrap">
@@ -177,7 +179,7 @@
       </div>
       <div class="ui-widget">
         <input id="trip-submit" type="submit" value="Plan Trip" />
-        <a id="optionstoggle" href="#">More Options<span> </span></a>
+        <a id="optionstoggle" href="#">Advanced Search<span> </span></a>
       </div>
     </form>
     <div id="trip-data">
@@ -192,7 +194,7 @@
   </div><!-- /#plannerpanel --> 
   <div id="map">
     <div id="atis-credits">ATIS: Powered by Trapeze</div>
-    <a id="toggle-map-width" href="#">&nbsp;</a>
+    <a id="toggle-map-width" href="#" title="Show Map Full Screen">&nbsp;</a>
   </div>
 </div><!-- /#tripplanner-wrap -->
 </body>

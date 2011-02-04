@@ -54,14 +54,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
     var systemMapRouteCriteria = {};
     var systemMapRouteFeatures = {};
     var systemMapRouteInfoMarkers = {};
-    
-    // Add hash-sieving function to find unique elements in array
-    Array.prototype.unique = function() {
-        var o = {}, i, l = this.length, r = [];
-        for(i=0; i<l;i++) o[this[i]] = this[i];
-        for(i in o) r.push(o[i]);
-        return r;
-    };
 
     // decodes google-encoded polyline data
     function decodePolyline(encoded) {
@@ -119,75 +111,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
         if(markersDragControl !== null) {
             markersDragControl.deactivate();
         }
-    }
-    
-    // Dupe of narrative.js - TODO: consolidate these - probably in a OTP.Util namespace with some other general-purpose functions
-    function getAgencyForRoute(route, includeLink) {
-        var agencyName = "Unknown Agency";
-        var agencyUrl = null;
         
-        if(route === null) {
-            return agencyName;
-        }
-
-        if(isSounder(route)) {
-            agencyUrl = "http://www.soundtransit.org/sounder";
-            agencyName = "Sounder";
-        } else if(isTheLink(route)) {
-            agencyUrl = "http://www.soundtransit.org/link";
-            agencyName = "Link Light Rail";
-        } else {
-            var agencyIdentifier = (route + '').toUpperCase().match('^[M|P|CT|ST]');
-
-            if(agencyIdentifier !== null && typeof agencyIdentifier[0] !== 'undefined') {
-                agencyIdentifier = agencyIdentifier[0];
-                if(agencyIdentifier === "M") {
-                    agencyUrl = "http://metro.kingcounty.gov/";
-                    agencyName = "King County Metro";
-                } else if(agencyIdentifier === "P") {
-                    agencyUrl = "http://www.piercetransit.org/";
-                    agencyName = "Pierce Transit";
-                } else if(agencyIdentifier === "ST") {
-                    agencyUrl = "http://www.soundtransit.org";
-                    agencyName = "Sound Transit";
-                } else if(agencyIdentifier === "CT") {
-                    agencyUrl = "http://www.commtrans.org/";
-                    agencyName = "Community Transit";
-                } else {
-                    // if there is no route identifier, it's a CT route, except if it's between 500 and 599. 
-                    try {
-                        var agencyIdentifierNum = parseInt(agencyIdentifier);
-                        if(agencyIdentifierNum >= 500 && agencyIdentifierNum <= 599) {
-                            agencyUrl = "http://www.soundtransit.org";
-                            agencyName = "Sound Transit";
-                        }
-                    } catch(e) {}
-
-                    agencyUrl = "http://www.commtrans.org/";
-                    agencyName = "Community Transit";
-                }
-            }
-        }
-
-        if(includeLink) {
-            return '<a href="' + agencyUrl + '">' + agencyName + '</a>';
-        } else {
-            return agencyName;
-        }
-    }
-    
-    function isSounder(route) {
-        if(route === null) {
-            return false;
-        }
-        return (route.toUpperCase() === "MSOUNDER");
-    }
-
-    function isTheLink(route) {
-        if(route === null) {
-            return false;
-        }
-        return (route.toUpperCase() === "M599");
+        hideWelcomeMessage();
     }
 
     // leg info markers
@@ -237,8 +162,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
         ensureInfoWindowIsVisible();
     }
 
-    function addLegInfoMarker(routeName, type, legInfoWindowHtml, lonlat) {
-        if(routeName === null || type === null || type === "WALK") {
+    function addLegInfoMarker(route, mode, legInfoWindowHtml, lonlat) {
+        if(route === null || mode === null) {
             return null;
         }
 
@@ -254,12 +179,12 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
         var modeIcon = jQuery("<p></p>")
                             .addClass("leg-mode")
-                            .addClass(type)
+                            .addClass(mode.toLowerCase())
                             .appendTo(contentWrapper);
 
         var contentLabel = jQuery("<p></p>")
                             .addClass("route-label")
-                            .html(routeName)
+                            .html(route)
                             .appendTo(contentWrapper);
 
         var viewPortPx = map.getViewPortPxFromLonLat(lonlat);
@@ -492,22 +417,23 @@ OTP.Map = function(_root, _controlsRoot, options) {
         ensureInfoWindowIsVisible();
     }
 
+    // FIXME: clean this up
     function getInfoWindowContentForFeature(featureProperties) {
-        var popupContent = "";
         var type = "";
+        var lonlat = new OpenLayers.LonLat(featureProperties.lon, featureProperties.lat);
         var headerContent = featureProperties.name;
+
         var crossbar = "";
-        var toggle = "";
         var amenities = "";
         var routesServed = "";
         var ticketText = "";
-        var lonlat = new OpenLayers.LonLat(featureProperties.lon, featureProperties.lat);
-        var startEndTrip = jQuery('<div class="start-end-area"></div>');
-        
+
         if(typeof featureProperties.outlettype !== 'undefined') {
             type = "fareoutlet";
+
             var niceOutletType = (featureProperties.outlettype == 'TVM') ? "Ticket Vending Machine" : ((featureProperties.outlettype == 'Retailer') ? "Retailer" : "ORCA Customer service center");
             crossbar = '<div class="crossbar"><strong>' + niceOutletType + '</strong> - ' + featureProperties.location + '</div>';
+            
             amenities += "<strong>What can I do here</strong>";
             amenities += (featureProperties.outlettype == 'TVM') ? '<div class="fare-actions"><ul><li>Buy new ORCA Card (Note: Adult cards only)</li><li>Reload ORCA Card</li><li>Buy new monthly pass on ORCA Card</li><li>Central link tickets</li><li>Sounder tickets</li></ul></div>' : ((featureProperties.outlettype == 'Retailer') ? '<div class="fare-actions"><ul><li>Reload ORCA Card</li><li>Buy new monthly pass on ORCA Card</li></ul>Note: No new ORCA cards sold here</div>' : '<div class="fare-actions"><ul><li>Buy new ORCA Card, including Youth and Senior card</li><li>Reload ORCA Card</li><li>Buy new monthly pass on ORCA Card</li></ul></div>');
             amenities += "<strong>How can I pay here</strong>";
@@ -515,7 +441,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
             
         } else if(typeof featureProperties.accessible !== 'undefined') {
             type = "stop";
+
             var routesServed = '<div class="info-routes"></div>';
+
             var callbackFunction = "getRoutesServingStop" + Math.floor(Math.random() * 1000000000);
             jQuery.ajax({
                  url: OTP.Config.atisProxyScheduleUrl,
@@ -528,103 +456,56 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     if(typeof data.service === 'undefined') {
                         return;
                     }
-                    
-                    routes = [];
-                    sounderRoutes = [];
-                    linkRoutes = [];
-                    metroRoutes = [];
-                    pierceRoutes = [];
-                    soundTransRoutes = [];
-                    commTransRoutes = [];
-                    
-                    // We may be handed an array of objects or a single object, depending on how many routes stop here
-                    // TODO: handle grouping by transit agency
+
+                    var services = null;
                     if(data.service instanceof Array) {
-                        for(var i = 0; i < data.service.length; i++) {
-                            routes.push(data.service[i].route);
-                            switch(getAgencyForRoute(data.service[i].route, false)) {
-                                case "Sounder":
-                                    sounderRoutes.push(data.service[i].route);
-                                    break;
-                                case "Link Light Rail":
-                                    linkRoutes.push(data.service[i].route);
-                                    break;
-                                case "King County Metro":
-                                    metroRoutes.push(data.service[i].route);
-                                    break;
-                                case "Pierce Transit":
-                                    pierceRoutes.push(data.service[i].route);
-                                    break;
-                                case "Sound Transit":
-                                    soundTransRoutes.push(data.service[i].route);
-                                    break;
-                                case "Community Transit":
-                                    commTransRoutes.push(data.service[i].route);
-                                    break;
-                            }
-                        }
+                        services = data.service;
                     } else {
-                        routes.push(data.service.route);
-                        switch(getAgencyForRoute(data.service.route, false)) {
-                            case "Sounder":
-                                sounderRoutes.push(data.service.route);
-                                break;
-                            case "Link Light Rail":
-                                linkRoutes.push(data.service.route);
-                                break;
-                            case "King County Metro":
-                                metroRoutes.push(data.service.route);
-                                break;
-                            case "Pierce Transit":
-                                pierceRoutes.push(data.service.route);
-                                break;
-                            case "Sound Transit":
-                                soundTransRoutes.push(data.service.route);
-                                break;
-                            case "Community Transit":
-                                commTransRoutes.push(data.service.route);
-                        }
+                        services = [data.service];
                     }
 
-                    var routeDiv = root.find('.info-window .info-routes');
+                    var routesByAgencyMap = {};
+                    jQuery.each(services, function(_, service) {
+                        var agency = OTP.Agency.getAgencyNameForLeg(null, service.route);
+                        var route = OTP.Agency.getDisplayNameForLeg(null, service.route);
 
-                    if (routes.length > 0) { //only show if we have routes returned
-                        var routeMarkup = "";
-                        if (sounderRoutes.length > 0) {
-                            routeMarkup += getAgencyForRoute(sounderRoutes[0], false) + " " + sounderRoutes.unique().join(", ");
+                        if(typeof routesByAgencyMap[agency] === 'undefined') {
+                            routesByAgencyMap[agency] = [];
                         }
-                        if (linkRoutes.length > 0) {
-                            routeMarkup += getAgencyForRoute(linkRoutes[0], false) + " "  + linkRoutes.unique().join(", ");
-                        }
-                        if (metroRoutes.length > 0) {
-                            routeMarkup += getAgencyForRoute(metroRoutes[0], false) + " "  + metroRoutes.unique().join(", ");
-                        }
-                        if (pierceRoutes.length > 0) {
-                            routeMarkup += getAgencyForRoute(pierceRoutes[0], false) + " "  + pierceRoutes.unique().join(", ");
-                        }
-                        if (soundTransRoutes.length > 0) {
-                            routeMarkup += getAgencyForRoute(soundTransRoutes[0], false) + " "  + soundTransRoutes.unique().join(", ");
-                        }
-                        if (commTransRoutes.length > 0) {
-                            routeMarkup += getAgencyForRoute(commTransRoutes[0], false) + " "  + commTransRoutes.unique().join(", ");
+                        routesByAgencyMap[agency].push(route);
+                    });
+
+                    var routeMarkup = "";
+                    jQuery.each(routesByAgencyMap, function(agencyName, routeArray) {
+                        if(routeArray.length <= 0) {
+                            return;
                         }
                         
-                        routeDiv.html('<strong>Services Routes</strong>:<br />' + routeMarkup);
-                        
-                        // some browsers will append "px" to the css value so we need to force coversion to integer
-                        infoWindow.css("top", (parseInt(infoWindow.css("top")) - routeDiv.height()));
-                        ensureInfoWindowIsVisible();
-                    }
+                        routeMarkup += agencyName + " " + routeArray.unique().join(", ");
+                    });
                     
-               }
+                    var routeDiv = root.find('.info-window .info-routes')
+                                    .html('<strong>Routes That Serve This Stop</strong>:<br />' + routeMarkup);
+
+                    // some browsers will append "px" to the css value so we need to force coversion to integer
+                    infoWindow.css("top", (parseInt(infoWindow.css("top")) - routeDiv.height()));
+                    ensureInfoWindowIsVisible();
+                }
             });
+
             crossbar = '<div class="crossbar"><strong>Stop ID</strong>: ' + featureProperties.localid.replace(/^\D/i, "") + '</div>';
-            if (featureProperties.park2min !== null && featureProperties.park2min !== "") {amenities += "<strong>Nearby Parking</strong>: " + featureProperties.park2min + "<br />";}
+
+            if (featureProperties.park2min !== null && featureProperties.park2min !== "") {
+                amenities += "<strong>Nearby Parking</strong>: " + featureProperties.park2min + "<br />";
+            }
+            
             // temporary workaround for our stop data having lat and lon transposed. Remove when we're able to fix that.
             lonlat = new OpenLayers.LonLat(featureProperties.lat, featureProperties.lon);
         } else {
             type = "parkandride";
+            
             crossbar = '<div class="crossbar">' + featureProperties.location + '</div>';
+
             if (featureProperties.spaces !== null && featureProperties.spaces !== 0 && featureProperties.spaces !== "") {amenities += "<strong>Parking spaces:</strong> " + featureProperties.spaces;}
             if (featureProperties.timefull !== null && featureProperties.timefull !== 0 && featureProperties.timefull !== "") {amenities += " This parking lot is typically full by " + featureProperties.timefull + "AM<br />"} else {amenities += "<br />"}
             if (featureProperties.numbikeloc !== null && featureProperties.numbikeloc !== 0 && featureProperties.numbikeloc !== "") {amenities += "<strong>Bike Lockers:</strong> " + featureProperties.numbikeloc + "<br />";}
@@ -641,7 +522,10 @@ OTP.Map = function(_root, _controlsRoot, options) {
                             .html("<h2>" + headerContent + "</h2>")
                             .append(getInfoWindowClose());
 
+        // start/end trip here if trip planner is present
         if (options.hasTripPlanner === true) {
+            var startEndTrip = jQuery('<div class="start-end-area"></div>');
+                    
             jQuery('<a href="#">Start Trip Here</a>')
                 .click(function(e) {
                     if(typeof options.updateFromLocationFunction === 'function') {
@@ -669,15 +553,19 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     }
                     return false;
             }).appendTo(startEndTrip);
+
+            content.append(startEndTrip);
         }
         
-        content.append(startEndTrip);
+        content
+            .prepend(ticketText)
+            .prepend(amenities)
+            .prepend(routesServed)
+            .prepend(crossbar);
         
-        content.prepend(ticketText).prepend(amenities).prepend(routesServed).prepend(crossbar);
-        
-        var popupContent = jQuery('<div></div>').append(headerWrapper).append(content);
-
-        return popupContent;
+        return jQuery('<div></div>')
+                    .append(headerWrapper)
+                    .append(content);
     }
     
     function getInfoWindowClose() {
@@ -730,29 +618,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
         if(cqlQuery === null || cqlQuery === "") {
             return;
-        }
-
-        var style = null;
-        if(mode === "WSF") {
-            style = {
-                strokeColor: "#666666",
-                strokeWidth: 4
-            };
-        } else if(mode === "BUS") {
-            // (color set below, per feature)
-            style = {
-                strokeWidth: 4
-            };                
-        } else if(mode === "SOUNDER") {
-            style = {
-                strokeColor: "#0B9140",
-                strokeWidth: 4
-            };                                
-        } else if(mode === "LINK") {
-            style = {
-                strokeColor: "#41B1C1",
-                strokeWidth: 4
-            };                                
         }
 
         var callbackFunction = "drawRouteLayerForModeCallback" + Math.floor(Math.random() * 1000000000);
@@ -809,7 +674,10 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                 routeName = routeName.substring(agencyIdentifier[0].length);
                             }
 
-                            var infoMarker = addLegInfoMarker(routeName, mode, null, infoMarkerPoint);
+                            var infoMarker = addLegInfoMarker(OTP.Agency.getDisplayNameForLeg(mode, routeName), 
+                                                              OTP.Agency.getModeLabelForLeg(mode, routeName), 
+                                                              null, 
+                                                              infoMarkerPoint);
 
                             if(typeof systemMapRouteInfoMarkers[mode] === 'undefined' || systemMapRouteInfoMarkers[mode] === null) {
                                 systemMapRouteInfoMarkers[mode] = [];
@@ -819,15 +687,10 @@ OTP.Map = function(_root, _controlsRoot, options) {
                             addedFlag = true;
                         }
 
-                        // special styling for secondary bus routes
-                        if(mode === "BUS") {
-                            if(feature.properties['routetyp'] === "S") {
-                                style.strokeColor = "#3A7BBE";
-                            } else {
-                                style.strokeColor = "#5380B0";
-                            }
-                        }
-
+                        var style = {
+                            strokeColor: OTP.Agency.getColorForLeg(mode, feature.properties.designator),
+                            strokeWidth: 4
+                        };
                         var polyline = new OpenLayers.Geometry.LineString(points);
                         var lineFeature = new OpenLayers.Feature.Vector(polyline, null, style);
                         routeLayer.addFeatures([lineFeature]);
@@ -1351,7 +1214,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                     }
                                     lastValue = route.designator;
                                     
-                                    var label = route.designator;
+                                    var label = OTP.Agency.getDisplayNameForLeg(null, route.designator);
                                     if(route.routedescription !== null) {
                                         if(route.routedescription.length > 40) {
                                             label += " " + route.routedescription.substr(0, 35) + "...";
@@ -1670,15 +1533,19 @@ OTP.Map = function(_root, _controlsRoot, options) {
     }
 
     // welcome message
+    function hideWelcomeMessage() {
+        jQuery("#welcome").remove();
+    }
+    
     function showWelcomeMessage() {
         var closeButton = jQuery('<a class="close" href="#">Close</a>')
                                     .click(function(e) {
-                                        jQuery(this).parent().remove();
+                                        hideWelcomeMessage();
                                         return false;
                                     });
 
         jQuery("<div></div>")
-            .addClass("welcome")
+            .attr("id", "welcome")
             .append("<h1>It's easy to get started!</h1>" + 
                     "<p>Right-click (PC) or Control-click (Macintosh) on the map to select a starting/ending location and plan your trip.</p>")
             .appendTo(map.viewPortDiv)
@@ -1799,64 +1666,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
             setEndMarker(point.transform(proj, map.getProjectionObject()));
         },
 
-        removeHoverRoute: function() {
-            var features = routeLayer.getFeaturesByAttribute("type", "hover");
-
-            if(features !== null) {
-                routeLayer.removeFeatures(features);
-            }
-        },
-        
-        addLegToHoverRoute: function(leg, type) {
-            if(leg === null || type === null) {
-                return;
-            }
-
-            var rawPoints = decodePolyline(leg.legGeometry.points);
-            var points = [];
-            for(var i = 0; i < rawPoints.length; i++) {
-                var wgsPoint = new OpenLayers.Geometry.Point(rawPoints[i][1], rawPoints[i][0]);
-                var proj = new OpenLayers.Projection("EPSG:4326");
-                var point = wgsPoint.transform(proj, map.getProjectionObject());
-                points.push(point);
-            }
-
-            if(points.length === 0) {
-                return;
-            }
-
-            var style = {};
-            if(type === "WALK") {
-                style = {
-                         strokeColor: "#666666",
-                         strokeOpacity: 0.50,
-                         strokeWidth: 4
-                };
-            } else if(type === "BUS") {
-                style = {
-                         strokeColor: "#5380B0",
-                         strokeOpacity: 0.50,
-                         strokeWidth: 4
-                };                
-            } else if(type === "SOUNDER") {
-                style = {
-                         strokeColor: "#0B9140",
-                         strokeOpacity: 0.50,
-                         strokeWidth: 4
-                };                                
-            } else if(type === "LINK") {
-                style = {
-                         strokeColor: "#41B1C1",
-                         strokeOpacity: 0.50,
-                         strokeWidth: 4
-                };                                
-            }
-
-            var polyline = new OpenLayers.Geometry.LineString(points);
-            var lineFeature = new OpenLayers.Feature.Vector(polyline, { type: "hover" }, style);
-            routeLayer.addFeatures([lineFeature]);
-        },
-
         addDisambiguationPoint: function(lon, lat, index) {
             if(lat === null || lon === null) {
                 return;
@@ -1915,8 +1724,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
             }
         },
 
-        addLegToPlannedRoute: function(leg, type) {
-            if(leg === null || type === null) {
+        addLegToPlannedRoute: function(leg) {
+            if(leg === null) {
                 return;
             }
 
@@ -1933,45 +1742,67 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 return;
             }
 
-            var style = {};
-            if(type === "WALK") {
-                style = {
-                         strokeColor: "#666666",
-                         strokeOpacity: 0.80,
-                         strokeWidth: 4
-                };
-            } else if(type === "BUS") {
-                style = {
-                         strokeColor: "#5380B0",
-                         strokeOpacity: 0.80,
-                         strokeWidth: 4
-                };                
-            } else if(type === "SOUNDER") {
-                style = {
-                         strokeColor: "#0B9140",
-                         strokeOpacity: 0.80,
-                         strokeWidth: 4
-                };                                
-            } else if(type === "LINK") {
-                style = {
-                         strokeColor: "#41B1C1",
-                         strokeOpacity: 0.80,
-                         strokeWidth: 4
-                };                                
-            }
+            var style = {
+                strokeColor: OTP.Agency.getColorForLeg(leg["@mode"], leg["@route"]),
+                strokeOpacity: 0.80,
+                strokeWidth: 4
+            };
 
             var polyline = new OpenLayers.Geometry.LineString(points);
             var lineFeature = new OpenLayers.Feature.Vector(polyline, null, style);
             routeLayer.addFeatures([lineFeature]);
         },
 
-        addLegInfoMarker: function(routeName, type, legInfoWindowHtml, wgsLonlat) {
-            if(wgsLonlat === null || routeName === null || type === null || type === 'WALK') {
+        removeHoverRoute: function() {
+            var features = routeLayer.getFeaturesByAttribute("type", "hover");
+
+            if(features !== null) {
+                routeLayer.removeFeatures(features);
+            }
+        },
+        
+        addLegToHoverRoute: function(leg) {
+            if(leg === null) {
                 return;
             }
+
+            var rawPoints = decodePolyline(leg.legGeometry.points);
+            var points = [];
+            for(var i = 0; i < rawPoints.length; i++) {
+                var wgsPoint = new OpenLayers.Geometry.Point(rawPoints[i][1], rawPoints[i][0]);
+                var proj = new OpenLayers.Projection("EPSG:4326");
+                var point = wgsPoint.transform(proj, map.getProjectionObject());
+                points.push(point);
+            }
+
+            if(points.length === 0) {
+                return;
+            }
+
+            var style = {
+                strokeColor: OTP.Agency.getColorForLeg(leg["@mode"], leg["@route"]),
+                strokeOpacity: 0.50,
+                strokeWidth: 4
+            };
+
+            var polyline = new OpenLayers.Geometry.LineString(points);
+            var lineFeature = new OpenLayers.Feature.Vector(polyline, { type: "hover" }, style);
+            routeLayer.addFeatures([lineFeature]);
+        },
+
+        addLegInfoMarker: function(leg, legInfoWindowHtml) {
+            if(leg === null || leg["@mode"] === "WALK") {
+                return;
+            }
+
             var proj = new OpenLayers.Projection("EPSG:4326");
-            var lonlat = wgsLonlat.transform(proj, map.getProjectionObject())
-            addLegInfoMarker(routeName, type, legInfoWindowHtml, lonlat); 
+            var wgsLonLat = new OpenLayers.LonLat(leg.from.lon, leg.from.lat);
+            var lonlat = wgsLonLat.transform(proj, map.getProjectionObject())
+
+            addLegInfoMarker(OTP.Agency.getDisplayNameForLeg(leg["@mode"], leg["@route"]), 
+                             OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]), 
+                             legInfoWindowHtml, 
+                             lonlat); 
         }
     };
 };

@@ -1313,25 +1313,25 @@ text-indent: -9999px;
 float: left;
 }
 
-.info_marker .content .leg-mode.WSF {
+.info_marker .content .leg-mode.ferry {
 background-image: url(../img/otp/ferry16x16.png);
 }
 
-.info_marker .content .leg-mode.LINK {
+.info_marker .content .leg-mode.link {
 background-image: url(../img/otp/link16x16.png);
 }
 
-.info_marker .content .leg-mode.SOUNDER {
+.info_marker .content .leg-mode.sounder {
 background-image: url(../img/otp/sounder16x16.png);
 }
 
-.info_marker .content .leg-mode.BUS {
+.info_marker .content .leg-mode.bus {
 background-image: url(../img/otp/bus16x16.png);
 }
 
 /* - */
 
-.welcome {
+#welcome {
 position: absolute;
 z-index: 10000000;
 background-color: #F8FBD8;
@@ -1346,19 +1346,19 @@ width: 300px;
 border-radius: 3px;
 }
 
-.welcome p {
+#welcome p {
 padding: 10px;
 padding-top: 0px;
 }
 
-.welcome h1 {
+#welcome h1 {
 padding: 10px;
 padding-bottom: 0px;
 font-weight: bold;
 font-size: 18px;
 }
 
-.welcome .close {
+#welcome .close {
 position: absolute;
 top: 2px;
 right: 2px;
