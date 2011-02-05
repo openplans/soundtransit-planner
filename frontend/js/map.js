@@ -219,6 +219,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     }
 
     function showContextMenu(point) {
+        hideWelcomeMessage();
         hideContextMenu();
 
         contextMenu = jQuery("<ul></ul>")
@@ -391,10 +392,11 @@ OTP.Map = function(_root, _controlsRoot, options) {
     }
 
     function showInfoWindow(feature) {
+        hideWelcomeMessage();
         hideInfoWindow();
 
         // create info window popup wrapper and append to DOM
-        var infoWindowContent = jQuery(getInfoWindowContentForFeature(feature.attributes))
+        var infoWindowContent = jQuery(getInfoWindowContentForFeature(feature.attributes, feature.geometry.x, feature.geometry.y))
                                     .addClass("content");
 
         infoWindow = jQuery("<div></div>")
@@ -411,38 +413,64 @@ OTP.Map = function(_root, _controlsRoot, options) {
             .css("width", infoWindowContent.width());
 
         infoWindow
-            .css("top", layerContainerPx.y - infoWindow.height())
+            .css("top", layerContainerPx.y - infoWindow.height() - (getMarkerRadiusAtCurrentZoomLevel() * 2))
             .css("left", layerContainerPx.x - (infoWindow.width() / 2));
             
         ensureInfoWindowIsVisible();
     }
 
     // FIXME: clean this up
-    function getInfoWindowContentForFeature(featureProperties) {
-        var type = "";
-        var lonlat = new OpenLayers.LonLat(featureProperties.lon, featureProperties.lat);
-        var headerContent = featureProperties.name;
+    function getInfoWindowContentForFeature(featureProperties, lon, lat) {
+        var typeClass = null;
 
-        var crossbar = "";
-        var amenities = "";
-        var routesServed = "";
-        var ticketText = "";
+        var headerContent = featureProperties.name;
+        var content = null;
 
         if(typeof featureProperties.outlettype !== 'undefined') {
-            type = "fareoutlet";
+            typeClass = "fareoutlet";
 
-            var niceOutletType = (featureProperties.outlettype == 'TVM') ? "Ticket Vending Machine" : ((featureProperties.outlettype == 'Retailer') ? "Retailer" : "ORCA Customer service center");
-            crossbar = '<div class="crossbar"><strong>' + niceOutletType + '</strong> - ' + featureProperties.location + '</div>';
-            
-            amenities += "<strong>What can I do here</strong>";
-            amenities += (featureProperties.outlettype == 'TVM') ? '<div class="fare-actions"><ul><li>Buy new ORCA Card (Note: Adult cards only)</li><li>Reload ORCA Card</li><li>Buy new monthly pass on ORCA Card</li><li>Central link tickets</li><li>Sounder tickets</li></ul></div>' : ((featureProperties.outlettype == 'Retailer') ? '<div class="fare-actions"><ul><li>Reload ORCA Card</li><li>Buy new monthly pass on ORCA Card</li></ul>Note: No new ORCA cards sold here</div>' : '<div class="fare-actions"><ul><li>Buy new ORCA Card, including Youth and Senior card</li><li>Reload ORCA Card</li><li>Buy new monthly pass on ORCA Card</li></ul></div>');
-            amenities += "<strong>How can I pay here</strong>";
-            amenities += (featureProperties.outlettype == 'TVM') ? '<div class="payment-actions"><ul><li>Cash</li><li>Visa, MasterCard</li></ul></div>' : ((featureProperties.outlettype == 'Retailer') ? '<div class="payment-actions"><ul><li>Cash</li></ul></div>' : '<div class="payment-actions"><ul><li>Cash</li><li>Visa, MasterCard</li><li>Checks</li></ul></div>');
-            
+            var prettyOutletType = (featureProperties.outlettype === 'TVM') ? "Ticket Vending Machine" : 
+                                    ((featureProperties.outlettype === 'Retailer') ? "Retailer" 
+                                    : "ORCA Customer Service Center");
+
+            // crossbar: location
+            content = '<div class="crossbar"><strong>' + prettyOutletType + '</strong> - ' + featureProperties.location + '</div>';
+
+            // what can I do here?
+            content += '<div class="fare-actions"><strong>What can I do here?</strong>';
+            content += (featureProperties.outlettype === 'TVM') ? '<ul><li>Buy new ORCA Card (adult cards only)</li><li>Reload ORCA Card</li><li>Buy new monthly pass on ORCA Card</li><li>Central link tickets</li><li>Sounder tickets</li></ul>' : 
+                        ((featureProperties.outlettype === 'Retailer') ? '<ul><li>Reload ORCA Card</li><li>Buy new monthly pass on ORCA Card</li></ul>Note: No new ORCA cards sold here.' 
+                        : '<ul><li>Buy new ORCA Card, including Youth and Senior card</li><li>Reload ORCA Card</li><li>Buy new monthly pass on ORCA Card</li></ul>');
+            content += '</div>';
+
+            // how can I pay here?
+            content += '<div class="payment-actions"><strong>How can I pay here?</strong>';
+            content += (featureProperties.outlettype === 'TVM') ? '<ul><li>Cash</li><li>Visa, MasterCard</li></ul>' : 
+                        ((featureProperties.outlettype === 'Retailer') ? '<ul><li>Cash</li></ul>' 
+                        : '<ul><li>Cash</li><li>Visa, MasterCard</li><li>Checks</li></ul>');
+            content += '</div>';
+
         } else if(typeof featureProperties.accessible !== 'undefined') {
-            type = "stop";
+            typeClass = "stop";
 
-            var routesServed = '<div class="info-routes"></div>';
+            // crossbar: accessibility 
+            if (featureProperties.accessible !== "") {
+                if(featureProperties.accessible === "Y") {
+                    content = '<div class="crossbar"><strong>Accessible</strong>: Yes</div>';
+                } else {
+                    content = '<div class="crossbar"><strong>Accessible</strong>: No</div>';
+                }
+            } else {
+                content = '<div class="crossbar"><strong>Accessible</strong>: Unknown</div>';
+            }
+
+            // nearby parking
+            if (featureProperties.parking_near !== null && featureProperties.parking_near !== "") {
+                content += "<strong>Nearby Parking</strong>: " + featureProperties.parking_near + "<br />";
+            }
+
+            // service at this stop
+            content += '<div class="info-routes"></div>';
 
             var callbackFunction = "getRoutesServingStop" + Math.floor(Math.random() * 1000000000);
             jQuery.ajax({
@@ -468,7 +496,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     jQuery.each(services, function(_, service) {
                         var agency = OTP.Agency.getAgencyNameForLeg(null, service.route);
                         var route = OTP.Agency.getDisplayNameForLeg(null, service.route);
-
                         if(typeof routesByAgencyMap[agency] === 'undefined') {
                             routesByAgencyMap[agency] = [];
                         }
@@ -480,42 +507,74 @@ OTP.Map = function(_root, _controlsRoot, options) {
                         if(routeArray.length <= 0) {
                             return;
                         }
-                        
                         routeMarkup += agencyName + " " + routeArray.unique().join(", ");
                     });
-                    
+
                     var routeDiv = root.find('.info-window .info-routes')
-                                    .html('<strong>Routes That Serve This Stop</strong>:<br />' + routeMarkup);
+                                        .html('<strong>Routes That Serve This Stop</strong>:<br />' + routeMarkup);
 
                     // some browsers will append "px" to the css value so we need to force coversion to integer
-                    infoWindow.css("top", (parseInt(infoWindow.css("top")) - routeDiv.height()));
+                    infoWindow.css("top", (parseInt(infoWindow.css("top"), 10) - routeDiv.height()));
+
                     ensureInfoWindowIsVisible();
                 }
             });
+        } else {
+            typeClass = "parkandride";
 
-            crossbar = '<div class="crossbar"><strong>Stop ID</strong>: ' + featureProperties.localid.replace(/^\D/i, "") + '</div>';
+            // replace header with preferred name, if available
+            if(featureProperties.altname !== null && featureProperties.altname !== "") {
+                headerContent = featureProperties.altname;
+            }
 
-            if (featureProperties.park2min !== null && featureProperties.park2min !== "") {
-                amenities += "<strong>Nearby Parking</strong>: " + featureProperties.park2min + "<br />";
+            // crossbar: location
+            if(featureProperties.altlocation !== null && featureProperties.altlocation !== "") {
+                content = '<div class="crossbar">' + featureProperties.altlocation + '</div>';
+            } else {
+                content = '<div class="crossbar">' + featureProperties.location + '</div>';
             }
             
-            // temporary workaround for our stop data having lat and lon transposed. Remove when we're able to fix that.
-            lonlat = new OpenLayers.LonLat(featureProperties.lat, featureProperties.lon);
-        } else {
-            type = "parkandride";
-            
-            crossbar = '<div class="crossbar">' + featureProperties.location + '</div>';
+            // station attributes
+            if (featureProperties.spaces !== null && featureProperties.spaces !== 0 && featureProperties.spaces !== "") {
+                content += "<strong>Parking Spaces</strong>: " + featureProperties.spaces + "<br/>";
+            }
 
-            if (featureProperties.spaces !== null && featureProperties.spaces !== 0 && featureProperties.spaces !== "") {amenities += "<strong>Parking spaces:</strong> " + featureProperties.spaces;}
-            if (featureProperties.timefull !== null && featureProperties.timefull !== 0 && featureProperties.timefull !== "") {amenities += " This parking lot is typically full by " + featureProperties.timefull + "AM<br />"} else {amenities += "<br />"}
-            if (featureProperties.numbikeloc !== null && featureProperties.numbikeloc !== 0 && featureProperties.numbikeloc !== "") {amenities += "<strong>Bike Lockers:</strong> " + featureProperties.numbikeloc + "<br />";}
-            if (featureProperties.electricca !== null && featureProperties.electricca !== 0 && featureProperties.electricca !== "") {amenities += "<strong>Electric Car Chargers:</strong> " + featureProperties.electricca + "<br />";}
-            if (featureProperties.notes !== null && featureProperties.notes !== null && featureProperties.notes !== "") {amenities += "<strong>Notes:</strong> " + featureProperties.notes;}
+            if (featureProperties.timefull !== null && featureProperties.timefull !== 0 && featureProperties.timefull !== "") {
+                content += "Note: This parking lot is typically full by " + featureProperties.timefull + " AM.<br/>";
+            }
+
+            if (featureProperties.numbikeloc !== null && featureProperties.numbikeloc !== 0 && featureProperties.numbikeloc !== "") {
+                content += "<strong>Bike Lockers</strong>: " + featureProperties.numbikeloc + "<br />";
+            }
+            
+            if (featureProperties.bikerack !== null && featureProperties.numbikeloc !== "") {
+                content += "<strong>Bike Racks Available</strong>: Yes<br />";
+            }
+            
+            if (featureProperties.tvm !== null && featureProperties.tvm !== "") {
+                content += "<strong>TVM Available</strong>: Yes<br />";
+            }
+            
+            if (featureProperties.restrooms !== null && featureProperties.restrooms !== "") {
+                content += "<strong>Restrooms Available</strong>: Yes<br />";
+            }
+            
+            if (featureProperties.hours !== null && featureProperties.hours !== "") {
+                content += "<strong>Hours</strong>: " + featureProperties.hours + "<br />";
+            }
+            
+            if (featureProperties.electricca !== null && featureProperties.electricca !== 0 && featureProperties.electricca !== "") {
+                content += "<strong>Electric Car Chargers</strong>: " + featureProperties.electricca + "<br />";
+            }
+            
+            if (featureProperties.notes !== null && featureProperties.notes !== "") {
+                content += "<strong>Notes</strong>: <br/>" + featureProperties.notes;
+            }
         }
     
-        var content = jQuery("<div></div>")
+        var contentWrapper = jQuery("<div></div>")
                             .addClass("info-content")
-                            .addClass(type);
+                            .addClass(typeClass);
 
         var headerWrapper = jQuery("<div></div>")
                             .addClass("info-header")
@@ -529,13 +588,14 @@ OTP.Map = function(_root, _controlsRoot, options) {
             jQuery('<a href="#">Start Trip Here</a>')
                 .click(function(e) {
                     if(typeof options.updateFromLocationFunction === 'function') {
-                        var toFeature = markersLayer.getFeaturesByAttribute('type', "end");
-                        var submitAfterDone = (toFeature !== null && typeof toFeature[0] !== 'undefined') ? true : false;
-                        options.updateFromLocationFunction(lonlat, submitAfterDone);
+                        var lonlat = new OpenLayers.LonLat(lon, lat);
+                        setStartMarker(lonlat);
+                        hideInfoWindow();
 
                         var proj = new OpenLayers.Projection("EPSG:4326");
-                        setStartMarker(lonlat.transform(proj, map.getProjectionObject()));
-                        hideInfoWindow();
+                        var toFeature = markersLayer.getFeaturesByAttribute('type', "end");
+                        var submitAfterDone = (toFeature !== null && typeof toFeature[0] !== 'undefined') ? true : false;
+                        options.updateFromLocationFunction(lonlat.transform(map.getProjectionObject(), proj), submitAfterDone);
                     }
                     return false;
             }).appendTo(startEndTrip);
@@ -543,29 +603,27 @@ OTP.Map = function(_root, _controlsRoot, options) {
             jQuery('<a href="#">End Trip Here</a>')
                 .click(function(e) {
                     if(typeof options.updateToLocationFunction === 'function') {
+                        var lonlat = new OpenLayers.LonLat(lon, lat);
+                        setEndMarker(lonlat);
+                        hideInfoWindow();
+
+                        var proj = new OpenLayers.Projection("EPSG:4326");
                         var fromFeature = markersLayer.getFeaturesByAttribute('type', "start");
                         var submitAfterDone = (fromFeature !== null && typeof fromFeature[0] !== 'undefined') ? true : false;
-                        options.updateToLocationFunction(lonlat, submitAfterDone);
-                        
-                        var proj = new OpenLayers.Projection("EPSG:4326");
-                        setEndMarker(lonlat.transform(proj, map.getProjectionObject()));
-                        hideInfoWindow();
+                        options.updateToLocationFunction(lonlat.transform(map.getProjectionObject(), proj), submitAfterDone);
                     }
                     return false;
             }).appendTo(startEndTrip);
 
-            content.append(startEndTrip);
+            contentWrapper.append(startEndTrip);
         }
         
-        content
-            .prepend(ticketText)
-            .prepend(amenities)
-            .prepend(routesServed)
-            .prepend(crossbar);
+        contentWrapper
+            .prepend(content);
         
         return jQuery('<div></div>')
                     .append(headerWrapper)
-                    .append(content);
+                    .append(contentWrapper);
     }
     
     function getInfoWindowClose() {
@@ -711,6 +769,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             return;
         }
         
+        hideWelcomeMessage();
         hideTooMany();
         
         var typeString = "unknown";
@@ -756,6 +815,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
     }
 
     function addDataLayer(type, element, constrainToBBOX) {
+        hideWelcomeMessage();
+
         var layer = dataMarkerLayers[type];
 
         if(layer === null) {
@@ -848,6 +909,11 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }
     }
 
+    function getMarkerRadiusAtCurrentZoomLevel() {
+        var ratio = map.getZoom() / 18;
+        return Math.floor(ratio * 12.5);
+    }
+
     function setupDataLayers() {
         // trip planner vector layers
         routeLayer = new OpenLayers.Layer.Vector("Routes");
@@ -856,19 +922,15 @@ OTP.Map = function(_root, _controlsRoot, options) {
         // data layer markers:
         // layer style configuration
         var context = {
-            getPointRadius : function() {
-                var ratio = map.getZoom() / 18;
-                return Math.floor(ratio * 12.5);
-            },
+            getPointRadius: getMarkerRadiusAtCurrentZoomLevel,
             getOffset : function() {
-                var ratio = map.getZoom() / 18;
-                return Math.ceil(0 - (ratio * 12.5));
+                return 0 - getMarkerRadiusAtCurrentZoomLevel();
             }            
         };
 
         var templateStops = {
             graphicXOffset: "${getOffset}",
-            graphicYOffset: "${getPointRadius}",
+            graphicYOffset: "${getOffset}",
             pointRadius: "${getPointRadius}",
             externalGraphic: "img/otp/location-icon.png"
         };
@@ -888,7 +950,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         
         var templateParking = {
             graphicXOffset: "${getOffset}",
-            graphicYOffset: "${getPointRadius}",
+            graphicYOffset: "${getOffset}",
             pointRadius: "${getPointRadius}",
             externalGraphic: "img/otp/parking-icon.png"
         };
@@ -900,7 +962,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
         var templateFares = {
             graphicXOffset: "${getOffset}",
-            graphicYOffset: "${getPointRadius}",
+            graphicYOffset: "${getOffset}",
             pointRadius: "${getPointRadius}",
             externalGraphic: "img/otp/fares-icon.png"
         };
@@ -1753,14 +1815,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
             routeLayer.addFeatures([lineFeature]);
         },
 
-        removeHoverRoute: function() {
-            var features = routeLayer.getFeaturesByAttribute("type", "hover");
-
-            if(features !== null) {
-                routeLayer.removeFeatures(features);
-            }
-        },
-        
         addLegToHoverRoute: function(leg) {
             if(leg === null) {
                 return;
@@ -1803,6 +1857,14 @@ OTP.Map = function(_root, _controlsRoot, options) {
                              OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]), 
                              legInfoWindowHtml, 
                              lonlat); 
+        },
+        
+        removeHoverRoute: function() {
+              var features = routeLayer.getFeaturesByAttribute("type", "hover");
+
+              if(features !== null) {
+                  routeLayer.removeFeatures(features);
+              }
         }
     };
 };

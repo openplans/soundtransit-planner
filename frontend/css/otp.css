@@ -1170,8 +1170,17 @@ position: relative;
 padding: 5px;
 }
 
+.info-window .info-content.parkandride,
+.info-window .info-content.fareoutlet {
+    width: 250px;
+}
+
 .info-window .info-content.leg-info-marker {
 width: 315px;
+}
+
+.payment-actions {
+padding-top: 5px;
 }
 
 .crossbar {

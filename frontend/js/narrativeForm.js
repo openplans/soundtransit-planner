@@ -30,18 +30,18 @@ OTP.NarrativeForm = function(_root) {
         } else {
             jQuery(element).removeClass('blank');
         }
-    };
+    }
 
     function incrementAtMax(element) {
         var hoursField = root.find('#leavehour');
         var ampmField = root.find('#leaveampm');
 
-        if (parseInt(hoursField.val()) > 11) {
+        if (parseInt(hoursField.val(), 10) > 11) {
             hoursField.val(1);
         } else {
-            hoursField.val(parseInt(hoursField.val()) + 1);
-            if (hoursField.val() == 12) {
-                ampmField.val((ampmField.val() == 'am') ? 'pm' : 'am').trigger('change');
+            hoursField.val(parseInt(hoursField.val(), 10) + 1);
+            if (hoursField.val() === 12) {
+                ampmField.val((ampmField.val() === 'am') ? 'pm' : 'am').trigger('change');
             }
         }
         element.val('0');
@@ -51,12 +51,12 @@ OTP.NarrativeForm = function(_root) {
         var hoursField = root.find('#leavehour');
         var ampmField = root.find('#leaveampm');
         
-        if (parseInt(hoursField.val()) < 2) {
+        if (parseInt(hoursField.val(), 10) < 2) {
             hoursField.val(12);
         } else {
-            hoursField.val(parseInt(hoursField.val()) - 1);
-            if (hoursField.val() == 11) {
-                ampmField.val((ampmField.val() == 'am') ? 'pm' : 'am').trigger('change');
+            hoursField.val(parseInt(hoursField.val(), 10) - 1);
+            if (hoursField.val() === 11) {
+                ampmField.val((ampmField.val() === 'am') ? 'pm' : 'am').trigger('change');
             }
         }
         element.val('59');
@@ -64,7 +64,7 @@ OTP.NarrativeForm = function(_root) {
 
     function zeroPad(value) {
         return (parseInt(value, 10) < 10) ? ("0" + value.toString()) : value;
-    };
+    }
 
     // behaviors
     function addFormUIBehavior() {
@@ -151,7 +151,7 @@ OTP.NarrativeForm = function(_root) {
             .val((now.getHours() > 12) ? (now.getHours() - 12) : ((now.getHours() === 0) ? 12 : now.getHours()))
             .bind('change', function(event, ui) {
                 try {
-                    var v = parseInt(this.value);
+                    var v = parseInt(this.value, 10);
                     if(v <= 0 || isNaN(v)) {
                         this.value = "1";
                     } else if(v > 12) {

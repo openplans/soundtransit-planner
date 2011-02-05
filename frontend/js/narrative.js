@@ -466,14 +466,14 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             
         map.zoomToDisambiguationExtent();
             
-        var disambiguateResults = root.find("#disambiguate-results");
-        if(disambiguateResults.length === 0) {
-            disambiguateResults = jQuery("<div></div>")
+        var disambiguationResults = root.find("#disambiguate-results");
+        if(disambiguationResults.length === 0) {
+            disambiguationResults = jQuery("<div></div>")
                 .attr("id", "disambiguate-results")
                 .appendTo(root.find("#trip-data").empty());
         }
             
-        disambiguateResults
+        disambiguationResults
             .append(disambiguateMarkup.append(list));
                 
         root.find('#' + locationType)

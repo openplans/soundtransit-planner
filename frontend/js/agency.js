@@ -21,7 +21,8 @@ OTP.Agency = {
         if(headsign === null) {
             return null;
         }
-        var headsign_r = headsign.split(/   /ig);
+        
+        var headsign_r = headsign.split(/ {3}/ig);
         
         if(headsign_r !== null && typeof headsign_r[1] !== 'undefined') {
             return OTP.Util.makeSentenceCase(headsign_r[1]);
@@ -44,7 +45,7 @@ OTP.Agency = {
             return "Bus";
         } else if(mode === "WSF") {
             return "Ferry";
-        } else if(mode === "TRAIN" || mode == "LINK" || mode == "SOUNDER") {
+        } else if(mode === "TRAIN" || mode === "LINK" || mode === "SOUNDER") {
             if(route === "MSOUNDER" || mode === "SOUNDER") {
                 return "Sounder";
             } else if(route === "M599" || route === "TLDTC" || mode === "LINK") {
@@ -82,9 +83,9 @@ OTP.Agency = {
             return "Unknown";
         }
 
-        var agencyIdentifier = (route + '').toUpperCase().match('^M|P|CT|ST|EE|WSF\-');
+        var agencyIdentifier = (route + '').toUpperCase().match('^M|P|CT|ST|EE|WSF-');
         if(agencyIdentifier !== null && typeof agencyIdentifier[0] !== 'undefined') {
-            route = route.substring(agencyIdentifier[0].length)
+            route = route.substring(agencyIdentifier[0].length);
         }
 
         if(route.toUpperCase() === "SOUNDER") {
@@ -126,7 +127,7 @@ OTP.Agency = {
             } else {
                 // if there is no route identifier, it's a CT route, except if it's between 500 and 599. 
                 try {
-                    var routeNum = parseInt(route);
+                    var routeNum = parseInt(route,10);
                     if(routeNum >= 500 && routeNum <= 599) {
                         return "http://www.soundtransit.org";
                     }
@@ -165,7 +166,7 @@ OTP.Agency = {
             } else {
                 // if there is no route identifier, it's a CT route, except if it's between 500 and 599. 
                 try {
-                    var routeNum = parseInt(route);
+                    var routeNum = parseInt(route,10);
                     if(routeNum >= 500 && routeNum <= 599) {
                         return "Sound Transit";
                     }
