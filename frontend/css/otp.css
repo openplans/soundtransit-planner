@@ -1170,20 +1170,16 @@ position: relative;
 padding: 5px;
 }
 
-.info-window .info-content.parkandride,
-.info-window .info-content.fareoutlet {
-    width: 250px;
-}
-
 .info-window .info-content.leg-info-marker {
 width: 315px;
 }
 
-.payment-actions {
-padding-top: 5px;
+.info-window .info-content.parkandride,
+.info-window .info-content.fareoutlet {
+width: 250px;
 }
 
-.crossbar {
+.info-window .info-content .crossbar {
 background-position: 0 50%;
 background-repeat: no-repeat;
 padding: 5px 0 5px 30px;
@@ -1191,15 +1187,15 @@ min-height: 20px;
 vertical-align: middle;
 }
 
-.stop .crossbar {
+.info-window .info-content.stop .crossbar {
 background-image: url(../img/otp/location-icon.png);
 }
 
-.fareoutlet .crossbar {
+.info-window .info-content.fareoutlet .crossbar {
 background-image: url(../img/otp/fares-icon.png);
 }
 
-.parkandride .crossbar {
+.info-window .info-content.parkandride .crossbar {
 background-image: url(../img/otp/parking-icon.png);
 }
 

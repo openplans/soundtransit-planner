@@ -43,7 +43,7 @@ OTP.Agency = {
             return "Walk";
         } else if(mode === "BUS") {
             return "Bus";
-        } else if(mode === "WSF") {
+        } else if(mode === "FERRY" || mode === "WSF") {
             return "Ferry";
         } else if(mode === "TRAIN" || mode === "LINK" || mode === "SOUNDER") {
             if(route === "MSOUNDER" || mode === "SOUNDER") {
@@ -62,16 +62,16 @@ OTP.Agency = {
             return null;
         }
 
-        var label = OTP.Agency.getModeLabelForLeg(mode, route).toUpperCase();
+        var label = OTP.Agency.getModeLabelForLeg(mode, route);
         switch(label) {
-            case "WALK":
-            case "FERRY":
+            case "Walk":
+            case "Ferry":
                 return "#666666";
-            case "SOUNDER":
+            case "Sounder":
                 return "#0B9140";
-            case "LINK":
+            case "Link":
                 return "#41B1C1";
-            case "BUS":
+            case "Bus":
                 return "#5380B0";
             default:
                 return "#FF0000";
@@ -83,7 +83,7 @@ OTP.Agency = {
             return "Unknown";
         }
 
-        var agencyIdentifier = (route + '').toUpperCase().match('^M|P|CT|ST|EE|WSF-');
+        var agencyIdentifier = (route + '').toUpperCase().match('^MWSF-|WSF-|M|P|CT|ST|EE');
         if(agencyIdentifier !== null && typeof agencyIdentifier[0] !== 'undefined') {
             route = route.substring(agencyIdentifier[0].length);
         }
@@ -108,7 +108,7 @@ OTP.Agency = {
         } else if(label === "Link") {
             return "http://www.soundtransit.org/link";
         } else {
-            var agencyIdentifier = (route + '').toUpperCase().match('^M|P|CT|ST|EE|WSF');
+            var agencyIdentifier = (route + '').toUpperCase().match('^MWSF|WSF|M|P|CT|ST|EE');
             if(agencyIdentifier !== null && typeof agencyIdentifier[0] !== 'undefined') {
                 agencyIdentifier = agencyIdentifier[0];
                 if(agencyIdentifier === "M") {
@@ -119,7 +119,7 @@ OTP.Agency = {
                     return "http://www.soundtransit.org";
                 } else if(agencyIdentifier === "EE") {
                     return "http://www.everettwa.org/transit/";
-                } else if(agencyIdentifier === "WSF") {
+                } else if(agencyIdentifier === "WSF" || agencyIdentifier === "MWSF") {
                     return "http://www.wsdot.wa.gov/ferries/";
                 } else if(agencyIdentifier === "CT") {
                     return "http://www.commtrans.org/";
@@ -147,7 +147,7 @@ OTP.Agency = {
         if(label === "Sounder" || label === "Link") {
             return "Sound Transit";
         } else {
-            var agencyIdentifier = (route + '').toUpperCase().match('^M|P|CT|ST|EE|WSF');
+            var agencyIdentifier = (route + '').toUpperCase().match('^MWSF|WSF|M|P|CT|ST|EE');
             if(agencyIdentifier !== null && typeof agencyIdentifier[0] !== 'undefined') {
                 agencyIdentifier = agencyIdentifier[0];
                 if(agencyIdentifier === "M") {
@@ -158,7 +158,7 @@ OTP.Agency = {
                     return "Sound Transit";
                 } else if(agencyIdentifier === "EE") {
                     return "Everett Transit";
-                } else if(agencyIdentifier === "WSF") {
+                } else if(agencyIdentifier === "WSF" || agencyIdentifier === "MWSF") {
                     return "Washington State Ferry";
                 } else if(agencyIdentifier === "CT") {
                     return "Community Transit";

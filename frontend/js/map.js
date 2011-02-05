@@ -437,14 +437,14 @@ OTP.Map = function(_root, _controlsRoot, options) {
             content = '<div class="crossbar"><strong>' + prettyOutletType + '</strong> - ' + featureProperties.location + '</div>';
 
             // what can I do here?
-            content += '<div class="fare-actions"><strong>What can I do here?</strong>';
+            content += '<div class="fare-actions"><strong>What You Can Do Here</strong>:';
             content += (featureProperties.outlettype === 'TVM') ? '<ul><li>Buy new ORCA Card (adult cards only)</li><li>Reload ORCA Card</li><li>Buy new monthly pass on ORCA Card</li><li>Central link tickets</li><li>Sounder tickets</li></ul>' : 
                         ((featureProperties.outlettype === 'Retailer') ? '<ul><li>Reload ORCA Card</li><li>Buy new monthly pass on ORCA Card</li></ul>Note: No new ORCA cards sold here.' 
                         : '<ul><li>Buy new ORCA Card, including Youth and Senior card</li><li>Reload ORCA Card</li><li>Buy new monthly pass on ORCA Card</li></ul>');
             content += '</div>';
 
             // how can I pay here?
-            content += '<div class="payment-actions"><strong>How can I pay here?</strong>';
+            content += '<div class="payment-actions"><strong>Payment Methods Accepted</strong>:';
             content += (featureProperties.outlettype === 'TVM') ? '<ul><li>Cash</li><li>Visa, MasterCard</li></ul>' : 
                         ((featureProperties.outlettype === 'Retailer') ? '<ul><li>Cash</li></ul>' 
                         : '<ul><li>Cash</li><li>Visa, MasterCard</li><li>Checks</li></ul>');
