@@ -189,7 +189,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             var tripDuration = 0;
             jQuery.each(trip.legs.leg, function(legIndex, leg) {
                 // trip summary leg label
-                var legLabel = '<img src="img/otp/' + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]) + '16x16.png" alt="' + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]) + '" /> ';
+                var legLabel = '<img src="img/otp/' + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]).toLowerCase() + '16x16.png" alt="' + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]) + '" /> ';
 
                 if(leg["@mode"] !== "WALK") {
                     legLabel += '<strong>' + OTP.Agency.getDisplayNameForLeg(leg["@mode"], leg["@route"]) + '</strong> ';
