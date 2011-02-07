@@ -1156,7 +1156,9 @@ white-space: nowrap;
 padding-right: 20px;
 min-width: 225px;
 background: #f4f4f3;
-padding: 5px;
+padding: 2px;
+padding-left: 5px;
+padding-right: 25px;
 border: 1px solid #bababa;
 border-bottom: none;
 position: relative;
@@ -1176,7 +1178,7 @@ width: 315px;
 
 .info-window .info-content.parkandride,
 .info-window .info-content.fareoutlet {
-width: 250px;
+min-width: 250px;
 }
 
 .info-window .info-content .crossbar {

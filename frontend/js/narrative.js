@@ -184,8 +184,6 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                             
             var stepByStepWrapper = jQuery('<ul class="trip-stepbystep"></ul>');
 
-            var startTime = null;
-            var endTime = null;
             var tripDuration = 0;
             jQuery.each(trip.legs.leg, function(legIndex, leg) {
                 // trip summary leg label
@@ -200,28 +198,16 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 // leg step by step summary
                 stepByStepWrapper.append(formatLeg(legIndex, leg));
 
-                // end time, start time, duration across this trip for use in trip summary 
+                // duration across this trip for use in trip summary 
                 if(! isNaN(leg.duration) && typeof leg.duration !== 'undefined') {
-                    try {
-                        tripDuration += parseInt(leg.duration, 10);
-                    } catch(e) {}
-                }
-
-                if(typeof leg.startTime !== 'undefined' && leg.startTime !== null) {
-                    var legStartTime = OTP.Util.ISO8601StringToDate(leg.startTime);
-                    if(startTime === null || legStartTime.getTime() < startTime.getTime()) {
-                        startTime = legStartTime;
-                    }
-                }
-
-                if(typeof leg.endTime !== 'undefined' && leg.endTime !== null) {
-                    var legEndTime = OTP.Util.ISO8601StringToDate(leg.endTime);
-                    if(endTime === null || legEndTime.getTime() > endTime.getTime()) {
-                        endTime = legEndTime;
-                    }
+                    tripDuration += parseInt(leg.duration, 10);
                 }
             });
 
+            // calculate start/end time...
+            var startTime = OTP.Util.ISO8601StringToDate(trip.legs.leg[0].startTime);
+            var endTime = new Date(startTime.getTime() + tripDuration);
+            
             // trip summary header
             jQuery('<tr id="trip' + tripNumber + '-summary" class="'+ ((tripNumber === 1) ? "active" : "") + '">' +
                     '<td class="trip-id">' + tripNumber + '</td>' +

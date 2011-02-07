@@ -440,7 +440,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             content += '<div class="fare-actions"><strong>What You Can Do Here</strong>:';
             content += (featureProperties.outlettype === 'TVM') ? '<ul><li>Buy new ORCA Card (adult cards only)</li><li>Reload ORCA Card</li><li>Buy new monthly pass on ORCA Card</li><li>Central link tickets</li><li>Sounder tickets</li></ul>' : 
                         ((featureProperties.outlettype === 'Retailer') ? '<ul><li>Reload ORCA Card</li><li>Buy new monthly pass on ORCA Card</li></ul>Note: No new ORCA cards sold here.' 
-                        : '<ul><li>Buy new ORCA Card, including Youth and Senior card</li><li>Reload ORCA Card</li><li>Buy new monthly pass on ORCA Card</li></ul>');
+                        : '<ul><li>Buy new ORCA Card, including Youth and Senior cards</li><li>Reload ORCA Card</li><li>Buy new monthly pass on ORCA Card</li></ul>');
             content += '</div>';
 
             // how can I pay here?
@@ -706,11 +706,10 @@ OTP.Map = function(_root, _controlsRoot, options) {
                      systemMapRouteFeatures[mode] = [];
                  }
 
+                 var flagsAdded = {};
                  jQuery(data.features).each(function(_, feature) {
-                    var addedFlag = false;
                     for(var z = 0; z < feature.geometry.coordinates.length; z++) {
                         var points = [];
-
                         for(var i = 0; i < feature.geometry.coordinates[z].length; i++) {
                             var wgsPoint = new OpenLayers.Geometry.Point(feature.geometry.coordinates[z][i][1], feature.geometry.coordinates[z][i][0]);
                             var proj = new OpenLayers.Projection("EPSG:4326");
@@ -722,29 +721,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
                             return;
                         }
 
-                        // add info marker to first leg
-                        if(addedFlag === false) {
-                            var infoMarkerPoint = new OpenLayers.LonLat(points[0].x, points[0].y);
-
-                            var routeName = feature.properties.designator;
-                            var agencyIdentifier = (routeName + '').toUpperCase().match('^[M|P|CT|ST]');
-                            if(agencyIdentifier !== null && typeof agencyIdentifier[0] !== 'undefined') {
-                                routeName = routeName.substring(agencyIdentifier[0].length);
-                            }
-
-                            var infoMarker = addLegInfoMarker(OTP.Agency.getDisplayNameForLeg(mode, routeName), 
-                                                              OTP.Agency.getModeLabelForLeg(mode, routeName), 
-                                                              null, 
-                                                              infoMarkerPoint);
-
-                            if(typeof systemMapRouteInfoMarkers[mode] === 'undefined' || systemMapRouteInfoMarkers[mode] === null) {
-                                systemMapRouteInfoMarkers[mode] = [];
-                            }
-                            systemMapRouteInfoMarkers[mode].push(infoMarker);
-
-                            addedFlag = true;
-                        }
-
                         var style = {
                             strokeColor: OTP.Agency.getColorForLeg(mode, feature.properties.designator),
                             strokeWidth: 4
@@ -752,12 +728,58 @@ OTP.Map = function(_root, _controlsRoot, options) {
                         var polyline = new OpenLayers.Geometry.LineString(points);
                         var lineFeature = new OpenLayers.Feature.Vector(polyline, null, style);
                         routeLayer.addFeatures([lineFeature]);
-                        systemMapRouteFeatures[mode].push(lineFeature);                      
-                    }
+                        systemMapRouteFeatures[mode].push(lineFeature);
 
-                    zoomToRouteLayerExtent();
+                        // add marker to middle leg of line
+                        var routeName = feature.properties.designator;
+                        var agencyIdentifier = (routeName + '').toUpperCase().match('^[M|P|CT|ST]');
+                        if(agencyIdentifier !== null && typeof agencyIdentifier[0] !== 'undefined') {
+                            routeName = routeName.substring(agencyIdentifier[0].length);
+                        }
+
+                        // add info marker to middle leg
+                        if((routeName in flagsAdded) === false) {
+                            var lineLength = lineFeature.geometry.getLength();
+                            var length_p = 0;
+                            var infoMarkerPointGeom = null;
+                            for(var p = 0; p < points.length; p++) {
+                                var thisPoint = points[p];
+                                var nextPoint = ((p + 1 < points.length) ? points[p + 1] : null);
+
+                                if(nextPoint !== null) {
+                                    var legLength = thisPoint.distanceTo(nextPoint);
+
+                                    if(length_p + legLength > (lineLength / 2)) {
+                                        var _points = [];
+                                        _points.push(thisPoint);
+                                        _points.push(nextPoint);
+                                        var _thisLeg = new OpenLayers.Geometry.LineString(_points);
+                                        infoMarkerPointGeom = _thisLeg.getCentroid();
+                                        _thisLeg.destroy();
+                                        break;   
+                                    }
+
+                                    length_p += legLength;
+                                }
+                            }
+
+                            var infoMarkerLonLat = new OpenLayers.LonLat(infoMarkerPointGeom.x, infoMarkerPointGeom.y);
+                            var infoMarker = addLegInfoMarker(OTP.Agency.getDisplayNameForLeg(mode, routeName), 
+                                                              OTP.Agency.getModeLabelForLeg(mode, routeName), 
+                                                              null, 
+                                                              infoMarkerLonLat);
+
+                            if(typeof systemMapRouteInfoMarkers[mode] === 'undefined' || systemMapRouteInfoMarkers[mode] === null) {
+                                systemMapRouteInfoMarkers[mode] = [];
+                            }
+                            systemMapRouteInfoMarkers[mode].push(infoMarker);
+
+                            flagsAdded[routeName] = true;
+                        }
+                    }
                  });
 
+                 zoomToRouteLayerExtent();
              }
         });        
     }
@@ -1279,7 +1301,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                     var label = OTP.Agency.getDisplayNameForLeg(null, route.designator);
                                     if(route.routedescription !== null) {
                                         if(route.routedescription.length > 40) {
-                                            label += " " + route.routedescription.substr(0, 35) + "...";
+                                            label += " " + route.routedescription.substr(0, 25) + "...";
                                         } else {
                                             label += " " + route.routedescription;
                                         }
