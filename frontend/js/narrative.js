@@ -188,6 +188,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                             
             var stepByStepWrapper = jQuery('<ul class="trip-stepbystep"></ul>');
 
+            var startTime, endTime = null;
             var tripDuration = 0;
             jQuery.each(trip.legs.leg, function(legIndex, leg) {
                 // trip summary leg label
@@ -206,12 +207,15 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 if(! isNaN(leg.duration) && typeof leg.duration !== 'undefined') {
                     tripDuration += parseInt(leg.duration, 10);
                 }
+                
+                // start/end times
+                if(trip.legs.leg.length - 1 === legIndex) {
+                    endTime = OTP.Util.ISO8601StringToDate(leg.endTime);
+                } else if(legIndex === 0) {
+                    startTime = OTP.Util.ISO8601StringToDate(leg.startTime);
+                }
             });
 
-            // calculate start/end time...
-            var startTime = OTP.Util.ISO8601StringToDate(trip.legs.leg[0].startTime);
-            var endTime = new Date(startTime.getTime() + tripDuration);
-            
             // trip summary header
             jQuery('<tr id="trip' + tripNumber + '-summary" class="'+ ((tripNumber === 1) ? "active" : "") + '">' +
                     '<td class="trip-id">' + tripNumber + '</td>' +
