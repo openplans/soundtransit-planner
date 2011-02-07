@@ -189,7 +189,6 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             var stepByStepWrapper = jQuery('<ul class="trip-stepbystep"></ul>');
 
             var startTime, endTime = null;
-            var tripDuration = 0;
             jQuery.each(trip.legs.leg, function(legIndex, leg) {
                 // trip summary leg label
                 var legLabel = '<img src="img/otp/' + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]).toLowerCase() + '16x16.png" alt="' + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]) + '" /> ';
@@ -202,11 +201,6 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
 
                 // leg step by step summary
                 stepByStepWrapper.append(formatLeg(legIndex, leg));
-
-                // duration across this trip for use in trip summary 
-                if(! isNaN(leg.duration) && typeof leg.duration !== 'undefined') {
-                    tripDuration += parseInt(leg.duration, 10);
-                }
                 
                 // start/end times
                 if(trip.legs.leg.length - 1 === legIndex) {
@@ -215,6 +209,8 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     startTime = OTP.Util.ISO8601StringToDate(leg.startTime);
                 }
             });
+
+            var tripDuration = endTime.getTime() - startTime.getTime();
 
             // trip summary header
             jQuery('<tr id="trip' + tripNumber + '-summary" class="'+ ((tripNumber === 1) ? "active" : "") + '">' +
