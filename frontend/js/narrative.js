@@ -42,7 +42,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 map.showBusy();
                 
                 $(this)
-                    .html('<div id="trip-spinner">Planning your trip</div>')
+                    .html('<div id="trip-spinner">Planning your trip...</div>')
                     .fadeIn("fast");
                 });
 

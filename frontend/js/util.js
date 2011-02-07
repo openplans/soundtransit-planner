@@ -151,7 +151,11 @@ OTP.Util = {
         if(str === null) {
             return str;
         }
-        return str.toLowerCase().replace(/(^|\W)./g,function(c){return c.toUpperCase();});
+
+        str = str.toLowerCase().replace(/(^|\W)./g,function(c){return c.toUpperCase();});
+
+        // assume all two letter words at end of headsign is abbreviation--all caps.
+        return str.replace(/(\W[A-Z]{2}$)/ig,function(c){return c.toUpperCase();});
     }
 };
 
