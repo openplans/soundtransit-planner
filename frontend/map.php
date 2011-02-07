@@ -202,6 +202,7 @@
 </div>
 <div id="tripplanner-wrap" class="fullsize">
   <div id="map">
+      <div id="loading"><p>Loading...</p></div>
       <div id="atis-credits">ATIS: Powered by Trapeze</div>
       <div id="legend">
           <div class="toggler">Legend<span class="ui-selectmenu-icon ui-icon ui-icon-triangle-1-s"> </span></div>

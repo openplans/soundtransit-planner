@@ -678,6 +678,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
             return;
         }
 
+        showBusy();
+
         var callbackFunction = "drawRouteLayerForModeCallback" + Math.floor(Math.random() * 1000000000);
         jQuery.ajax({
              url: OTP.Config.wfsServiceUrl,
@@ -692,6 +694,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
                  cql_filter: cqlQuery
              },
              success: function(data) {
+                 hideBusy();
+                 
                  if(typeof data.features === 'undefined') {
                      return;
                  }
@@ -886,12 +890,16 @@ OTP.Map = function(_root, _controlsRoot, options) {
             data.BBOX = map.getExtent().toBBOX() + "," + layer.projection;
         }
     
+        showBusy();
+    
         jQuery.ajax({
              url: OTP.Config.wfsServiceUrl,
              dataType: "jsonp",
              jsonpCallback: callbackFunction,
              data: data,
-             success: function(data) {                 
+             success: function(data) {
+                hideBusy();
+                
                 if(typeof data.features === 'undefined') {
                     return;
                 }
@@ -1256,6 +1264,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
                         return;
                     }
 
+                    showBusy();
+
                     var callbackFunction = "getRouteListCallback" + Math.floor(Math.random() * 1000000000);
                     jQuery.ajax({
                             url: OTP.Config.wfsServiceUrl,
@@ -1269,7 +1279,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                 typeName: "soundtransit:routes",
                                 cql_filter: "(operator LIKE '" + agency + "')"
                             },
-                            success: function(data) {   
+                            success: function(data) {
+                                hideBusy();
+                                
                                 var selectBox = content.find("#bus-route");
                                 selectBox.children().remove();
                                 selectBox.append("<option value=''>Select route</option>");
@@ -1636,6 +1648,16 @@ OTP.Map = function(_root, _controlsRoot, options) {
             .append(closeButton);
     }
 
+    function showBusy() {
+        hideWelcomeMessage();
+        
+        root.find("#loading").show();
+    }
+
+    function hideBusy() {
+        root.find("#loading").hide();
+    }
+
     // constructor
     map = new OpenLayers.Map(root.attr("id"), {
         projection: new OpenLayers.Projection("EPSG:900913"),
@@ -1887,6 +1909,10 @@ OTP.Map = function(_root, _controlsRoot, options) {
               if(features !== null) {
                   routeLayer.removeFeatures(features);
               }
-        }
+        },
+
+        showBusy: showBusy,
+        
+        hideBusy: hideBusy
     };
 };

@@ -464,6 +464,31 @@ width: 345px;
 
 /* - */
 
+#loading {
+position: absolute;
+z-index: 100000000000;
+left: 0px;
+right: 0px;
+margin-left: auto;
+margin-right: auto;
+top: 45%;
+background-color: #FFFFFF;
+padding: 10px;
+border: 1px solid #656565;
+-moz-border-radius: 3px;
+-webkit-border-radius: 3px;
+border-radius: 3px;
+width: 70px;
+display: none;
+}
+
+#loading p {
+background: url(../img/otp/spinner.gif) 50% 15px no-repeat;
+color: #656565;
+padding-top: 40px;
+text-align: center;
+}
+
 #trip-spinner {
 border-top:1px solid #656565;
 margin-top: 15px;

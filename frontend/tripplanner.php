@@ -193,6 +193,7 @@
     </div><!-- /#trip-data -->
   </div><!-- /#plannerpanel --> 
   <div id="map">
+    <div id="loading"><p>Loading...</p></div>
     <div id="atis-credits">ATIS: Powered by Trapeze</div>
     <a id="toggle-map-width" href="#" title="Show Map Full Screen">&nbsp;</a>
   </div>

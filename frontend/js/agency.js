@@ -51,7 +51,7 @@ OTP.Agency = {
             } else if(route === "M599" || route === "TLDTC" || mode === "LINK") {
                 return "Link";
             } else {
-                return "Train";
+                return "Streetcar";
             }
         }
         return "Unknown";

@@ -39,6 +39,8 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         // planning spinner and text
         root.find('#trip-data')
             .fadeOut("fast", function() {
+                map.showBusy();
+                
                 $(this)
                     .html('<div id="trip-spinner">Planning your trip</div>')
                     .fadeIn("fast");
@@ -77,6 +79,8 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     root.find('#trip-data')
                         .fadeIn("fast");
                 }
+                
+                map.hideBusy();
             },
             error:function(xError, status) {                
                 root.find("#trip-data")
