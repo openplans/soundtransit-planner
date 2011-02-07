@@ -187,6 +187,13 @@ OTP.Map = function(_root, _controlsRoot, options) {
                             .html(route)
                             .appendTo(contentWrapper);
 
+        if(options.hasTripPlanner !== true) {
+            contentLabel
+                .append('<a href="' + OTP.Agency.getScheduleURLForLeg(mode, route) + '" target="_new">Schedule</a>');
+                
+            contentWrapper.addClass("has-schedule-link");
+        }
+        
         var viewPortPx = map.getViewPortPxFromLonLat(lonlat);
         var layerContainerPx = map.getLayerPxFromViewPortPx(viewPortPx);
 

@@ -31,6 +31,10 @@ OTP.Agency = {
         }
     },
     
+    getScheduleURLForLeg: function(mode, route) {
+        return "http://www.example.com";
+    },
+    
     getModeLabelForLeg: function(mode, route) {
         if(mode === null || route === null) {
             return null;

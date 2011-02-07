@@ -1320,11 +1320,20 @@ height: 16px;
 cursor:pointer;
 }
 
+.info_marker .content.has-schedule-link {
+height: 26px;
+}
+
 .info_marker .content .route-label {
 font-weight: bold;
 padding-left: 20px;
 line-height: 100%;
 padding-top: 2px;
+}
+
+.info_marker .content .route-label a {
+font-size: 8px;
+display: block;
 }
 
 .info_marker .content .route-label span {
