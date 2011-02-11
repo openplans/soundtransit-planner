@@ -64,7 +64,7 @@ body .ui-widget input,
 body .ui-widget select, 
 body .ui-widget textarea, 
 body .ui-widget button {
-background-image: url(../img/otp/form-field-bg.png);
+background-image: url(../images/tripplanner/form-field-bg.png);
 background-repeat: repeat-x;
 color: #656565;
 font-family: inherit;
@@ -108,7 +108,7 @@ width: 150px !important;
 color: #4a4a4a;
 position: relative;
 padding-bottom: 5px;
-background: transparent url(../img/otp/map-controls-shadow.png) 0 bottom repeat-x scroll;
+background: transparent url(../images/tripplanner/map-controls-shadow.png) 0 bottom repeat-x scroll;
 z-index: 5;
 }
 
@@ -162,31 +162,31 @@ background-position: 0 -28px;
 }
 
 #toggle-layers a#toggle-fares {
-background-image: url(../img/otp/fares-modal-icon.png);
+background-image: url(../images/tripplanner/fares-modal-icon.png);
 }
 
 #toggle-layers a#toggle-parking {
-background-image: url(../img/otp/parking-modal-icon.png);
+background-image: url(../images/tripplanner/parking-modal-icon.png);
 }
 
 #toggle-layers a#toggle-location {
-background-image: url(../img/otp/location-modal-icon.png);
+background-image: url(../images/tripplanner/location-modal-icon.png);
 }
 
 #toggle-layers a#toggle-bus {
-background-image: url(../img/otp/bus-modal-icon.png);
+background-image: url(../images/tripplanner/bus-modal-icon.png);
 }
 
 #toggle-layers a#toggle-sounder {
-background-image: url(../img/otp/sounder-modal-icon.png);
+background-image: url(../images/tripplanner/sounder-modal-icon.png);
 }
 
 #toggle-layers a#toggle-link {
-background-image: url(../img/otp/link-modal-icon.png);
+background-image: url(../images/tripplanner/link-modal-icon.png);
 }
 
 #toggle-layers a#toggle-ferry {
-background-image: url(../img/otp/ferry-modal-icon.png);
+background-image: url(../images/tripplanner/ferry-modal-icon.png);
 }
 
 /* - */
@@ -236,7 +236,7 @@ color: #666;
 #plannerform h2,
 #plannerpanel h2 {
 color: #2b376e;
-font-size: 18px;
+font-size: 1.5em;
 }
 
 #tofrom-area {
@@ -250,7 +250,7 @@ margin: 0 3px 0 0;
 
 #from, 
 #to {
-font-size:15px;
+font-size:1.25em;
 width: 275px;
 position: relative;
 left: 30px;
@@ -275,7 +275,7 @@ background: none;
 #to.blank:focus,
 #from.focus, 
 #to.focus {
-background-image: url(../img/otp/form-field-bg.png);
+background-image: url(../images/tripplanner/form-field-bg.png);
 background-repeat: repeat-x;
 }
 
@@ -287,7 +287,7 @@ top: 50%;
 margin-top: -10px;
 width: 20px;
 height: 21px;
-background: url(../img/otp/toggle.png);
+background: url(../images/tripplanner/toggle.png);
 overflow: hidden;
 text-indent: -9999em;
 }
@@ -389,10 +389,10 @@ vertical-align: bottom;
 }
 
 #trip-submit {
-background: url(../img/otp/trip-submit.png) right center no-repeat scroll;
+background: url(../images/tripplanner/trip-submit.png) right center no-repeat scroll;
 color: #fff;
 font-weight: bold;
-font-size: 14px;
+font-size: 1.16em;
 cursor: pointer;
 -moz-border-radius: 4px;
 -webkit-border-radius: 4px;
@@ -418,7 +418,7 @@ border: 0 none transparent;
 a#optionstoggle {
 color: #9c9c9c;
 text-decoration: none;
-font-size: 11px;
+font-size: .8em;
 margin: 0 0 0 10px;
 position: relative;
 /* *top: -0.5em;  align with #trip-submit in IE7 */
@@ -454,7 +454,7 @@ font-weight: bold;
 
 #how-to-plan h4 {
 font-weight: bold;
-font-size: 18px;
+font-size: 1.5em;
 padding-top: 5px;
 }
 
@@ -483,9 +483,9 @@ display: none;
 }
 
 #loading p {
-background: url(../img/otp/spinner.gif) 50% 15px no-repeat;
+background: url(../images/tripplanner/spinner.gif) 50% 15px no-repeat;
 color: #656565;
-font-size: 18px;
+font-size: 1.5em;
 padding-top: 40px;
 text-align: center;
 }
@@ -494,7 +494,7 @@ text-align: center;
 border-top:1px solid #656565;
 margin-top: 15px;
 padding: 15px 0 15px 0px;
-font-size: 18px;
+font-size: 1.5em;
 color: #656565;
 }
 
@@ -509,7 +509,7 @@ color: #656565;
 
 #no-results h3 {
 font-weight: bold;
-font-size: 18px;
+font-size: 1.5em;
 }
 
 #no-results div,
@@ -541,16 +541,16 @@ font-weight: bold;
 
 #disambiguate-results h4 {
 font-weight: bold;
-font-size: 18px;
+font-size: 1.5em;
 padding: 4px 0 8px 28px;
 }
 
 #disambiguate-results #from-possibles h4 {
-background: url(../img/otp/a-flag.png) 0 50% no-repeat;
+background: url(../images/tripplanner/a-flag.png) 0 50% no-repeat;
 }
 
 #disambiguate-results #to-possibles h4 {
-background: url(../img/otp/b-flag.png) 0 50% no-repeat;
+background: url(../images/tripplanner/b-flag.png) 0 50% no-repeat;
 }
 
 #disambiguate-results ol {
@@ -561,97 +561,127 @@ list-style-type: none;
 background-position: 0 50%;
 background-repeat: no-repeat;
 float: left;
+height: 38px;
 width: 100%;
 margin-bottom: 10px;
 cursor: pointer;
 }
 
 #disambiguate-results ol li .nice-name {
-font-size: 15px;
-line-height: 18px;
+font-size: 1.1em;
+line-height: 1.1em;
 float: left;
 margin: 10px 0 10px 38px;
 width: 265px;
 }
 
 #disambiguate-results ol li a {
-font-size: 12px;
-line-height: 18px;
+font-size: 1.1em;
+line-height: 1.1em;
 float: right;
 margin: 10px 0;
 }
 
+#pager span {
+font-weight: bold;
+font-size: 1.25em;
+}
+
+#pager ol {
+margin-top: 5px;    
+}
+
+#pager ol li {
+width: auto;
+height: auto;
+float: left;
+padding: 4px;
+margin: 0px;
+margin-right: 10px;
+border: 1px solid #666;
+}
+
+#pager ol li.active {
+background-color: #EFEFEF;
+}
+
+#pager ol li a {
+margin: 0px;
+padding: 0px;
+width: auto;
+}
+
 /* ASSUMPTION: no more than 9 ambiguous results at once */
 #disambiguate-results ol li.possible-1 {
-background-image: url(../img/otp/pin-1.png);
+background-image: url(../images/tripplanner/pin-1.png);
 }
 
 * html #disambiguate-results ol li.possible-1 {
-background-image: url(../img/otp/pin-1-ie.png);
+background-image: url(../images/tripplanner/pin-1-ie.png);
 }
 
 #disambiguate-results ol li.possible-2 {
-background-image: url(../img/otp/pin-2.png);
+background-image: url(../images/tripplanner/pin-2.png);
 }
 
 * html #disambiguate-results ol li.possible-2 {
-background-image: url(../img/otp/pin-2-ie.png);
+background-image: url(../images/tripplanner/pin-2-ie.png);
 }
 
 #disambiguate-results ol li.possible-3 {
-background-image: url(../img/otp/pin-3.png);
+background-image: url(../images/tripplanner/pin-3.png);
 }
 
 * html #disambiguate-results ol li.possible-3 {
-background-image: url(../img/otp/pin-3-ie.png);
+background-image: url(../images/tripplanner/pin-3-ie.png);
 }
 
 #disambiguate-results ol li.possible-4 {
-background-image: url(../img/otp/pin-4.png);
+background-image: url(../images/tripplanner/pin-4.png);
 }
 
 * html #disambiguate-results ol li.possible-4 {
-background-image: url(../img/otp/pin-4-ie.png);
+background-image: url(../images/tripplanner/pin-4-ie.png);
 }
 
 #disambiguate-results ol li.possible-5 {
-background-image: url(../img/otp/pin-5.png);
+background-image: url(../images/tripplanner/pin-5.png);
 }
 
 * html #disambiguate-results ol li.possible-5 {
-background-image: url(../img/otp/pin-5-ie.png);
+background-image: url(../images/tripplanner/pin-5-ie.png);
 }
 
 #disambiguate-results ol li.possible-6 {
-background-image: url(../img/otp/pin-6.png);
+background-image: url(../images/tripplanner/pin-6.png);
 }
 
 * html #disambiguate-results ol li.possible-6 {
-background-image: url(../img/otp/pin-6-ie.png);
+background-image: url(../images/tripplanner/pin-6-ie.png);
 }
 
 #disambiguate-results ol li.possible-7 {
-background-image: url(../img/otp/pin-7.png);
+background-image: url(../images/tripplanner/pin-7.png);
 }
 
 * html #disambiguate-results ol li.possible-7 {
-background-image: url(../img/otp/pin-7-ie.png);
+background-image: url(../images/tripplanner/pin-7-ie.png);
 }
 
 #disambiguate-results ol li.possible-8 {
-background-image: url(../img/otp/pin-8.png);
+background-image: url(../images/tripplanner/pin-8.png);
 }
 
 * html #disambiguate-results ol li.possible-8 {
-background-image: url(../img/otp/pin-8-ie.png);
+background-image: url(../images/tripplanner/pin-8-ie.png);
 }
 
 #disambiguate-results ol li.possible-9 {
-background-image: url(../img/otp/pin-9.png);
+background-image: url(../images/tripplanner/pin-9.png);
 }
 
 * html #disambiguate-results ol li.possible-9 {
-background-image: url(../img/otp/pin-9-ie.png);
+background-image: url(../images/tripplanner/pin-9-ie.png);
 }
 
 /* - */
@@ -660,7 +690,7 @@ background-image: url(../img/otp/pin-9-ie.png);
 border-top: 1px solid #656565;
 border-bottom: 1px solid #656565;
 margin: 15px 0;
-font-size: 11px;
+font-size: .9em;
 color: #333;
 width: 335px;
 border-collapse: collapse;
@@ -697,7 +727,7 @@ padding: 5px 5px 5px 3px;
 }
 
 #tripresult-summaries td.trip-id {
-font-size: 20px;
+font-size: 1.66em;
 text-align: center;
 vertical-align: middle;
 }
@@ -761,7 +791,7 @@ display:block;
 
 .trip-prices {
 width: 335px;
-font-size: 11px;
+font-size: .90em;
 border-bottom: 1px solid #cbcccb;
 margin-bottom: 15px;
 }
@@ -776,7 +806,7 @@ border-top: 1px solid #cbcccb;
 
 .trip-prices th h3 {
 color: #4d4d4d;
-font-size: 20px;
+font-size: 1.66em;
 }
 
 .trip-prices tbody th {
@@ -816,19 +846,19 @@ top: 3px;
 }
 
 ul.trip-stepbystep li.walk {
-background-image: url(../img/otp/walk-step-bg.png);
+background-image: url(../images/tripplanner/walk-step-bg.png);
 }
 
 ul.trip-stepbystep li.sounder {
-background-image: url(../img/otp/sounder-step-bg.png);
+background-image: url(../images/tripplanner/sounder-step-bg.png);
 }
 
 ul.trip-stepbystep li.link {
-background-image: url(../img/otp/link-step-bg.png);
+background-image: url(../images/tripplanner/link-step-bg.png);
 }
 
 ul.trip-stepbystep li.bus {
-background-image: url(../img/otp/bus-step-bg.png);
+background-image: url(../images/tripplanner/bus-step-bg.png);
 }
 
 ul.trip-stepbystep li.last-child {
@@ -864,24 +894,24 @@ margin: 0 0 10px;
 
 #disambiguation h3 em {
 display: block;
-font-size: 18px;
+font-size: 1.5em;
 color: #b71f24;
 font-style: italic;
 }
 
 #disambiguation.from h3 {
-background: url(../img/otp/a-flag.png) 0 50% no-repeat;
+background: url(../images/tripplanner/a-flag.png) 0 50% no-repeat;
 }
 
 #disambiguation.to h3 {
-background: url(../img/otp/b-flag.png) 0 50% no-repeat;
+background: url(../images/tripplanner/b-flag.png) 0 50% no-repeat;
 }
 
 #disambiguation ol li {
 list-style-type: none;
 min-height: 21px;
 vertical-align: middle;
-font-size: 15px;
+font-size: 1.25em;
 padding: 8px 30px 8px 38px;
 margin-bottom: 5px;
 background-position: 0 50%;
@@ -891,81 +921,81 @@ cursor: pointer;
 
 #disambiguation ol li em {
 float: right;
-font-size: 12px;
+font-size: 1em;
 color: #9c9c9c;
 text-decoration: underline;
 }
 
 #disambiguation ol li.option-1 {
-background-image: url(../img/otp/pin-1.png);
+background-image: url(../images/tripplanner/pin-1.png);
 }
 
 * html #disambiguation ol li.option-1 {
-background-image: url(../img/otp/pin-1-ie.png);
+background-image: url(../images/tripplanner/pin-1-ie.png);
 }
 
 #disambiguation ol li.option-2 {
-background-image: url(../img/otp/pin-2.png);
+background-image: url(../images/tripplanner/pin-2.png);
 }
 
 * html #disambiguation ol li.option-2 {
-background-image: url(../img/otp/pin-2-ie.png);
+background-image: url(../images/tripplanner/pin-2-ie.png);
 }
 
 #disambiguation ol li.option-3 {
-background-image: url(../img/otp/pin-3.png);
+background-image: url(../images/tripplanner/pin-3.png);
 }
 
 * html #disambiguation ol li.option-3 {
-background-image: url(../img/otp/pin-3-ie.png);
+background-image: url(../images/tripplanner/pin-3-ie.png);
 }
 
 #disambiguation ol li.option-4 {
-background-image: url(../img/otp/pin-4.png);
+background-image: url(../images/tripplanner/pin-4.png);
 }
 
 * html #disambiguation ol li.option-4 {
-background-image: url(../img/otp/pin-4-ie.png);
+background-image: url(../images/tripplanner/pin-4-ie.png);
 }
 
 #disambiguation ol li.option-5 {
-background-image: url(../img/otp/pin-5.png);
+background-image: url(../images/tripplanner/pin-5.png);
 }
 
 * html #disambiguation ol li.option-5 {
-background-image: url(../img/otp/pin-5-ie.png);
+background-image: url(../images/tripplanner/pin-5-ie.png);
 }
 
 #disambiguation ol li.option-6 {
-background-image: url(../img/otp/pin-6.png);
+background-image: url(../images/tripplanner/pin-6.png);
 }
 
 * html #disambiguation ol li.option-6 {
-background-image: url(../img/otp/pin-6-ie.png);
+background-image: url(../images/tripplanner/pin-6-ie.png);
 }
 
 #disambiguation ol li.option-7 {
-background-image: url(../img/otp/pin-7.png);
+background-image: url(../images/tripplanner/pin-7.png);
 }
 
 * html #disambiguation ol li.option-7 {
-background-image: url(../img/otp/pin-7-ie.png);
+background-image: url(../images/tripplanner/pin-7-ie.png);
 }
 
 #disambiguation ol li.option-8 {
-background-image: url(../img/otp/pin-8.png);
+background-image: url(../images/tripplanner/pin-8.png);
 }
 
 * html #disambiguation ol li.option-8 {
-background-image: url(../img/otp/pin-8-ie.png);
+background-image: url(../images/tripplanner/pin-8-ie.png);
 }
 
 #disambiguation ol li.option-9 {
-background-image: url(../img/otp/pin-9.png);
+background-image: url(../images/tripplanner/pin-9.png);
 }
 
 * html #disambiguation ol li.option-9 {
-background-image: url(../img/otp/pin-9-ie.png);
+background-image: url(../images/tripplanner/pin-9-ie.png);
 }
 
 /* - */
@@ -986,7 +1016,7 @@ width: 100%;
 position: absolute;
 left: 0;
 top: 265px;
-background-image: url(../img/otp/toggle-map-width.png);
+background-image: url(../images/tripplanner/toggle-map-width.png);
 background-position: top right;
 width: 18px;
 height: 32px;
@@ -1055,7 +1085,7 @@ position: absolute;
 }
 
 .context-menu .ui-menu-item a {
-font-size: 11px;
+font-size: .80em;
 color: #656565;
 }
 
@@ -1072,7 +1102,7 @@ bottom: 5px;
 }
 
 .olBingAttribution {
-font-size: 10px;
+font-size: .85em;
 color: #666666;
 }
 
@@ -1081,7 +1111,7 @@ color: #666666;
 .layer-popout {
 top: 32px;
 position: absolute;
-background-image: url(../img/otp/bubble-top-callout.png);
+background-image: url(../images/tripplanner/bubble-top-callout.png);
 background-position: 50% 0;
 padding-top: 11px;
 background-repeat: no-repeat;
@@ -1106,7 +1136,7 @@ position: absolute;
 top: 5px;
 right: 5px;
 text-indent: -9999px;
-background-image: url(../img/otp/close.png);
+background-image: url(../images/tripplanner/close.png);
 background-repeat: no-repeat;
 background-position: 0 0;
 height: 19px;
@@ -1124,19 +1154,19 @@ background-position: 0 0;
 }
 
 .layer-chooser.WSF .header {
-background-image: url(../img/otp/ferry-modal-icon.png);
+background-image: url(../images/tripplanner/ferry-modal-icon.png);
 }
 
 .layer-chooser.link .header {
-background-image: url(../img/otp/link-modal-icon.png);
+background-image: url(../images/tripplanner/link-modal-icon.png);
 }
 
 .layer-chooser.sounder .header {
-background-image: url(../img/otp/sounder-modal-icon.png);
+background-image: url(../images/tripplanner/sounder-modal-icon.png);
 }
 
 .layer-chooser.bus .header {
-background-image: url(../img/otp/bus-modal-icon.png);
+background-image: url(../images/tripplanner/bus-modal-icon.png);
 }
 
 .layer-chooser .header p {
@@ -1167,7 +1197,7 @@ padding-left: 25px;
 
 .info-window {
 position: absolute;
-background-image: url(../img/otp/bubble-bottom-callout.png);
+background-image: url(../images/tripplanner/bubble-bottom-callout.png);
 background-position: 50% 100%;
 padding-bottom: 11px;
 background-repeat: no-repeat;
@@ -1198,7 +1228,7 @@ padding: 5px;
 }
 
 .info-window .info-content.leg-info-marker {
-width: 315px;
+width: 325px;
 }
 
 .info-window .info-content.parkandride,
@@ -1215,15 +1245,15 @@ vertical-align: middle;
 }
 
 .info-window .info-content.stop .crossbar {
-background-image: url(../img/otp/location-icon.png);
+background-image: url(../images/tripplanner/location-icon.png);
 }
 
 .info-window .info-content.fareoutlet .crossbar {
-background-image: url(../img/otp/fares-icon.png);
+background-image: url(../images/tripplanner/fares-icon.png);
 }
 
 .info-window .info-content.parkandride .crossbar {
-background-image: url(../img/otp/parking-icon.png);
+background-image: url(../images/tripplanner/parking-icon.png);
 }
 
 .info-window .info-content .close,
@@ -1232,7 +1262,7 @@ position: absolute;
 top: 2px;
 right: 2px;
 text-indent: -9999px;
-background-image: url(../img/otp/close.png);
+background-image: url(../images/tripplanner/close.png);
 background-repeat: no-repeat;
 background-position: 0 0;
 height: 19px;
@@ -1263,7 +1293,7 @@ color: #666;
 border: 1px solid #c0c0c0;
 top: 50px;
 left: 100px;
-font-size: 16px;
+font-size: 1.33em;
 width: 400px;
 -moz-border-radius: 3px;
 -webkit-border-radius: 3px;
@@ -1279,7 +1309,7 @@ position: absolute;
 top: 2px;
 right: 2px;
 text-indent: -9999px;
-background-image: url(../img/otp/close.png);
+background-image: url(../images/tripplanner/close.png);
 background-repeat: no-repeat;
 background-position: 0 0;
 height: 19px;
@@ -1301,7 +1331,7 @@ display: inline;
 
 .info_marker {
 position: absolute;
-background-image: url(../img/otp/bubble-bottom-callout.png);
+background-image: url(../images/tripplanner/bubble-bottom-callout.png);
 background-position: 50% 100%;
 padding-bottom: 11px;
 background-repeat: no-repeat;
@@ -1332,12 +1362,12 @@ padding-top: 2px;
 }
 
 .info_marker .content .route-label a {
-font-size: 8px;
+font-size: .66em;
 display: block;
 }
 
 .info_marker .content .route-label span {
-font-size: 8px;
+font-size: .66em;
 white-space:nowrap;
 display: block;
 line-height: 100%;
@@ -1355,19 +1385,19 @@ float: left;
 }
 
 .info_marker .content .leg-mode.ferry {
-background-image: url(../img/otp/ferry16x16.png);
+background-image: url(../images/tripplanner/ferry16x16.png);
 }
 
 .info_marker .content .leg-mode.link {
-background-image: url(../img/otp/link16x16.png);
+background-image: url(../images/tripplanner/link16x16.png);
 }
 
 .info_marker .content .leg-mode.sounder {
-background-image: url(../img/otp/sounder16x16.png);
+background-image: url(../images/tripplanner/sounder16x16.png);
 }
 
 .info_marker .content .leg-mode.bus {
-background-image: url(../img/otp/bus16x16.png);
+background-image: url(../images/tripplanner/bus16x16.png);
 }
 
 /* - */
@@ -1380,7 +1410,7 @@ color: #666;
 border: 1px solid #c0c0c0;
 top: 50px;
 left: 100px;
-font-size: 14px;
+font-size: 1.15em;
 width: 300px;
 -moz-border-radius: 3px;
 -webkit-border-radius: 3px;
@@ -1396,7 +1426,7 @@ padding-top: 0px;
 padding: 10px;
 padding-bottom: 0px;
 font-weight: bold;
-font-size: 18px;
+font-size: 1.5em;
 }
 
 #welcome .close {
@@ -1404,7 +1434,7 @@ position: absolute;
 top: 2px;
 right: 2px;
 text-indent: -9999px;
-background-image: url(../img/otp/close.png);
+background-image: url(../images/tripplanner/close.png);
 background-repeat: no-repeat;
 background-position: 0 0;
 height: 19px;

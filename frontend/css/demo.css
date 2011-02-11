@@ -17,18 +17,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /* Temp classes for mockups */
 body.map {
-background: url(../img/otp/fpo_map.jpg) 0 0 no-repeat;
+background: url(../images/tripplanner/fpo_map.jpg) 0 0 no-repeat;
 padding: 160px 0 300px 85px;
 }
 
 body.tripplanner {
-background: url(../img/otp/fpo_tripplanner.jpg) 0 0 no-repeat;
+background: url(../images/tripplanner/fpo_tripplanner.jpg) 0 0 no-repeat;
 padding: 160px 0 300px 85px;
 }
 
 body.schedule,
 body.home {
-background: url(../img/otp/fpo_home.jpg) 0 0 no-repeat;
+background: url(../images/tripplanner/fpo_home.jpg) 0 0 no-repeat;
 padding: 130px 0 300px 105px;
 }
 

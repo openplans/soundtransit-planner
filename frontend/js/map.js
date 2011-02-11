@@ -45,6 +45,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     var routeLayer = null;   
     var markersLayer = null;
     var dataMarkerLayers = {};
+    var stopMarkersLayerRouteFilterCQL = null;
 
     // marker controls
     var markersDragControl = null;
@@ -98,6 +99,13 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
         if(markersLayer !== null) {
             markersLayer.removeAllFeatures();
+        }
+
+        if(stopMarkersLayerRouteFilterCQL !== null) {
+            if(dataMarkerLayers.stops !== null) {
+                dataMarkerLayers.stops.removeAllFeatures();
+            }
+            stopMarkersLayerRouteFilterCQL = null;
         }
         
         if(legInfoMarkers !== null) {
@@ -501,8 +509,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
                     var routesByAgencyMap = {};
                     jQuery.each(services, function(_, service) {
-                        var agency = OTP.Agency.getAgencyNameForLeg(null, service.route);
                         var route = OTP.Agency.getDisplayNameForLeg(null, service.route);
+                        var agency = OTP.Agency.getAgencyNameForLeg(null, service.route);
                         if(typeof routesByAgencyMap[agency] === 'undefined') {
                             routesByAgencyMap[agency] = [];
                         }
@@ -514,6 +522,11 @@ OTP.Map = function(_root, _controlsRoot, options) {
                         if(routeArray.length <= 0) {
                             return;
                         }
+                        
+                        if(routeMarkup.length > 0) {
+                            routeMarkup += "<br/>";
+                        }
+                        
                         routeMarkup += agencyName + " " + routeArray.unique().join(", ");
                     });
 
@@ -804,7 +817,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         
         hideWelcomeMessage();
         hideTooMany();
-        
+
         var typeString = "unknown";
         switch(type) {
             case "stops":
@@ -835,7 +848,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                    map.zoomTo(13);
                    
                    var stopsToggleButton = controlsRoot.find("#toggle-location");
-                   addDataLayer("stops", stopsToggleButton, true);
+                   addDataLayer("stops", stopsToggleButton, true, null);
 
                    return false;
                });                            
@@ -847,7 +860,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }
     }
 
-    function addDataLayer(type, element, constrainToBBOX) {
+    function addDataLayer(type, element, constrainToBBOX, cql) {
         hideWelcomeMessage();
 
         var layer = dataMarkerLayers[type];
@@ -862,7 +875,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             jQuery(element).addClass("active");
         }
                 
-        if(type === "stops") {
+        if(type === "stops" && cql === null) {
             if(map.getZoom() < 12) {
                 showTooMany(type);
                 layer.removeAllFeatures();
@@ -877,9 +890,14 @@ OTP.Map = function(_root, _controlsRoot, options) {
             request: "GetFeature",
             outputFormat: "json",
             format_options: "callback:" + callbackFunction,
-            typeName: "soundtransit:" + type
+            typeName: "soundtransit:" + type,
         };
-        
+
+        if(cql !== null) {
+            layer.removeFeatures(featuresToRemove);
+            data.cql_filter = cql;
+        }
+
         if(constrainToBBOX === true) {           
             // clear features not visible anymore from map if we're getting lots of features on this layer
             if(layer.features.length > 300) {
@@ -942,7 +960,12 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }
 
         if(type === "stops") {
-            hideTooMany();
+            // if we're hiding the stops layer, try to show filtered stops instead of "all stops"
+            if(stopMarkersLayerRouteFilterCQL !== null) {
+                addDataLayer("stops", null, false, stopMarkersLayerRouteFilterCQL);
+            } else {
+                hideTooMany();
+            }
         }
     }
 
@@ -969,7 +992,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             graphicXOffset: "${getOffset}",
             graphicYOffset: "${getOffset}",
             pointRadius: "${getPointRadius}",
-            externalGraphic: "img/otp/location-icon.png"
+            externalGraphic: OTP.Config.tripPlannerImagePath + "location-icon.png"
         };
         dataMarkerLayers.stops = new OpenLayers.Layer.Vector("Stop Markers");
         dataMarkerLayers.stops.styleMap = new OpenLayers.StyleMap({
@@ -980,16 +1003,16 @@ OTP.Map = function(_root, _controlsRoot, options) {
             moveend: function(e) {        
                 var stopsToggleButton = controlsRoot.find("#toggle-location");
                 if(stopsToggleButton.hasClass("active")) {
-                    addDataLayer("stops", stopsToggleButton, true);
+                    addDataLayer("stops", stopsToggleButton, true, null);
                 }
             }
-        });        
-        
+        });
+
         var templateParking = {
             graphicXOffset: "${getOffset}",
             graphicYOffset: "${getOffset}",
             pointRadius: "${getPointRadius}",
-            externalGraphic: "img/otp/parking-icon.png"
+            externalGraphic: OTP.Config.tripPlannerImagePath + "parking-icon.png"
         };
         dataMarkerLayers.parkandrides = new OpenLayers.Layer.Vector("Park and Ride Markers");
         dataMarkerLayers.parkandrides.styleMap = new OpenLayers.StyleMap({
@@ -1001,7 +1024,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             graphicXOffset: "${getOffset}",
             graphicYOffset: "${getOffset}",
             pointRadius: "${getPointRadius}",
-            externalGraphic: "img/otp/fares-icon.png"
+            externalGraphic: OTP.Config.tripPlannerImagePath + "fares-icon.png"
         };
         dataMarkerLayers.fareoutlets = new OpenLayers.Layer.Vector("Fare Outlets Markers");
         dataMarkerLayers.fareoutlets.styleMap = new OpenLayers.StyleMap({
@@ -1414,7 +1437,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     removeDataLayer("fareoutlets");
                     jQuery(this).removeClass("active");                    
                 } else {
-                    addDataLayer("fareoutlets", this, false);
+                    addDataLayer("fareoutlets", this, false, null);
                 }
                 hideInfoWindow();
                 return false;
@@ -1435,7 +1458,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     removeDataLayer("parkandrides");
                     jQuery(this).removeClass("active");                    
                 } else {
-                    addDataLayer("parkandrides", this, false);
+                    addDataLayer("parkandrides", this, false, null);
                 }
                 hideInfoWindow();
                 return false;
@@ -1456,7 +1479,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     removeDataLayer("stops");
                     jQuery(this).removeClass("active");                    
                 } else {
-                    addDataLayer("stops", this, true);
+                    addDataLayer("stops", this, true, null);
                 }
                 hideInfoWindow();
                 return false;
@@ -1562,7 +1585,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             var icon = new OpenLayers.Feature.Vector(point, { type: "start" });
 
             icon.style = {
-                externalGraphic: "img/otp/a-flag.png",
+                externalGraphic: OTP.Config.tripPlannerImagePath + "a-flag.png",
                 graphicWidth: 23,
                 graphicHeight: 30,
                 graphicXOffset: 0,
@@ -1593,7 +1616,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             var icon = new OpenLayers.Feature.Vector(point, { type: "end" });
 
             icon.style = {
-                externalGraphic: "img/otp/b-flag.png",
+                externalGraphic: OTP.Config.tripPlannerImagePath + "b-flag.png",
                 graphicWidth: 23,
                 graphicHeight: 30,
                 graphicXOffset: 0,
@@ -1792,7 +1815,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             var proj = new OpenLayers.Projection("EPSG:4326");
             var icon = new OpenLayers.Feature.Vector(point.transform(proj, map.getProjectionObject()), { type: "disambiguation", index: index });
             icon.style = {
-                             externalGraphic: "img/otp/pin-" + index + ".png",
+                             externalGraphic: OTP.Config.tripPlannerImagePath + "pin-" + index + ".png",
                              graphicWidth: 32,
                              graphicHeight: 37,
                              graphicXOffset: -15,
@@ -1818,7 +1841,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             if(typeof features[0] !== 'undefined') {
                 var newStyle = features[0].style;
                 newStyle.graphicZIndex = 1000000;
-                newStyle.externalGraphic = "img/otp/pin-" + index + "-highlight.png";  
+                newStyle.externalGraphic = OTP.Config.tripPlannerImagePath + "pin-" + index + "-highlight.png";  
                 markersLayer.drawFeature(features[0], newStyle);
             }
         },
@@ -1832,9 +1855,22 @@ OTP.Map = function(_root, _controlsRoot, options) {
             
             if(typeof features[0] !== 'undefined') {
                 var newStyle = features[0].style;
-                newStyle.externalGraphic = "img/otp/pin-" + index + ".png";  
+                newStyle.externalGraphic = OTP.Config.tripPlannerImagePath + "pin-" + index + ".png";  
                 markersLayer.drawFeature(features[0], newStyle);
             }
+        },
+
+        addStopsWithIds: function(stopIds) {
+            var cqlSet = "";
+            jQuery.each(stopIds, function(_, id) {
+                if(cqlSet.length > 0) {
+                    cqlSet += ",";
+                }
+                cqlSet += "'" + id + "'"; 
+            });
+            stopMarkersLayerRouteFilterCQL = "localid IN (" + cqlSet + ")";
+
+            addDataLayer("stops", null, false, stopMarkersLayerRouteFilterCQL);
         },
 
         addLegToPlannedRoute: function(leg) {

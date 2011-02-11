@@ -30,6 +30,9 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     // user selects a second route without a new trip plan request
     var plannerResponse = null;
 
+    var disambiguationPageSize = 5;
+    var disambiguationNameToLonLatMap = {};
+
     // narrative logic
     function makeTripRequest() {
         // remove ambiguous classes, since we don't know whether the new values are resolvable
@@ -56,18 +59,20 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 optimize: root.find("#trippriority").val(),
                 maxWalkDistance: root.find("#maxwalk").val(),
                 wheelchair: (root.find("#accessible").attr("checked") === true),
+                fromPlace: getLocationForPlaceName(root.find("#from").val()),
+                toPlace: getLocationForPlaceName(root.find("#to").val()),
                 from: root.find("#from").val(),
                 to: root.find("#to").val(),
-                toPlace: root.find("#to").val(),
-                fromPlace: root.find("#from").val(),
                 intermediatePlaces: "",
                 showIntermediateStops: true,
                 mode: "TRANSIT,WALK"
             },
-            success: function(data, status) {    
+            success: function(data, status) {
+                plannerResponse = data;
+
                 if (typeof data.geocodeResponse !== 'undefined') {
                     map.reset();
-                    disambiguateResults(data.geocodeResponse);
+                    disambiguateResults(data);
                 } else {
                     root.find('#trip-data')
                         .fadeOut("fast")
@@ -108,12 +113,12 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     case '20003':
                         msg = "<p>There are no transit stops within walking distance of your starting location.</p>Please try to:</br>" + 
                                 "<ul><li>Increase your walking distance to 1 mile (see “more options” above), or</li><li>Change the starting point by dragging the A marker on the map, or</li><li>Type in a new address, intersection or landmark for your starting location</li></ul>" + 
-                                "<div><strong>Tip</strong>: You can show the stops on the map by clicking on the <img src='img/otp/location-icon.png'> icon.</div>";
+                                "<div><strong>Tip</strong>: You can show the stops on the map by clicking on the <img src='" + OTP.Config.tripPlannerImagePath + "location-icon.png'> icon.</div>";
                         break;
                     case '20004':
                         msg = "<p>There are no transit stops within walking distance of your destination.</p>Please try to:</br>" + 
                                 "<ul><li>Increase your walking distance to 1 mile (see “more options” above), or</li><li>Change the starting point by dragging the A marker on the map, or</li><li>Type in a new address, intersection or landmark for your starting location</li></ul>" +
-                                "<div><strong>Tip</strong>: You can show the stops on the map by clicking on the <img src='img/otp/location-icon.png'> icon.</div>";
+                                "<div><strong>Tip</strong>: You can show the stops on the map by clicking on the <img src='" + OTP.Config.tripPlannerImagePath + "location-icon.png'> icon.</div>";
                         break;
                     case '20008':
                         msg = "<p>There is no trip available for the time you specified</p>Please try to:</br>" + 
@@ -191,7 +196,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             var startTime, endTime = null;
             jQuery.each(trip.legs.leg, function(legIndex, leg) {
                 // trip summary leg label
-                var legLabel = '<img src="img/otp/' + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]).toLowerCase() + '16x16.png" alt="' + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]) + '" /> ';
+                var legLabel = '<img src="' + OTP.Config.tripPlannerImagePath + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]).toLowerCase() + '16x16.png" alt="' + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]) + '" /> ';
 
                 if(leg["@mode"] !== "WALK") {
                     legLabel += '<strong>' + OTP.Agency.getDisplayNameForLeg(leg["@mode"], leg["@route"]) + '</strong> ';
@@ -252,9 +257,6 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         
         jQuery(tripSummariesWrapper)
             .prependTo(root.find("#trip-data"));
-
-        // (save map data for later calls to updateMap (HACK)
-        plannerResponse = data;
     }
 
     function updateMapForHover(data, targetTripNumber) {
@@ -298,10 +300,24 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         var tripNumber = 1;
         jQuery.each(itineraryCollection, function(_, trip) {
             if(tripNumber === targetTripNumber) {
+                var legStops = [];
+
                 jQuery.each(trip.legs.leg, function(legIndex, leg) {
                     // add leg + markers to map
                     map.addLegToPlannedRoute(leg);
                     map.addLegInfoMarker(leg, formatLegInfoWindowHtml(leg));
+
+                    if(typeof leg.intermediateStops !== 'undefined') {
+                        var intermediateStops = null;
+                        if(leg.intermediateStops.stop instanceof Array) {
+                            intermediateStops = leg.intermediateStops.stop;
+                        } else {
+                            intermediateStops = [leg.intermediateStops.stop];
+                        }
+                        jQuery.each(intermediateStops, function(_, stop) {
+                            legStops.push(stop.stopId);
+                        });
+                    }
 
                     // add start finish icons to map
                     if(trip.legs.leg.length - 1 === legIndex) {
@@ -310,6 +326,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                         map.setStartPoint(leg.from.lon, leg.from.lat);
                     }
                 });
+                map.addStopsWithIds(legStops);
                 map.zoomToPlannedRoute();
                 return false;
             }
@@ -323,10 +340,56 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         }
         
         if(leg["@mode"] === "WALK") {
-            return jQuery('<li class="walk leg-' + legIndex + '"></li>').html(
-                        '<img class="mode-icon" src="img/otp/walk16x16.png" alt="Walk" />' +
-                        'Walk from <strong>' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '</strong> to <strong>' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + '</strong>' + 
-                        '<div class="stepmeta">' + OTP.Util.millisecondsToString(leg.duration) + ' (' + OTP.Util.metersToPrettyDistance(leg.distance) + ')</div>');
+            var html = '<img class="mode-icon" src="' + OTP.Config.tripPlannerImagePath + 'walk16x16.png" alt="Walk" />' +
+                            'Walk from <strong>' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '</strong> to <strong>' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + '</strong>';
+
+            html += '<table class="substeps"><tbody>';
+
+            var stepCollection = null;
+            if(leg.steps.walkSteps instanceof Array) {
+                stepCollection = leg.steps.walkSteps;
+            } else {
+                stepCollection = [leg.steps.walkSteps];
+            }
+
+            var stepNumber = 1;
+            var lastStreetName = "unknown street";
+            jQuery.each(stepCollection, function(i, walkStep) {
+                if(typeof walkStep["@nil"] !== 'undefined') {
+                    return;
+                }
+
+                html += '<tr><td>' + stepNumber + '. ';
+
+                if(typeof walkStep.absoluteDirection !== 'undefined') {
+                    html += 'Walk ' + walkStep.absoluteDirection.toLowerCase() + ' on <strong>' + walkStep.streetName + '</strong>';
+                } else {
+                    var relativeDirection = walkStep.relativeDirection.toLowerCase();
+
+                    if(relativeDirection === "continue") {
+                        html += 'Continue on <strong>' + walkStep.streetName + '</strong>';
+                    } else if(walkStep.stayOn === true) {
+                        html += 'Proceed ' + relativeDirection + ' to stay on <strong>' + walkStep.streetName + '</strong>';
+                    } else if(walkStep.becomes === true) {
+                        html += 'Continue ' + relativeDirection + ' as <strong>' + lastStreetName + '</strong> becomes <strong>' + walkStep.streetName + '</strong>';
+                    } else {
+                        html += 'Turn ' + relativeDirection + ' at <strong>' + walkStep.streetName + '</strong>';
+                    }
+                }
+
+                if(i === stepCollection.length - 1) {
+                    html += '<div class="stepmeta">' + OTP.Util.millisecondsToString(leg.duration) + ' (' + OTP.Util.metersToPrettyDistance(leg.distance) + ')</div>';
+                }
+
+                html += '</td></tr>';
+
+                lastStreetName = walkStep.streetName;
+                stepNumber++;
+            });
+
+            html += '</tbody></table>';
+
+            return jQuery('<li class="walk leg-' + legIndex + '"></li>').html(html);
         } else {
             // previous stop at end point + stops passed on leg
             var stopsPassed = -1;
@@ -345,7 +408,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             }
 
             return jQuery('<li class="' + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]).toLowerCase() + ' leg-' + legIndex + '"></li>').html(
-                    '<img class="mode-icon" src="img/otp/' + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]).toLowerCase() + '16x16.png" alt="' + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]) + '" />' + 
+                    '<img class="mode-icon" src="' + OTP.Config.tripPlannerImagePath + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]).toLowerCase() + '16x16.png" alt="' + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]) + '" />' + 
                         OTP.Util.makeSentenceCase(leg["@mode"]) + ' - ' + 
                             '<a href="' + OTP.Agency.getURLForLeg(leg["@mode"], leg["@route"]) + '" target="_new">' + 
                                 OTP.Agency.getAgencyNameForLeg(leg["@mode"], leg["@route"]) + 
@@ -396,100 +459,143 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     '</tbody></table>');
     }
 
-    // disambiguation (FIXME: make more robust?)
-    function disambiguateResults(results) {
-        var candidateList = null;
-        var locationType = null;
-        var friendlyLocationType = null;
-                     
-        if(typeof results.from !== 'undefined' && results.from.candidate instanceof Array) {
-            candidateList = results.from.candidate;
-            locationType = "from";
-            friendlyLocationType = "starting";
-        } else if(typeof results.to !== 'undefined' && results.to.candidate instanceof Array) {
-            candidateList = results.to.candidate;
-            locationType = "to";
-            friendlyLocationType = "ending";
+    function getLocationForPlaceName(name) {
+        if(typeof disambiguationNameToLonLatMap[name] !== 'undefined') {
+            return disambiguationNameToLonLatMap[name];
         } else {
+            return name;
+        }
+    }
+
+    function disambiguateResults(data, promptStack) {
+        var results = data.geocodeResponse;
+
+        if(results === null) {
             return;
         }
 
-        // if we're here, we have a list of things to disambiguate:
-        map.reset();
+        // create list of location types (to,from) we need to prompt for
+        if(typeof promptStack === 'undefined' || promptStack === null) {
+            promptStack = [];
+            jQuery.each(results, function(locationType, candidates) {
+                if(candidates.candidate instanceof Array === true) {
+                    promptStack.push(locationType);
+                }
+            });
+        }
+
+        // pick first prompt type of stack
+        var locationType = promptStack.slice(0,1);
+        var friendlyLocationType = ((locationType === "from") ? "starting" : "ending");
+
+        root.find('#' + locationType)
+                    .addClass("ambiguous")
+                    .focus();
+
+        var disambiguationWrapper = jQuery("<div></div>")
+                                        .attr("id", "disambiguate-results")
+                                        .appendTo(root.find("#trip-data").empty());
 
         var disambiguateMarkup = jQuery('<div id="' + locationType + '-possibles">' + 
                                             '<h3>We found several ' + friendlyLocationType + ' points for your search</h3>' + 
                                             '<h4>Did you mean?</h4>' + 
-                                        '</div>');
+                                        '</div>')
+                                        .appendTo(disambiguationWrapper);
 
-        var list = jQuery('<ol></ol>');
-        jQuery(candidateList).each(function(i, result) {
-            if (i >= 9) {
-                return false;
+        var listElement = jQuery('<ol></ol>')
+                                        .appendTo(disambiguateMarkup);
+
+        var pagerWrapper = jQuery("<div></div>")
+                                .attr("id", "pager")
+                                .html("<span>Page:</span>")
+                                .appendTo(disambiguationWrapper);
+                                
+        var pager = jQuery('<ol></ol>')
+                                        .appendTo(pagerWrapper);
+
+        var fullCandidateList = results[locationType].candidate;
+        for(var p = 0; p * disambiguationPageSize < fullCandidateList.length; p++) {
+            var addPageItem = function(page) {
+                var pageItem = jQuery('<li></li>').append(
+                                    jQuery('<a></a>')
+                                            .text(page + 1)
+                                            .click(function(e) {
+                                                updateDisambiguationList(page);
+                                                return false;
+                                            })
+                                )
+                                .addClass("page" + (page + 1));
+
+                pager.append(pageItem);
             }
+            addPageItem(p);
+        }
 
-            var link = jQuery('<a href="#">select</a>').click(function() {
-                delete results[locationType];
-                userHasDisambiguated(locationType, jQuery(this).parent().children('span.lat-lon').text(), results);
-                return false;
+        var updateDisambiguationList = function(displayPage) {
+            map.reset();
+
+            listElement.empty();
+
+            root.find("#pager ol li")
+                .removeClass("active")
+
+            root.find("#pager ol li.page" + (displayPage + 1))
+                .addClass("active");
+
+            var candidateList = fullCandidateList.slice(displayPage * disambiguationPageSize);
+            jQuery(candidateList).each(function(i, result) {
+                if (i >= disambiguationPageSize) {
+                    return false;
+                }
+
+                var onOptionSelectFunction = function(value) {
+                    root.find('#' + locationType)
+                                    .val(value)
+                                    .removeClass('ambiguous');
+
+                    root.find('#' + locationType + '-possibles').fadeOut('fast', function() { 
+                        promptStack = promptStack.slice(1);
+
+                        if(promptStack.length > 0) {
+                            disambiguateResults(plannerResponse, promptStack);
+                        } else {
+                            map.reset();
+                            root.find("form#trip-plan-form").submit();
+                        }
+                    });
+                };
+
+                var selectLink = jQuery('<a href="#">select</a>').click(function() {
+                    onOptionSelectFunction(result.name + ', ' + result.area);
+                    return false;
+                });
+
+                jQuery('<li class="possible-' + (i + 1) + '">' + 
+                            '<span class="nice-name">' + result.name + ', ' + result.area + '</span>' + 
+                        '</li>')
+                        .mouseenter(function() { 
+                            map.highlightDisambiguationPoint(i + 1);
+                        })
+                        .mouseleave(function() { 
+                            map.unhighlightDisambiguationPoint(i + 1);
+                        }).click(function() {
+                            onOptionSelectFunction(result.name + ', ' + result.area);
+                            return false;
+                        })
+                        .append(selectLink)
+                        .appendTo(listElement);
+
+                map.addDisambiguationPoint(result.latitude, result.longitude, (i + 1));
+
+                // put the lat/lon for this location in a map that we can get later--this is so we can display
+                // the "friendly" name for this place, also allowing the user to enter it manually if they ever were to?
+                disambiguationNameToLonLatMap[result.name + ', ' + result.area] = result.latitude + ',' + result.longitude;
             });
 
-            jQuery('<li class="possible-' + (i + 1) + '">' + 
-                        '<span class="nice-name">' + result.name + ', ' + result.area + '</span>' + 
-                            '<span class="lat-lon" style="display: none;">' + result.latitude + ',' + result.longitude + '</span>' + 
-                    '</li>')
-                    .mouseenter(function() { 
-                        map.highlightDisambiguationPoint(i + 1);
-                    })
-                    .mouseleave(function() { 
-                        map.unhighlightDisambiguationPoint(i + 1);
-                    }).click(function() {
-                        delete results[locationType];
-                        userHasDisambiguated(locationType, jQuery(this).children('span.lat-lon').text(), results);
-                        return false;
-                    })
-                    .append(link)
-                    .appendTo(list);
-                    
-            map.addDisambiguationPoint(result.latitude, result.longitude, (i + 1));
-        });
-            
-        map.zoomToDisambiguationExtent();
-            
-        var disambiguationResults = root.find("#disambiguate-results");
-        if(disambiguationResults.length === 0) {
-            disambiguationResults = jQuery("<div></div>")
-                .attr("id", "disambiguate-results")
-                .appendTo(root.find("#trip-data").empty());
-        }
-            
-        disambiguationResults
-            .append(disambiguateMarkup.append(list));
-                
-        root.find('#' + locationType)
-            .addClass("ambiguous")
-            .focus();
-    }
+            map.zoomToDisambiguationExtent();
+        };
 
-    function userHasDisambiguated(location, value, disambiguationResponse) {
-        root.find('#' + location )
-                .val(value)
-                .removeClass('ambiguous');
-
-        root.find('#' + location + '-possibles').fadeOut('slow', function() { 
-            jQuery(this).remove();
-
-            // more disambiguation to do still?
-            if((typeof disambiguationResponse.from !== 'undefined' && disambiguationResponse.from.candidate instanceof Array) || 
-                (typeof disambiguationResponse.to !== 'undefined' && disambiguationResponse.to.candidate instanceof Array)) {
-
-                disambiguateResults(disambiguationResponse);
-            } else {
-                map.reset();
-
-                root.find("form#trip-plan-form").submit();
-            }
-        });
+        updateDisambiguationList(0);
     }
 
     // event handlers
@@ -573,7 +679,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         }
     );
 
-    narrativeForm = new OTP.NarrativeForm(_root);
+    narrativeForm = new OTP.NarrativeForm(_root, map);
     addFormUIBehavior();
 
     // public methods

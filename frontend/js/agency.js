@@ -146,9 +146,9 @@ OTP.Agency = {
         if(route === null) {
             return null;
         }
-        
+
         var label = OTP.Agency.getModeLabelForLeg(mode, route); 
-        if(label === "Sounder" || label === "Link") {
+        if(label === "Sounder" || label === "Link" || route === "M599" || route.toUpperCase() === "MSOUNDER") {
             return "Sound Transit";
         } else {
             var agencyIdentifier = (route + '').toUpperCase().match('^MWSF|WSF|M|P|CT|ST|EE');

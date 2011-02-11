@@ -135,11 +135,11 @@
     <form id="trip-plan-form">
       <div id="tofrom-area">
         <div class="ui-widget">
-          <label for="from"><img class="tripflag" src="img/otp/a-flag.png" alt="A" /> <strong>Start</strong> Address, intersection, or landmark</label>
+          <label for="from"><img class="tripflag" src="images/tripplanner/a-flag.png" alt="A" /> <strong>Start</strong> Address, intersection, or landmark</label>
           <input name="from" id="from" type="text" value="" />
         </div>
         <div class="ui-widget">
-          <label for="to"><img class="tripflag" src="img/otp/b-flag.png" alt="B" /> <strong>End</strong> Address, intersection, or landmark</label>
+          <label for="to"><img class="tripflag" src="images/tripplanner/b-flag.png" alt="B" /> <strong>End</strong> Address, intersection, or landmark</label>
           <input name="to" id="to" type="text" value="" />
         </div>
         <a id="tofromtoggle" href="#" title="Reverse To/From Locations">toggle</a>
@@ -175,7 +175,7 @@
             <option value="1680">1 mile max walk</option>
           </select>
         </span>
-        <div id="accessible-area"><label><input name="accessible" type="checkbox" id="accessible" /> Accessible trip <img src="img/otp/wheelchair16x16.png" alt="Wheelchair icon" /></label></div>
+        <div id="accessible-area"><label><input name="accessible" type="checkbox" id="accessible" /> Accessible trip <img src="images/tripplanner/wheelchair16x16.png" alt="Wheelchair icon" /></label></div>
       </div>
       <div class="ui-widget">
         <input id="trip-submit" type="submit" value="Plan Trip" />

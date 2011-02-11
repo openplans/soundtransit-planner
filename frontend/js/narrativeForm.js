@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 var OTP = window.OTP || {};
 
-OTP.NarrativeForm = function(_root) {
+OTP.NarrativeForm = function(_root, map) {
     if(typeof _root === 'undefined' || _root === null) {
         return null;
     }
@@ -143,7 +143,7 @@ OTP.NarrativeForm = function(_root) {
             .val(zeroPad(now.getMonth() + 1) + "/" + zeroPad(now.getDate()) + "/" + now.getFullYear())
             .datepicker({
                 showOn: "button",
-                buttonImage: "img/otp/calendar.png",
+                buttonImage: OTP.Config.tripPlannerImagePath + "calendar.png",
                 buttonImageOnly: true
             });
   
