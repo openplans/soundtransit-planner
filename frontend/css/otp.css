@@ -386,7 +386,7 @@ font-weight: normal;
 font-size: 0.95em;
 display: inline-block;
 width: 90px;
-vertical-align: bottom;
+vertical-align: middle;
 }
 
 #mode-area label,
@@ -397,13 +397,35 @@ margin-left: 10px;
 #mode-area label input,
 #accessible-area label input {
 background-image: none;
+vertical-align: middle;
 }
 
-#mode-area label img,
-#accessible-area label img {
+#mode-area label span,
+#accessible-area label span {
 margin-left: 5px;
-vertical-align: bottom;
+vertical-align: middle;
+display: inline-block;
+text-indent: -9999px;
+width: 26px;
+height: 26px;
 }
+
+#mode-area label span#bus_label {
+background: url(../images/tripplanner/bus-modal-icon.png) top center no-repeat;
+}
+
+#mode-area label span#sounder_label {
+background: url(../images/tripplanner/sounder-modal-icon.png) top center no-repeat;
+}
+
+#mode-area label span#link_label {
+background: url(../images/tripplanner/link-modal-icon.png) top center no-repeat;
+}
+
+#accessible-area label span#wheelchair_accessible_label {
+background: url(../images/tripplanner/wheelchair-icon.png) top center no-repeat;
+}
+
 
 #trip-submit {
 background: url(../images/tripplanner/trip-submit.png) right center no-repeat scroll;

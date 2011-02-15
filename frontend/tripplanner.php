@@ -175,8 +175,8 @@
             <option value="1680">1 mile max walk</option>
           </select>
         </span>
-        <div id="mode-area"><span>Include mode:</span><label><input name="bus" type="checkbox" id="bus" value="BUS" checked="true"/><img src="images/tripplanner/bus16x16.png" title="Bus" alt="Bus" /></label><label><input name="train" type="checkbox" checked="true" value="TRAIN" id="train" /><img src="images/tripplanner/sounder16x16.png" title="Sounder" alt="Sounder" /><img src="images/tripplanner/link16x16.png" title="Link" alt="Link" /></label></div>
-        <div id="accessible-area"><span>Accessible trip:</span><label><input name="accessible" type="checkbox" id="accessible" /><img src="images/tripplanner/wheelchair16x16.png" alt="Wheelchair Accessible" title="Wheelchair Accessible" /></label></div>
+        <div id="mode-area"><span>Include mode:</span><label><input name="bus" type="checkbox" id="bus" value="BUS" checked="true"/><span id="bus_label">Bus</span></label><label><input name="train" type="checkbox" checked="true" value="TRAIN" id="train" /><span id="sounder_label">Sounder</span><span id="link_label">Link</span></label></div>
+        <div id="accessible-area"><span>Accessible trip:</span><label><input name="accessible" type="checkbox" id="accessible" /><span id="wheelchair_accessible_label">Wheelchair Accessible</span></label></div>
       </div>
       <div class="ui-widget">
         <input id="trip-submit" type="submit" value="Plan Trip" />
