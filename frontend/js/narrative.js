@@ -49,6 +49,18 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     .fadeIn("fast");
                 });
 
+        var includeModes = "";
+        root.find("#bus, #train").each(function(e) {
+            var checked = jQuery(this).attr("checked");
+            var value = jQuery(this).val();
+            if(checked === true) {
+                if(includeModes.length > 0) {
+                    includeModes += ",";
+                }
+                includeModes += value;
+            }
+        });
+
         jQuery.jsonp({
             callback: "fn",
             url: OTP.Config.atisProxyServiceUrl,
@@ -143,7 +155,8 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         }
 
         // trip summary header
-        var tripSummariesWrapper = jQuery('<table id="tripresult-summaries">' + 
+        var tripSummariesWrapper = jQuery('<h2>Trip Options</h2>' + 
+                                            '<table id="tripresult-summaries">' + 
                                             '<thead><tr><th>Trip</th><th>Travel Time</th><th>Cash</th><th>Route &amp; Transfers</th><tr></thead>' + 
                                             '<tbody></tbody>' + 
                                             '</table>');
@@ -307,7 +320,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     map.addLegToPlannedRoute(leg);
                     map.addLegInfoMarker(leg, formatLegInfoWindowHtml(leg));
 
-                    if(typeof leg.intermediateStops !== 'undefined') {
+                    if(typeof leg.intermediateStops !== 'undefined' && leg.intermediateStops !== null) {
                         var intermediateStops = null;
                         if(leg.intermediateStops.stop instanceof Array) {
                             intermediateStops = leg.intermediateStops.stop;

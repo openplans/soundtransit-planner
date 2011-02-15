@@ -55,7 +55,10 @@ OTP.Agency = {
             } else if(route === "M599" || route === "TLDTC" || mode === "LINK") {
                 return "Link";
             } else {
-                return "Streetcar";
+                //return "Streetcar";
+
+                // For now, street cars appear as/along with buses. (FIXME)
+                return "Bus";
             }
         }
         return "Unknown";

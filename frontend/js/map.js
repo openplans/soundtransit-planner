@@ -890,7 +890,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             request: "GetFeature",
             outputFormat: "json",
             format_options: "callback:" + callbackFunction,
-            typeName: "soundtransit:" + type,
+            typeName: "soundtransit:" + type
         };
 
         if(cql !== null) {

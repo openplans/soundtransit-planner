@@ -156,8 +156,7 @@ background-repeat: no-repeat;
 position: relative;
 }
 
-#toggle-layers a.active,
-#toggle-layers a:hover {
+#toggle-layers a.active {
 background-position: 0 -28px;
 }
 
@@ -375,16 +374,34 @@ display: none;
 width: 10em;
 }
 
+#mode-area,
 #accessible-area {
 margin: 5px 0;
-}
-
-#accessible-area label {
-font-weight: normal;
 color: #656565;
+font-weight: normal;
 }
 
+#mode-area span,
+#accessible-area span {
+font-size: 0.95em;
+display: inline-block;
+width: 90px;
+vertical-align: bottom;
+}
+
+#mode-area label,
+#accessible-area label {
+margin-left: 10px;
+}
+
+#mode-area label input,
+#accessible-area label input {
+background-image: none;
+}
+
+#mode-area label img,
 #accessible-area label img {
+margin-left: 5px;
 vertical-align: bottom;
 }
 
@@ -469,8 +486,8 @@ position: absolute;
 z-index: 100000000000;
 left: 0px;
 right: 0px;
-margin-left: auto;
-margin-right: auto;
+margin-left: 40%;
+margin-right: 40%;
 top: 40%;
 background-color: #FFFFFF;
 padding: 10px;
@@ -478,7 +495,7 @@ border: 1px solid #656565;
 -moz-border-radius: 3px;
 -webkit-border-radius: 3px;
 border-radius: 3px;
-width: 90px;
+width: 20%;
 display: none;
 }
 
@@ -493,7 +510,7 @@ text-align: center;
 #trip-spinner {
 border-top:1px solid #656565;
 margin-top: 15px;
-padding: 15px 0 15px 0px;
+padding: 10px 0 15px 0px;
 font-size: 1.5em;
 color: #656565;
 }
@@ -685,11 +702,15 @@ background-image: url(../images/tripplanner/pin-9-ie.png);
 }
 
 /* - */
+#trip-data h2 {
+margin-top: 15px;
+border-top: 1px solid #656565;
+color: #4D4D4D;
+font-size: 1.5em;
+}
 
 #tripresult-summaries {
-border-top: 1px solid #656565;
 border-bottom: 1px solid #656565;
-margin: 15px 0;
 font-size: .9em;
 color: #333;
 width: 335px;
@@ -1344,7 +1365,6 @@ background-color: #fff;
 border: 1px solid #bababa;
 border-bottom: none;
 position: relative;
-overflow: hidden;
 padding: 2px;
 height: 16px;
 cursor:pointer;
