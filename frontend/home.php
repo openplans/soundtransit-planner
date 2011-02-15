@@ -121,7 +121,7 @@
             <option value="1680">1 mile max walk</option>
           </select>
         </span>
-        <div id="mode-area"><span>Include mode:</span><label><input name="bus" type="checkbox" id="bus" value="BUS" checked="true"/><span id="bus_label">Bus</span></label><label><input name="train" type="checkbox" checked="true" value="TRAIN" id="train" /><span id="sounder_label">Sounder</span><span id="link_label">Link</span></label></div>
+        <div id="mode-area"><span>Include mode:</span><label><input name="bus" type="checkbox" id="bus" value="BUSISH" checked="true"/><span id="bus_label">Bus</span></label><label><input name="train" type="checkbox" checked="true" value="TRAINISH" id="train" /><span id="sounder_label">Sounder</span><span id="link_label">Link</span></label></div>
         <div id="accessible-area"><span>Accessible trip:</span><label><input name="accessible" type="checkbox" id="accessible" /><span id="wheelchair_accessible_label">Wheelchair Accessible</span></label></div>
       </div>
       <div class="ui-widget">

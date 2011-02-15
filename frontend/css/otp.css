@@ -376,17 +376,14 @@ width: 10em;
 
 #mode-area,
 #accessible-area {
-margin-top: 10px;
+margin-top: 5px;
 color: #656565;
 font-weight: normal;
 }
 
-#accessible-area {
-margin-bottom: 5px;
-}
-
 #mode-area span,
 #accessible-area span {
+margin-top: 5px;
 font-size: 0.95em;
 display: inline-block;
 width: 90px;
@@ -407,6 +404,7 @@ vertical-align: middle;
 
 #mode-area label span,
 #accessible-area label span {
+margin-top: 0px;
 margin-left: 5px;
 vertical-align: middle;
 display: inline-block;

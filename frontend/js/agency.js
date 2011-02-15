@@ -21,9 +21,7 @@ OTP.Agency = {
         if(headsign === null) {
             return null;
         }
-        
         var headsign_r = headsign.split(/ {3}/ig);
-        
         if(headsign_r !== null && typeof headsign_r[1] !== 'undefined') {
             return OTP.Util.makeSentenceCase(headsign_r[1]);
         } else {
@@ -100,6 +98,11 @@ OTP.Agency = {
         } else if(route === "599" || route.toUpperCase() === "TLDTC") {
             return "Link";
         } else {
+            // strip off direction modifier if present, at end of numeric routes
+            var lastCharacter = route.match(/^[0-9]*([N|E|S|W])$/i);
+            if(lastCharacter !== null) {
+                return route.substring(0, route.length - 1);
+            }
             return route;
         }
     },

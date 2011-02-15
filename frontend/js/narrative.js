@@ -61,6 +61,12 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             }
         });
 
+        // (always include walking!)
+        if(includeModes.length > 0) {
+            includeModes += ",";
+        }
+        includeModes += "WALK";
+
         jQuery.jsonp({
             callback: "fn",
             url: OTP.Config.atisProxyServiceUrl,
@@ -77,7 +83,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 to: root.find("#to").val(),
                 intermediatePlaces: "",
                 showIntermediateStops: true,
-                mode: "TRANSIT,WALK"
+                mode: includeModes
             },
             success: function(data, status) {
                 plannerResponse = data;
