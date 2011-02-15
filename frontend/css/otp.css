@@ -376,9 +376,13 @@ width: 10em;
 
 #mode-area,
 #accessible-area {
-margin: 5px 0;
+margin-top: 10px;
 color: #656565;
 font-weight: normal;
+}
+
+#accessible-area {
+margin-bottom: 5px;
 }
 
 #mode-area span,
@@ -386,6 +390,7 @@ font-weight: normal;
 font-size: 0.95em;
 display: inline-block;
 width: 90px;
+height: 26px;
 vertical-align: middle;
 }
 
