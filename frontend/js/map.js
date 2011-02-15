@@ -747,7 +747,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
                         var style = {
                             strokeColor: OTP.Agency.getColorForLeg(mode, feature.properties.designator),
-                            strokeWidth: 4
+                            strokeWidth: 5
                         };
                         var polyline = new OpenLayers.Geometry.LineString(points);
                         var lineFeature = new OpenLayers.Feature.Vector(polyline, null, style);
@@ -1894,7 +1894,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             var style = {
                 strokeColor: OTP.Agency.getColorForLeg(leg["@mode"], leg["@route"]),
                 strokeOpacity: 0.80,
-                strokeWidth: 4
+                strokeWidth: 5
             };
 
             var polyline = new OpenLayers.Geometry.LineString(points);
@@ -1923,7 +1923,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             var style = {
                 strokeColor: OTP.Agency.getColorForLeg(leg["@mode"], leg["@route"]),
                 strokeOpacity: 0.50,
-                strokeWidth: 4
+                strokeWidth: 5
             };
 
             var polyline = new OpenLayers.Geometry.LineString(points);
