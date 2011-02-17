@@ -62,22 +62,19 @@ OTP.Map = function(_root, _controlsRoot, options) {
     OpenLayers.Control.PanZoomBar.prototype.draw = function(px) {
         // initialize our internal div
         OpenLayers.Control.prototype.draw.apply(this, arguments);
-        px = this.position.clone();
 
-        // place the controls
+        px = this.position.clone();
         this.buttons = [];
 
         var sz = new OpenLayers.Size(26,22);
-        var centered = new OpenLayers.Pixel(px.x+sz.w/2, px.y);
-        var wposition = sz.w;
+        var centered = new OpenLayers.Pixel(px.x + sz.w/2, px.y);
 
+        px.y = centered.y + sz.h;
+        this._addButton("zoomin", "zoom-plus-mini.png", centered.add(0, 50), sz);
 
-        px.y = centered.y+sz.h;
-
-        this._addButton("zoomin", "zoom-plus-mini.png", centered.add(0,
-50), sz);
         centered = this._addZoomBar(centered.add(0, 71));
         this._addButton("zoomout", "zoom-minus-mini.png", centered, sz);
+
         return this.div;
     }
 

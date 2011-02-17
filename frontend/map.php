@@ -28,11 +28,12 @@
     <link type="text/css" href="css/jquery/ui-custom/jquery-ui-1.8.6.custom.css" rel="stylesheet" media="screen, projection" />
     <link type="text/css" href="css/jquery/ui.selectmenu.css" rel="stylesheet" media="screen, projection" />
     <link type="text/css" href="css/jquery/ui.spinner.css" rel="stylesheet" media="screen, projection" />
+    <link type="text/css" href="css/jquery/fancybox.css" rel="stylesheet" media="screen, projection" />
     <link type="text/css" href="css/otp.css" rel="stylesheet" media="screen, projection" />
     <!--[if lt IE 8]><link rel="stylesheet" href="css/ie.css" type="text/css" media="screen, projection"><![endif]-->
 
     <!--DO NOT INCLUDE THE FILE BELOW IN A PRODUCTION DEPLOYMENT - FOR DEMO ONLY-->
-	<link type="text/css" href="css/demo.css" rel="stylesheet" media="screen, projection" />
+    <link type="text/css" href="css/demo.css" rel="stylesheet" media="screen, projection" />
 
     <!--INCLUDE ALL OF THESE FILES IN A PRODUCTION DEPLOYMENT, IN THIS ORDER-->
     <script type="text/javascript" src="js/jquery/jquery-1.4.2.min.js"></script>
@@ -40,6 +41,7 @@
     <script type="text/javascript" src="js/jquery/jquery-ui-1.8.6.custom.min.js"></script>
     <script type="text/javascript" src="js/jquery/jquery-ui-selectmenu.min.js"></script>
     <script type="text/javascript" src="js/jquery/jquery-ui-spinner.min.js"></script>
+    <script type="text/javascript" src="js/jquery/jquery-fancybox.min.js"></script>
     <script type="text/javascript" src="js/openlayers/OpenLayers.js"></script>
     <script type="text/javascript" src="js/config.js"></script>
     <script type="text/javascript" src="js/util.js"></script>

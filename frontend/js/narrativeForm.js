@@ -100,6 +100,19 @@ OTP.NarrativeForm = function(_root, map) {
 
             return false;
         });
+
+        // help button behavior
+        root.find("#help").click(function() {
+            jQuery.fancybox(
+                root.find("#help-content").html(),
+                {
+                    'autoDimensions': false,
+                    'width': 700,
+                    'height': 400
+                }
+            );
+            return false; 
+        });
   
         // to/from
         root.find('#to, #from')
