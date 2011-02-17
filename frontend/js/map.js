@@ -55,6 +55,31 @@ OTP.Map = function(_root, _controlsRoot, options) {
     var systemMapRouteCriteria = {};
     var systemMapRouteFeatures = {};
     var systemMapRouteInfoMarkers = {};
+    
+    // Amended Version of OpenLayers.Control.PanZoomBar
+    // since otherwise we can't style ZoomBar adequately
+    // and OpenLayers doesn't have a standalone ZoomBar function
+    OpenLayers.Control.PanZoomBar.prototype.draw = function(px) {
+        // initialize our internal div
+        OpenLayers.Control.prototype.draw.apply(this, arguments);
+        px = this.position.clone();
+
+        // place the controls
+        this.buttons = [];
+
+        var sz = new OpenLayers.Size(26,22);
+        var centered = new OpenLayers.Pixel(px.x+sz.w/2, px.y);
+        var wposition = sz.w;
+
+
+        px.y = centered.y+sz.h;
+
+        this._addButton("zoomin", "zoom-plus-mini.png", centered.add(0,
+50), sz);
+        centered = this._addZoomBar(centered.add(0, 71));
+        this._addButton("zoomout", "zoom-minus-mini.png", centered, sz);
+        return this.div;
+    }
 
     // decodes google-encoded polyline data
     function decodePolyline(encoded) {
@@ -1694,7 +1719,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
         maxExtent: new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34),
         controls: [
             new OpenLayers.Control.Navigation({'zoomWheelEnabled': false}),
-            new OpenLayers.Control.PanZoomBar({zoomWorldIcon:false, zoomStopHeight: 6}),
+            new OpenLayers.Control.PanZoomBar({zoomWorldIcon:false, zoomStopHeight: 6, zoomStopWidth: 28}),
+            new OpenLayers.Control.PanPanel(),
             new OpenLayers.Control.Attribution()
         ]
     });
