@@ -521,20 +521,13 @@ background-position: 0 -16px;
 /* - */
 
 #how-to-plan {
-border-top:1px solid #656565;
 margin-top: 15px;
-padding-top: 15px;
-color: #656565;
-}
-
-#how-to-plan h3 {
-font-weight: bold;
-}
-
-#how-to-plan h4 {
-font-weight: bold;
-font-size: 1.5em;
-padding-top: 5px;
+border-top:1px solid #656565;
+width: 345px;
+height: 240px;
+background-image: url(../images/tripplanner/getting_started.png);
+background-position: 0 0;
+background-repeat: no-repeat;
 }
 
 #trip-data {
