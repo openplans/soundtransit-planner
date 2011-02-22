@@ -186,13 +186,7 @@
       </div>
     </form>
     <div id="trip-data">
-      <div id="how-to-plan">
-        <h3>2 Ways to Plan Your Trip</h3>
-        <h4>1. Enter your start and end locations.</h4>
-        <p>Enter your origin and destination above (don't use city or zip) then select "Plan Trip".</p>
-        <h4>2. Pick points on the map.</h4>
-        <p>Right-click on the map to set the Start and End locations, then select "Plan Trip".</p>
-      </div>
+      <div id="how-to-plan"></div>
     </div><!-- /#trip-data -->
     <div id="help-content">
         <div class="section">

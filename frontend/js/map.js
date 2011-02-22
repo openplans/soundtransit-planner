@@ -996,6 +996,11 @@ OTP.Map = function(_root, _controlsRoot, options) {
         return Math.floor(ratio * 12.5);
     }
 
+    function getStopMarkerRadiusAtCurrentZoomLevel() {
+        var ratio = map.getZoom() / 18;
+        return Math.floor(ratio * 16.5);
+    }
+
     function setupDataLayers() {
         // trip planner vector layers
         routeLayer = new OpenLayers.Layer.Vector("Routes");
@@ -1003,10 +1008,10 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
         // data layer markers:
         // layer style configuration
-        var context = {
-            getPointRadius: getMarkerRadiusAtCurrentZoomLevel,
+        var stopContext = {
+            getPointRadius: getStopMarkerRadiusAtCurrentZoomLevel,
             getOffset : function() {
-                return 0 - getMarkerRadiusAtCurrentZoomLevel();
+                return 0 - getStopMarkerRadiusAtCurrentZoomLevel();
             }            
         };
 
@@ -1018,8 +1023,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
         };
         dataMarkerLayers.stops = new OpenLayers.Layer.Vector("Stop Markers");
         dataMarkerLayers.stops.styleMap = new OpenLayers.StyleMap({
-            'default': new OpenLayers.Style(templateStops, {context:context}),
-            'select': new OpenLayers.Style(templateStops, {context:context})
+            'default': new OpenLayers.Style(templateStops, {context:stopContext}),
+            'select': new OpenLayers.Style(templateStops, {context:stopContext})
         });
         dataMarkerLayers.stops.events.on({
             moveend: function(e) {        
@@ -1030,6 +1035,12 @@ OTP.Map = function(_root, _controlsRoot, options) {
             }
         });
 
+        var context = {
+            getPointRadius: getMarkerRadiusAtCurrentZoomLevel,
+            getOffset : function() {
+                return 0 - getMarkerRadiusAtCurrentZoomLevel();
+            }            
+        };
         var templateParking = {
             graphicXOffset: "${getOffset}",
             graphicYOffset: "${getOffset}",
