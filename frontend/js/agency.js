@@ -148,42 +148,25 @@ OTP.Agency = {
         return "#";
     },
 
-    getAgencyNameForLeg: function(mode, route) {
-        if(route === null) {
+    getAgencyNameForLeg: function(operatorId) {
+        if(operatorId === null) {
             return null;
         }
 
-        var label = OTP.Agency.getModeLabelForLeg(mode, route); 
-        if(label === "Sounder" || label === "Link" || route === "M599" || route.toUpperCase() === "MSOUNDER") {
+        if(operatorId === "M" || operatorId === "MT") {
+            return "King County Metro";
+        } else if(operatorId === "P") {
+            return "Pierce Transit";
+        } else if(operatorId === "ST") {
             return "Sound Transit";
+        } else if(operatorId === "EE") {
+            return "Everett Transit";
+        } else if(operatorId === "WSF" || operatorId === "MWSF") {
+            return "Washington State Ferry";
+        } else if(operatorId === "CT") {
+            return "Community Transit";
         } else {
-            var agencyIdentifier = (route + '').toUpperCase().match('^MWSF|WSF|M|P|CT|ST|EE');
-            if(agencyIdentifier !== null && typeof agencyIdentifier[0] !== 'undefined') {
-                agencyIdentifier = agencyIdentifier[0];
-                if(agencyIdentifier === "M") {
-                    return "King County Metro";
-                } else if(agencyIdentifier === "P") {
-                    return "Pierce Transit";
-                } else if(agencyIdentifier === "ST") {
-                    return "Sound Transit";
-                } else if(agencyIdentifier === "EE") {
-                    return "Everett Transit";
-                } else if(agencyIdentifier === "WSF" || agencyIdentifier === "MWSF") {
-                    return "Washington State Ferry";
-                } else if(agencyIdentifier === "CT") {
-                    return "Community Transit";
-                }
-            } else {
-                // if there is no route identifier, it's a CT route, except if it's between 500 and 599. 
-                try {
-                    var routeNum = parseInt(route,10);
-                    if(routeNum >= 500 && routeNum <= 599) {
-                        return "Sound Transit";
-                    }
-                } catch(e) {}
-                return "Community Transit";
-            }
+            return "Unknown Agency";
         }
-        return "Unknown Agency";
     }
 };

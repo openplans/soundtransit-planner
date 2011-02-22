@@ -430,7 +430,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     '<img class="mode-icon" src="' + OTP.Config.tripPlannerImagePath + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]).toLowerCase() + '16x16.png" alt="' + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]) + '" />' + 
                         OTP.Util.makeSentenceCase(leg["@mode"]) + ' - ' + 
                             '<a href="' + OTP.Agency.getURLForLeg(leg["@mode"], leg["@route"]) + '" target="_new">' + 
-                                OTP.Agency.getAgencyNameForLeg(leg["@mode"], leg["@route"]) + 
+                                OTP.Agency.getAgencyNameForLeg(leg["@agencyId"]) + 
                             '</a>' + 
                             ' <strong>' + OTP.Agency.getDisplayNameForLeg(leg["@mode"], leg["@route"]) + '</strong> ' +
                             OTP.Agency.getFormattedHeadsign(leg["@headsign"]) + 

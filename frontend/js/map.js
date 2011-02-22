@@ -532,7 +532,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     var routesByAgencyMap = {};
                     jQuery.each(services, function(_, service) {
                         var route = OTP.Agency.getDisplayNameForLeg(null, service.route);
-                        var agency = OTP.Agency.getAgencyNameForLeg(null, service.route);
+                        var agency = OTP.Agency.getAgencyNameForLeg(service.operator);
                         if(typeof routesByAgencyMap[agency] === 'undefined') {
                             routesByAgencyMap[agency] = [];
                         }
