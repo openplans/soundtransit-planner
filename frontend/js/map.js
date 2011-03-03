@@ -141,8 +141,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
         if(markersDragControl !== null) {
             markersDragControl.deactivate();
         }
-        
-        hideWelcomeMessage();
     }
 
     // leg info markers
@@ -256,7 +254,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
     }
 
     function showContextMenu(point) {
-        hideWelcomeMessage();
         hideContextMenu();
 
         contextMenu = jQuery("<ul></ul>")
@@ -429,7 +426,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
     }
 
     function showInfoWindow(feature) {
-        hideWelcomeMessage();
         hideInfoWindow();
 
         // create info window popup wrapper and append to DOM
@@ -837,7 +833,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
             return;
         }
         
-        hideWelcomeMessage();
         hideTooMany();
 
         var typeString = "unknown";
@@ -883,8 +878,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
     }
 
     function addDataLayer(type, element, constrainToBBOX, cql) {
-        hideWelcomeMessage();
-
         var layer = dataMarkerLayers[type];
 
         if(layer === null) {
@@ -1690,30 +1683,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 .trigger("click");
         }
     }
-
-    // welcome message
-    function hideWelcomeMessage() {
-        jQuery("#welcome").remove();
-    }
     
-    function showWelcomeMessage() {
-        var closeButton = jQuery('<a class="close" href="#">Close</a>')
-                                    .click(function(e) {
-                                        hideWelcomeMessage();
-                                        return false;
-                                    });
-
-        jQuery("<div></div>")
-            .attr("id", "welcome")
-            .append("<h1>It's easy to get started!</h1>" + 
-                    "<p>Right-click (PC) or Control-click (Macintosh) on the map to select a starting/ending location and plan your trip.</p>")
-            .appendTo(map.viewPortDiv)
-            .append(closeButton);
-    }
-
     function showBusy() {
-        hideWelcomeMessage();
-        
         root.find("#loading").show();
     }
 
@@ -1745,10 +1716,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
     addLegendBehavior();
     addMapToggleWidthBehavior();
 
-    if(options.hasTripPlanner === true) {
-        showWelcomeMessage();
-    }
-    
     // center on seattle metro area
     var point = new OpenLayers.LonLat(-122.30, 47.45);
     var proj = new OpenLayers.Projection("EPSG:4326");
