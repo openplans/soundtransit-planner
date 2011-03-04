@@ -17,6 +17,7 @@ package org.openplans.delayfeeder;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -48,111 +49,121 @@ import com.sun.syndication.io.XmlReader;
 @Autowire
 public class RouteStatus {
 	private static final Logger logger = Logger.getLogger(RouteStatus.class);
-	
-	private static final long FEED_UPDATE_FREQUENCY = 15*60*1000;
-	private SessionFactory sessionFactory;
 
+	private static final long FEED_UPDATE_FREQUENCY = 15 * 60 * 1000;
+	private SessionFactory sessionFactory;
 
 	@Autowired
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
-	
+
 	/**
-		Main entry point for the route status server
+	 * Main entry point for the route status server
 	 */
 	@GET
-	@Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_XML })
+	@Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
+			MediaType.TEXT_XML })
 	public RouteStatusResponse getStatus(
-         @QueryParam("agency") String agency,
-         @QueryParam("route") String route) {
-	 
-	 /* get data from cache */
-	 RouteFeedItem item = getLatestItem(agency, route);
-	 
-	 /* serve data */
-	 RouteStatusResponse response = new RouteStatusResponse();
-	 
-	 response.agency = agency;
-	 response.route = route;
-	 if (item != null) {
-		 response.status = item.description;
-		 response.date = item.date;
-	 }
-	 return response;
+			@QueryParam("route") List<String> routes) {
+
+		RouteStatusResponse response = new RouteStatusResponse();
+		response.items = new ArrayList<RouteStatusItem>(routes.size());
+		for (String routeId : routes) {
+			String[] parts = routeId.split(",");
+			String agency = parts[0];
+			String route = parts[1];
+			/* get data from cache */
+			RouteFeedItem item = getLatestItem(agency, route);
+			RouteStatusItem status = new RouteStatusItem();
+			response.items.add(status);
+			/* serve data */
+			status.agency = agency;
+			status.route = route;
+			if (item != null) {
+				status.status = item.description;
+				status.date = item.date;
+			}
+		}
+		return response;
 	}
- 
- 	@SuppressWarnings("unchecked")
+
+	@SuppressWarnings("unchecked")
 	private RouteFeedItem getLatestItem(String agency, String route) {
- 		RouteFeed feed = getFeed(agency, route);
- 		if (feed == null) {
- 			return null;
- 		}
- 		GregorianCalendar now = new GregorianCalendar();
- 		if (feed.lastFetched == null || now.getTimeInMillis() - feed.lastFetched.getTimeInMillis() > FEED_UPDATE_FREQUENCY) {
- 			try {
- 				refreshFeed(feed);
- 			} catch (Exception e) {
- 				e.printStackTrace();
- 				logger.warn(e.fillInStackTrace());
- 			}
- 		}
- 		Session session = sessionFactory.getCurrentSession();
- 		session.beginTransaction();
- 		List list = session.createQuery("from RouteFeedItem order by date desc limit 1").list();
- 		if (list.size() == 0 ) {
- 			return null;
- 		}
- 		RouteFeedItem item = (RouteFeedItem) list.get(0);
-        return item;
- 	}
- 	
- 	private void refreshFeed(RouteFeed feed) throws IllegalArgumentException, FeedException, IOException {
- 		URL url = new URL(feed.url);
+		RouteFeed feed = getFeed(agency, route);
+		if (feed == null) {
+			return null;
+		}
+		GregorianCalendar now = new GregorianCalendar();
+		if (feed.lastFetched == null
+				|| now.getTimeInMillis() - feed.lastFetched.getTimeInMillis() > FEED_UPDATE_FREQUENCY) {
+			try {
+				refreshFeed(feed);
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.warn(e.fillInStackTrace());
+			}
+		}
+		Session session = sessionFactory.getCurrentSession();
+		session.beginTransaction();
+		List list = session.createQuery(
+				"from RouteFeedItem order by date desc limit 1").list();
+		if (list.size() == 0) {
+			return null;
+		}
+		RouteFeedItem item = (RouteFeedItem) list.get(0);
+		return item;
+	}
 
-        SyndFeedInput input = new SyndFeedInput();
-        SyndFeed inFeed = input.build(new XmlReader(url));
+	private void refreshFeed(RouteFeed feed) throws IllegalArgumentException,
+			FeedException, IOException {
+		URL url = new URL(feed.url);
 
- 		Session session = sessionFactory.getCurrentSession();
-        session.beginTransaction();
-       
-        Date lastEntry = null;
-        for (Object obj : inFeed.getEntries()) {
-        	SyndEntry entry = (SyndEntry) obj;
-        	Date date = entry.getPublishedDate();
-        	if (date.getTime() > feed.lastEntry.getTimeInMillis()) {
-        		if (lastEntry == null || date.getTime() > lastEntry.getTime()) {
-        			lastEntry = date;
-        		}
-        		RouteFeedItem item = new RouteFeedItem();
-        		item.date = new GregorianCalendar();
-        		item.date.setTimeInMillis(date.getTime());
-        		item.description = entry.getDescription().getValue();
-        		item.feed = feed;
-                session.save(item);
-        	}
-        }
+		SyndFeedInput input = new SyndFeedInput();
+		SyndFeed inFeed = input.build(new XmlReader(url));
 
-		feed.lastEntry.setTimeInMillis(lastEntry.getTime());
-        session.save(feed);
-        session.flush();
-        session.getTransaction().commit();
+		Session session = sessionFactory.getCurrentSession();
+		session.beginTransaction();
+
+		Date lastEntry = null;
+		for (Object obj : inFeed.getEntries()) {
+			SyndEntry entry = (SyndEntry) obj;
+			Date date = entry.getPublishedDate();
+			if (date.getTime() > feed.lastEntry.getTimeInMillis()) {
+				if (lastEntry == null || date.getTime() > lastEntry.getTime()) {
+					lastEntry = date;
+				}
+				RouteFeedItem item = new RouteFeedItem();
+				item.date = new GregorianCalendar();
+				item.date.setTimeInMillis(date.getTime());
+				item.description = entry.getDescription().getValue();
+				item.feed = feed;
+				session.save(item);
+			}
+		}
+		if (lastEntry != null) {
+			feed.lastEntry.setTimeInMillis(lastEntry.getTime());
+		}
+		session.save(feed);
+		session.flush();
+		session.getTransaction().commit();
 	}
 
 	@SuppressWarnings("unchecked")
 	private RouteFeed getFeed(String agency, String route) {
- 		Session session = sessionFactory.getCurrentSession();
- 		session.beginTransaction();
- 		Query query = session.createQuery("from RouteFeed where agency = :agency and route = :route");
- 		query.setParameter("agency", agency);
- 		query.setParameter("route", route);
- 		List list = query.list();
- 		if (list.size() == 0 ) {
- 			return null;
- 		}
- 		RouteFeed feed = (RouteFeed) list.get(0);
- 		session.getTransaction().commit();
- 		return feed;
- 	}
- 
+		Session session = sessionFactory.getCurrentSession();
+		session.beginTransaction();
+		Query query = session
+				.createQuery("from RouteFeed where agency = :agency and route = :route");
+		query.setParameter("agency", agency);
+		query.setParameter("route", route);
+		List list = query.list();
+		if (list.size() == 0) {
+			return null;
+		}
+		RouteFeed feed = (RouteFeed) list.get(0);
+		session.getTransaction().commit();
+		return feed;
+	}
+
 }

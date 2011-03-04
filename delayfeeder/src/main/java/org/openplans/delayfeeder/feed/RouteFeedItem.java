@@ -36,7 +36,7 @@ public class RouteFeedItem {
 
 	@ManyToOne(cascade=CascadeType.ALL)
     @JoinColumns ({
-        @JoinColumn(name="feed", referencedColumnName = "id"),
+        @JoinColumn(name="feed_id", referencedColumnName = "id"),
     })
 	public RouteFeed feed;
 

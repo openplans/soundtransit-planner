@@ -16,8 +16,7 @@
 		<property name="lastFetched" column="last_fetched" />
 		<set name="items" table="route_feed_items">
 			<key column="id" />
-			<many-to-many column="feed_id"
-				class="org.openplans.delayfeeder.feed.RouteFeedItem" />
+			<one-to-many class="org.openplans.delayfeeder.feed.RouteFeedItem" />
 		</set>
 	</class>
     <class name="org.openplans.delayfeeder.feed.RouteFeedItem"

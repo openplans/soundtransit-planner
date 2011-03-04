@@ -14,14 +14,15 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 package org.openplans.delayfeeder;
 
-import java.util.Calendar;
+import java.util.List;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class RouteStatusResponse {
-	public String agency;
-	public String route;
-	public String status;
-	public Calendar date;
+	@XmlElementWrapper(name = "items")
+    @XmlElement(name = "item")
+	List<RouteStatusItem> items;
 }
