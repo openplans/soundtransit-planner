@@ -17,6 +17,7 @@ package org.openplans.delayfeeder.feed;
 import java.util.Calendar;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -38,6 +39,8 @@ public class RouteFeedItem {
         @JoinColumn(name="feed", referencedColumnName = "id"),
     })
 	public RouteFeed feed;
+
+	@Column(name="description", nullable=false, length=30000)
 	public String description;
 	public Calendar date;
 	

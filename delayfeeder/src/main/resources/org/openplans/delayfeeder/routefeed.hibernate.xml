@@ -26,7 +26,7 @@
 			<generator class="increment" />
 		</id>
 
-		<property name="description" />
+		<property name="description" type="text" />
 		<property name="date" />
 	</class>
 
