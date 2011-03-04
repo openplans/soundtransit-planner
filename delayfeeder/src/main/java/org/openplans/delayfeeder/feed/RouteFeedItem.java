@@ -43,6 +43,8 @@ public class RouteFeedItem {
 	@Column(name="description", nullable=false, length=30000)
 	public String description;
 	public Calendar date;
+
+	public String link;
 	
 	public long getId() {
 		return id;

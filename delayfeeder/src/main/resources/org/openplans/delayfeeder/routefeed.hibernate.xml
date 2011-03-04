@@ -26,6 +26,7 @@
 		</id>
 
 		<property name="description" type="text" />
+		<property name="link" />
 		<property name="date" />
 	</class>
 

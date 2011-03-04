@@ -83,6 +83,7 @@ public class RouteStatus {
 			if (item != null) {
 				status.status = item.description;
 				status.date = item.date;
+				status.link = item.link;
 			}
 		}
 		return response;
@@ -138,6 +139,7 @@ public class RouteStatus {
 				item.date.setTimeInMillis(date.getTime());
 				item.description = entry.getDescription().getValue();
 				item.feed = feed;
+				item.link = entry.getLink();
 				session.save(item);
 			}
 		}
