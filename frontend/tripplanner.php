@@ -131,7 +131,7 @@
 <div id="tripplanner-wrap">
   <div id="plannerpanel">
     <div class="form-meta">
-      <a id="clear" href="#">Clear</a> <a id="help" href="#">Help</a>
+      <a id="feedback" href="#">Feedback</a> <a id="clear" href="#">Clear</a> <a id="help" href="#">Help</a>
     </div>
     <h2>Plan your trip!</h2>
     <form id="trip-plan-form">

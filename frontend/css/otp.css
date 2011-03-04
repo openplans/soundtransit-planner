@@ -1482,47 +1482,6 @@ background-image: url(../images/tripplanner/bus16x16.png);
 }
 
 /* - */
-
-#welcome {
-position: absolute;
-z-index: 10000000;
-background-color: #F8FBD8;
-color: #666;
-border: 1px solid #c0c0c0;
-top: 50px;
-left: 100px;
-font-size: 1.15em;
-width: 300px;
--moz-border-radius: 3px;
--webkit-border-radius: 3px;
-border-radius: 3px;
-}
-
-#welcome p {
-padding: 10px;
-padding-top: 0px;
-}
-
-#welcome h1 {
-padding: 10px;
-padding-bottom: 0px;
-font-weight: bold;
-font-size: 1.5em;
-}
-
-#welcome .close {
-position: absolute;
-top: 2px;
-right: 2px;
-text-indent: -9999px;
-background-image: url(../images/tripplanner/close.png);
-background-repeat: no-repeat;
-background-position: 0 0;
-height: 19px;
-width: 19px;
-}
-
-/* - */
 #help-content {
 display: none;
 }
