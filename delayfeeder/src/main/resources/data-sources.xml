@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
 	<bean id="dataSource"
 		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
@@ -9,6 +10,7 @@
 		<property name="url" value="jdbc:postgresql://localhost/org_soundtransit_delayfeeder" />
 		<property name="username" value="postgres" />
 		<property name="password" value="" />
+        		
 	</bean>
 	
     	<bean id="hibernateProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
@@ -16,10 +18,9 @@
 			<props>
             			<prop key="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</prop>
 		            	<prop key="hibernate.current_session_context_class">thread</prop>
-			    	<prop key="hibernate.transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</prop>
-				<prop key="hibernate.connection.autocommit">false</prop>
-				<prop key="hibernate.hbm2ddl.auto">create</prop>
-			</props>
+				<prop key="hibernate.transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+		    	</props>
         	</property>
     	</bean>
 </beans>
