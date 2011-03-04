@@ -68,6 +68,37 @@ OTP.NarrativeForm = function(_root, map) {
 
     // behaviors
     function addFormUIBehavior() {
+        // feedback button
+        root.find("#feedback").click(function() {
+            var feedbackUrl = OTP.Config.feedbackUrl;
+
+            var includeModes = "";
+            root.find("#bus, #train").each(function(e) {
+                var checked = jQuery(this).attr("checked");
+                var value = jQuery(this).val();
+                if(checked === true) {
+                    if(includeModes.length > 0) {
+                        includeModes += ",";
+                    }
+                    includeModes += value;
+                }
+            });
+
+            feedbackUrl += "&from=" + escape(root.find("#from").val());
+            feedbackUrl += "&to=" + escape(root.find("#to").val());
+            feedbackUrl += "&leavetype=" + escape(root.find("#leavetype option:selected").val());
+            feedbackUrl += "&leavedate=" + escape(root.find("#leaveday").val());
+            feedbackUrl += "&leavetime=" + escape(root.find("#leavehour").val() + ":" + root.find("#leaveminute").val() + " " + root.find("#leaveampm option:selected").val());
+            feedbackUrl += "&trippriority=" + escape(root.find("#trippriority option:selected").val());
+            feedbackUrl += "&maxwalk=" + escape(root.find("#maxwalk option:selected").val());
+            feedbackUrl += "&mode=" + escape(includeModes);
+            feedbackUrl += "&accessible=" + (root.find("#maxwalk").attr("checked") === true);
+
+            window.open(feedbackUrl);
+
+            return false;
+        });
+        
         // clear button behavior
         root.find('#clear').click(function() {
             root.find('#to, #from')
