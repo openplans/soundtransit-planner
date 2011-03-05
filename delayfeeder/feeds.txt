@@ -284,4 +284,5 @@ ST,592,http://stageredesign.soundtransit.org/x889.xml?rssFeed=true&route=592
 ST,593,http://stageredesign.soundtransit.org/x889.xml?rssFeed=true&route=593
 ST,594,http://stageredesign.soundtransit.org/x889.xml?rssFeed=true&route=594
 ST,595,http://stageredesign.soundtransit.org/x889.xml?rssFeed=true&route=595
-ST,599,http://stageredesign.soundtransit.org/x889.xml?rssFeed=true&route=599
+ST,LINK,http://stageredesign.soundtransit.org/x889.xml?rssFeed=true&route=599
+ST,SOUNDER,http://stageredesign.soundtransit.org/x889.xml?rssFeed=true&mode=Train
