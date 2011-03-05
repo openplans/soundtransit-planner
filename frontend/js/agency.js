@@ -157,7 +157,7 @@ OTP.Agency = {
             return "King County Metro";
         } else if(operatorId === "P") {
             return "Pierce Transit";
-        } else if(operatorId === "ST") {
+        } else if(operatorId === "ST" || operatorId === "SDR") {
             return "Sound Transit";
         } else if(operatorId === "EE") {
             return "Everett Transit";
