@@ -38,6 +38,7 @@ import org.openplans.delayfeeder.feed.RouteFeedItem;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.sun.jersey.api.spring.Autowire;
+import com.sun.jersey.api.json.JSONWithPadding;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.FeedException;
@@ -62,10 +63,10 @@ public class RouteStatus {
 	 * Main entry point for the route status server
 	 */
 	@GET
-	@Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
-			MediaType.TEXT_XML })
-	public RouteStatusResponse getStatus(
-			@QueryParam("route") List<String> routes) {
+	@Produces("application/x-javascript")
+	public JSONWithPadding getStatus(
+			@QueryParam("route") List<String> routes,
+			@QueryParam("callback") String callback) {
 
 		RouteStatusResponse response = new RouteStatusResponse();
 		response.items = new ArrayList<RouteStatusItem>(routes.size());
@@ -86,7 +87,8 @@ public class RouteStatus {
 				status.link = item.link;
 			}
 		}
-		return response;
+
+		return new JSONWithPadding(response,callback);
 	}
 
 	@SuppressWarnings("unchecked")
