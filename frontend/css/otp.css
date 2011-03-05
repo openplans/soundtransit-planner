@@ -960,6 +960,11 @@ vertical-align: top;
 padding-right: 30px;	
 }
 
+p.alert {
+padding: 5px;
+font-weight: bold;
+}
+
 /* - */
 
 #disambiguation {

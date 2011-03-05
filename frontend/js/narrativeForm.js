@@ -84,6 +84,15 @@ OTP.NarrativeForm = function(_root, map) {
                 }
             });
 
+            var agenciesUsed = [];
+            root.find(".results.active .trip-stepbystep li").each(function(e) {
+                var leg = jQuery(this);
+                if(leg.hasClass("walk")) {
+                    return;
+                }
+                agenciesUsed.push(leg.find("a.agency").text());
+            });
+
             feedbackUrl += "&from=" + escape(root.find("#from").val());
             feedbackUrl += "&to=" + escape(root.find("#to").val());
             feedbackUrl += "&leavetype=" + escape(root.find("#leavetype option:selected").val());
@@ -92,6 +101,7 @@ OTP.NarrativeForm = function(_root, map) {
             feedbackUrl += "&trippriority=" + escape(root.find("#trippriority option:selected").val());
             feedbackUrl += "&maxwalk=" + escape(root.find("#maxwalk option:selected").val());
             feedbackUrl += "&mode=" + escape(includeModes);
+            feedbackUrl += "&agenciesUsed=" + escape(agenciesUsed.unique().join(","));
             feedbackUrl += "&accessible=" + (root.find("#maxwalk").attr("checked") === true);
 
             window.open(feedbackUrl);

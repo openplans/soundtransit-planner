@@ -116,6 +116,59 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         });
     }
 
+    function addServiceAlerts(tripWrapper, trip) {
+        var routesUsed = "";
+        jQuery.each(trip.legs.leg, function(legIndex, leg) {
+            if(leg["@mode"].toUpperCase() === "WALK") {
+                return;
+            }
+            if(routesUsed.length > 0) {
+                routesUsed += "&";
+            }
+            routesUsed += "route=" + leg["@agencyId"] + "," 
+                                   + OTP.Agency.getDisplayNameForLeg(leg["@mode"], leg["@route"]);
+        });
+
+        var callbackFunction = "getAlerts" + Math.floor(Math.random() * 1000000000);
+        jQuery.jsonp({
+            callback: callbackFunction,
+            dataType: "jsonp",
+            url: OTP.Config.serviceAlertAggregatorUrl + "?callback=?",
+            data: routesUsed,
+            success: function(data, status) {
+                var items = null;
+                if(data.items.item instanceof Array) {
+                    items = data.items.item;
+                } else {
+                    items = [data.items.item];
+                }
+                
+                if(items.length === 0) {
+                    return;
+                }
+
+                tripWrapper.addClass("hasAlert");
+
+                jQuery.each(items, function(_, item) {
+                    var alertItem = jQuery("<p></p>")
+                                        .addClass("alert");
+
+                    if(typeof item.status !== 'undefined' && typeof item.link !== 'undefined') {
+                        jQuery("<a></a>")
+                                .text(item.status)
+                                .attr("href", item.link)
+                                .appendTo(alertItem);
+                    } else if(typeof item.status !== 'undefined') {
+                        alertItem.text(item.status);
+                    }
+
+                    tripWrapper.find(".trip-stepbystep li." + item.agency + item.route)
+                                .append(alertItem);
+                });
+            }
+        });
+    }
+    
     function updateNarrative(data) {
         // error returned
         if(typeof data.error !== 'undefined') {
@@ -258,6 +311,9 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             // trip description: step by step
             jQuery(stepByStepWrapper)
                 .appendTo(tripWrapper);
+
+            // request + add service alerts
+            addServiceAlerts(tripWrapper, trip);
 
             // hack to support IE7 last-child selector
             jQuery(".trip-stepbystep li:last-child").addClass("last-child");
@@ -429,7 +485,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             return jQuery('<li class="' + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]).toLowerCase() + ' leg-' + legIndex + '"></li>').html(
                     '<img class="mode-icon" src="' + OTP.Config.tripPlannerImagePath + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]).toLowerCase() + '16x16.png" alt="' + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]) + '" />' + 
                         OTP.Util.makeSentenceCase(leg["@mode"]) + ' - ' + 
-                            '<a href="' + OTP.Agency.getURLForLeg(leg["@mode"], leg["@route"]) + '" target="_new">' + 
+                            '<a href="' + OTP.Agency.getURLForLeg(leg["@mode"], leg["@route"]) + '" class="agency" target="_new">' + 
                                 OTP.Agency.getAgencyNameForLeg(leg["@agencyId"]) + 
                             '</a>' + 
                             ' <strong>' + OTP.Agency.getDisplayNameForLeg(leg["@mode"], leg["@route"]) + '</strong> ' +
@@ -442,7 +498,8 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                             '<br />Previous stop is ' + previousToStop + 
                         '</div>' + 
                     '</td></tr>' + 
-                    '</tbody></table>');
+                    '</tbody></table>')
+                    .addClass(leg["@agencyId"] + OTP.Agency.getDisplayNameForLeg(leg["@mode"], leg["@route"]));
         }
     }
     
