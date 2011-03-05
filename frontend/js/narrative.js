@@ -157,6 +157,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                         jQuery("<a></a>")
                                 .text(item.status)
                                 .attr("href", item.link)
+                                .attr("target", "_new")
                                 .appendTo(alertItem);
                     } else if(typeof item.status !== 'undefined') {
                         alertItem.text(item.status);
@@ -489,7 +490,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                                 OTP.Agency.getAgencyNameForLeg(leg["@agencyId"]) + 
                             '</a>' + 
                             ' <strong>' + OTP.Agency.getDisplayNameForLeg(leg["@mode"], leg["@route"]) + '</strong> ' +
-                            OTP.Agency.getFormattedHeadsign(leg["@headsign"]) + 
+                            OTP.Agency.getFormattedHeadsign(leg["@route"], leg["@headsign"]) + 
                     '<table class="substeps"><tbody>' + 
                     '<tr><td>' + OTP.Util.dateToPrettyTime(OTP.Util.ISO8601StringToDate(leg.startTime)) + '</td><td>Depart ' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '</div></td></tr>' + 
                     '<tr><td>' + OTP.Util.dateToPrettyTime(OTP.Util.ISO8601StringToDate(leg.endTime)) + '</td><td>Arrive ' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + 
