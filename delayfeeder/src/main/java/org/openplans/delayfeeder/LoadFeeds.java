@@ -66,7 +66,8 @@ public class LoadFeeds {
         	Query query = session.createQuery("from RouteFeed where agency = :agency and route = :route");
      		query.setParameter("agency", agency);
      		query.setParameter("route", route);
-     		List list = query.list();
+     		@SuppressWarnings("rawtypes")
+			List list = query.list();
      		RouteFeed feed;
      		if (list.size() == 0) {
      			feed = new RouteFeed();

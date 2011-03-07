@@ -44,6 +44,8 @@ public class RouteFeedItem implements Serializable {
 
 	public String link;
 	
+	public String category;
+	
 	public long getId() {
 		return id;
 	}

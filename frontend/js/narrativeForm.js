@@ -17,6 +17,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 var OTP = window.OTP || {};
 
 OTP.NarrativeForm = function(_root, map) {
+    var originalTo = null;
+    var originalFrom = null;
+    
     if(typeof _root === 'undefined' || _root === null) {
         return null;
     }
@@ -101,6 +104,8 @@ OTP.NarrativeForm = function(_root, map) {
             feedbackUrl += "&trippriority=" + escape(root.find("#trippriority option:selected").val());
             feedbackUrl += "&maxwalk=" + escape(root.find("#maxwalk option:selected").val());
             feedbackUrl += "&mode=" + escape(includeModes);
+            feedbackUrl += "&originalTo=" + escape(originalTo);
+            feedbackUrl += "&originalFrom=" + escape(originalFrom);
             feedbackUrl += "&agenciesUsed=" + escape(agenciesUsed.unique().join(","));
             feedbackUrl += "&accessible=" + (root.find("#maxwalk").attr("checked") === true);
 
@@ -250,6 +255,16 @@ OTP.NarrativeForm = function(_root, map) {
             return false;
         });
     }
+
+    root.find("form#trip-plan-form").submit(function(e) {
+        if(originalTo === null) {
+            originalTo = root.find("#to").val();
+        }
+        
+        if(originalFrom === null) {
+            originalFrom = root.find("#from").val();
+        }
+    });
 
     // constructor
     addFormUIBehavior();

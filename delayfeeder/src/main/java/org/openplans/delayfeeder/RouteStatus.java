@@ -26,7 +26,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.log4j.Logger;
@@ -41,6 +40,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 import com.sun.jersey.api.spring.Autowire;
 import com.sun.jersey.api.json.JSONWithPadding;
+import com.sun.syndication.feed.synd.SyndCategory;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.FeedException;
@@ -92,6 +92,7 @@ public class RouteStatus {
 				status.status = item.description;
 				status.date = item.date;
 				status.link = item.link;
+				status.category = item.category;
 			}
 		}
 		
@@ -103,9 +104,14 @@ public class RouteStatus {
 		return new JSONWithPadding(response,callback);
 	}
 
+<<<<<<< HEAD
 	@SuppressWarnings("unchecked")
 	private RouteFeedItem getLatestItem(String agency, String route, Session session) {
 		RouteFeed feed = getFeed(agency, route, session);
+=======
+	private RouteFeedItem getLatestItem(String agency, String route) {
+		RouteFeed feed = getFeed(agency, route);
+>>>>>>> 0fe4150a998ef1694598c2eba2af045884659309
 		if (feed == null) {
 			return null;
 		}
@@ -119,7 +125,13 @@ public class RouteStatus {
 				logger.warn(e.fillInStackTrace());
 			}
 		}
+<<<<<<< HEAD
 
+=======
+		Session session = sessionFactory.getCurrentSession();
+		session.beginTransaction();
+		@SuppressWarnings("rawtypes")
+>>>>>>> 0fe4150a998ef1694598c2eba2af045884659309
 		List list = session.createQuery(
 				"from RouteFeedItem order by date desc limit 1").list();
 		if (list.size() == 0) {
@@ -148,6 +160,21 @@ public class RouteStatus {
 				item.date = new GregorianCalendar();
 				item.date.setTimeInMillis(date.getTime());
 				item.description = entry.getDescription().getValue();
+<<<<<<< HEAD
+=======
+				
+				StringBuilder categoryStringBuilder = new StringBuilder();
+				@SuppressWarnings("unchecked")
+				List<SyndCategory> entryCategories = entry.getCategories();
+				if(entryCategories != null) {
+					for(SyndCategory category : entryCategories) {
+						categoryStringBuilder.append(category.getName());
+					}
+				}
+				item.category = categoryStringBuilder.toString();
+				
+				item.feed = feed;
+>>>>>>> 0fe4150a998ef1694598c2eba2af045884659309
 				item.link = entry.getLink();
 				item.feed = feed;
 				feed.items.add(item);
@@ -161,13 +188,20 @@ public class RouteStatus {
 
 	}
 
+<<<<<<< HEAD
 	@SuppressWarnings("unchecked")
 	private RouteFeed getFeed(String agency, String route, Session session) {
 
+=======
+	private RouteFeed getFeed(String agency, String route) {
+		Session session = sessionFactory.getCurrentSession();
+		session.beginTransaction();
+>>>>>>> 0fe4150a998ef1694598c2eba2af045884659309
 		Query query = session
 				.createQuery("from RouteFeed where agency = :agency and route = :route");
 		query.setParameter("agency", agency);
 		query.setParameter("route", route);
+		@SuppressWarnings("rawtypes")
 		List list = query.list();
 		if (list.size() == 0) {
 			return null;

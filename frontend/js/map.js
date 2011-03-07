@@ -45,7 +45,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
     var routeLayer = null;   
     var markersLayer = null;
     var dataMarkerLayers = {};
-    var stopMarkersLayerRouteFilterCQL = null;
 
     // marker controls
     var markersDragControl = null;
@@ -123,13 +122,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
             markersLayer.removeAllFeatures();
         }
 
-        if(stopMarkersLayerRouteFilterCQL !== null) {
-            if(dataMarkerLayers.stops !== null) {
-                dataMarkerLayers.stops.removeAllFeatures();
-            }
-            stopMarkersLayerRouteFilterCQL = null;
-        }
-        
         if(legInfoMarkers !== null) {
             jQuery.each(legInfoMarkers, function(_, m) {
                 if(m !== null) {
@@ -137,10 +129,12 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 }
             });
         }
-        
+
         if(markersDragControl !== null) {
             markersDragControl.deactivate();
         }
+        
+        removeDataLayer("stops_routes");
     }
 
     // leg info markers
@@ -452,7 +446,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
         ensureInfoWindowIsVisible();
     }
 
-    // FIXME: clean this up
     function getInfoWindowContentForFeature(featureProperties, lon, lat) {
         var typeClass = null;
 
@@ -683,6 +676,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     function removeRouteLayerForMode(mode) {
         systemMapRouteCriteria[mode] = "";
         removeRouteLayerFeaturesForMode(mode);
+        removeDataLayer("stops_routes");
     }
 
     function removeRouteLayerFeaturesForMode(mode) {
@@ -718,6 +712,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
         showBusy();
 
+        // add stops for this route only
+        addDataLayer("stops_routes", null, null, false, cqlQuery);
+
         var callbackFunction = "drawRouteLayerForModeCallback" + Math.floor(Math.random() * 1000000000);
         jQuery.ajax({
              url: OTP.Config.wfsServiceUrl,
@@ -728,7 +725,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                  outputFormat: "json",
                  format_options: "callback:" + callbackFunction,
                  typeName: "soundtransit:routes",
-                 propertyName: "the_geom,designator,routetyp",
+                 propertyName: "the_geom,designator,operator,routetyp",
                  cql_filter: cqlQuery
              },
              success: function(data) {
@@ -848,6 +845,11 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 break;
         }
 
+        var stopsRoutesLayer = dataMarkerLayers["stops_routes"]
+        if(typeof stopsRoutesLayer !== 'undefined') {
+            stopsRoutesLayer.setVisibility(true);
+        }
+
         var closeButton = jQuery('<a class="close" href="#">Close</a>')
                                     .click(function(e) {
                                         jQuery(this).parent().remove();
@@ -865,10 +867,10 @@ OTP.Map = function(_root, _controlsRoot, options) {
                    map.zoomTo(13);
                    
                    var stopsToggleButton = controlsRoot.find("#toggle-location");
-                   addDataLayer("stops", stopsToggleButton, true, null);
+                   addDataLayer("stops", null, stopsToggleButton, true, null);
 
                    return false;
-               });                            
+               });
     }
 
     function hideTooMany() {
@@ -877,8 +879,12 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }
     }
 
-    function addDataLayer(type, element, constrainToBBOX, cql) {
-        var layer = dataMarkerLayers[type];
+    function addDataLayer(type, layerId, element, constrainToBBOX, cql) {
+        if(layerId === null) {
+            layerId = type;
+        }
+        
+        var layer = dataMarkerLayers[layerId];
 
         if(layer === null) {
             return;
@@ -974,13 +980,14 @@ OTP.Map = function(_root, _controlsRoot, options) {
             layer.removeAllFeatures();
         }
 
-        if(type === "stops") {
+        if(type === "stops") {            
             // if we're hiding the stops layer, try to show filtered stops instead of "all stops"
-            if(stopMarkersLayerRouteFilterCQL !== null) {
-                addDataLayer("stops", null, false, stopMarkersLayerRouteFilterCQL);
-            } else {
-                hideTooMany();
+            var stopsRoutesLayer = dataMarkerLayers["stops_routes"]
+            if(typeof stopsRoutesLayer !== 'undefined') {
+                stopsRoutesLayer.setVisibility(true);
             }
+
+            hideTooMany();
         }
     }
 
@@ -1023,9 +1030,15 @@ OTP.Map = function(_root, _controlsRoot, options) {
             moveend: function(e) {        
                 var stopsToggleButton = controlsRoot.find("#toggle-location");
                 if(stopsToggleButton.hasClass("active")) {
-                    addDataLayer("stops", stopsToggleButton, true, null);
+                    addDataLayer("stops", null, stopsToggleButton, true, null);
                 }
             }
+        });
+
+        dataMarkerLayers.stops_routes = new OpenLayers.Layer.Vector("Stop Markers Filtered To Route");
+        dataMarkerLayers.stops_routes.styleMap = new OpenLayers.StyleMap({
+            'default': new OpenLayers.Style(templateStops, {context:stopContext}),
+            'select': new OpenLayers.Style(templateStops, {context:stopContext})
         });
 
         var context = {
@@ -1069,7 +1082,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             });
         });
 
-        map.addLayers([dataMarkerLayers.stops, dataMarkerLayers.parkandrides, 
+        map.addLayers([dataMarkerLayers.stops, dataMarkerLayers.stops_routes, dataMarkerLayers.parkandrides, 
                         dataMarkerLayers.fareoutlets, markersLayer]);
 
         // events for infoLegMarkers placed on map
@@ -1093,7 +1106,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 showInfoWindow(feature);
             }
         }
-        markersSelectControl = new OpenLayers.Control.SelectFeature([markersLayer, dataMarkerLayers.stops, dataMarkerLayers.parkandrides, dataMarkerLayers.fareoutlets], 
+        markersSelectControl = new OpenLayers.Control.SelectFeature([markersLayer, dataMarkerLayers.stops, dataMarkerLayers.stops_routes, 
+                                                                    dataMarkerLayers.parkandrides, dataMarkerLayers.fareoutlets], 
                                                                     { onSelect: selectFeatureEventDispatcher });
         map.addControl(markersSelectControl);
         markersSelectControl.activate();
@@ -1463,7 +1477,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     removeDataLayer("fareoutlets");
                     jQuery(this).removeClass("active");                    
                 } else {
-                    addDataLayer("fareoutlets", this, false, null);
+                    addDataLayer("fareoutlets", null, this, false, null);
                 }
                 hideInfoWindow();
                 return false;
@@ -1484,7 +1498,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     removeDataLayer("parkandrides");
                     jQuery(this).removeClass("active");                    
                 } else {
-                    addDataLayer("parkandrides", this, false, null);
+                    addDataLayer("parkandrides", null, this, false, null);
                 }
                 hideInfoWindow();
                 return false;
@@ -1505,7 +1519,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     removeDataLayer("stops");
                     jQuery(this).removeClass("active");                    
                 } else {
-                    addDataLayer("stops", this, true, null);
+                    addDataLayer("stops", null, this, true, null);
                 }
                 hideInfoWindow();
                 return false;
@@ -1869,9 +1883,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 }
                 cqlSet += "'" + id + "'"; 
             });
-            stopMarkersLayerRouteFilterCQL = "localid IN (" + cqlSet + ")";
 
-            addDataLayer("stops", null, false, stopMarkersLayerRouteFilterCQL);
+            addDataLayer("stops", "stops_routes", null, false, "localid IN (" + cqlSet + ")");
         },
 
         addLegToPlannedRoute: function(leg) {
