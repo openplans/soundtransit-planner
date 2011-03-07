@@ -17,16 +17,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 var OTP = window.OTP || {};
 
 OTP.Agency = {
-    getFormattedHeadsign: function(headsign) {
-        if(headsign === null) {
+    getFormattedHeadsign: function(route, headsign) {
+        if(headsign === null || route === null) {
             return null;
         }
-        var headsign_r = headsign.split(/ {3}/ig);
-        if(headsign_r !== null && typeof headsign_r[1] !== 'undefined') {
-            return OTP.Util.makeSentenceCase(headsign_r[1]);
-        } else {
-            return "";
-        }
+        return headsign.substr(route.length);
     },
     
     getScheduleURLForLeg: function(mode, route) {
@@ -157,7 +152,7 @@ OTP.Agency = {
             return "King County Metro";
         } else if(operatorId === "P") {
             return "Pierce Transit";
-        } else if(operatorId === "ST") {
+        } else if(operatorId === "ST" || operatorId === "SDR") {
             return "Sound Transit";
         } else if(operatorId === "EE") {
             return "Everett Transit";
