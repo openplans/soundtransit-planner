@@ -36,6 +36,8 @@ import org.hibernate.SessionFactory;
 import org.openplans.delayfeeder.feed.RouteFeed;
 import org.openplans.delayfeeder.feed.RouteFeedItem;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.hibernate3.SessionHolder;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.sun.jersey.api.spring.Autowire;
 import com.sun.jersey.api.json.JSONWithPadding;
@@ -68,6 +70,11 @@ public class RouteStatus {
 			@QueryParam("route") List<String> routes,
 			@QueryParam("callback") String callback) {
 
+		Session session = sessionFactory.getCurrentSession();
+		TransactionSynchronizationManager.bindResource(sessionFactory, new SessionHolder(session));
+		
+		session.beginTransaction();
+		
 		RouteStatusResponse response = new RouteStatusResponse();
 		response.items = new ArrayList<RouteStatusItem>(routes.size());
 		for (String routeId : routes) {
@@ -75,7 +82,7 @@ public class RouteStatus {
 			String agency = parts[0];
 			String route = parts[1];
 			/* get data from cache */
-			RouteFeedItem item = getLatestItem(agency, route);
+			RouteFeedItem item = getLatestItem(agency, route, session);
 			RouteStatusItem status = new RouteStatusItem();
 			response.items.add(status);
 			/* serve data */
@@ -87,13 +94,18 @@ public class RouteStatus {
 				status.link = item.link;
 			}
 		}
-
+		
+		session.flush();
+		session.getTransaction().commit();
+		
+		TransactionSynchronizationManager.unbindResource(sessionFactory);
+		  
 		return new JSONWithPadding(response,callback);
 	}
 
 	@SuppressWarnings("unchecked")
-	private RouteFeedItem getLatestItem(String agency, String route) {
-		RouteFeed feed = getFeed(agency, route);
+	private RouteFeedItem getLatestItem(String agency, String route, Session session) {
+		RouteFeed feed = getFeed(agency, route, session);
 		if (feed == null) {
 			return null;
 		}
@@ -101,14 +113,13 @@ public class RouteStatus {
 		if (feed.lastFetched == null
 				|| now.getTimeInMillis() - feed.lastFetched.getTimeInMillis() > FEED_UPDATE_FREQUENCY) {
 			try {
-				refreshFeed(feed);
+				refreshFeed(feed, session);
 			} catch (Exception e) {
 				e.printStackTrace();
 				logger.warn(e.fillInStackTrace());
 			}
 		}
-		Session session = sessionFactory.getCurrentSession();
-		session.beginTransaction();
+
 		List list = session.createQuery(
 				"from RouteFeedItem order by date desc limit 1").list();
 		if (list.size() == 0) {
@@ -118,15 +129,12 @@ public class RouteStatus {
 		return item;
 	}
 
-	private void refreshFeed(RouteFeed feed) throws IllegalArgumentException,
+	private void refreshFeed(RouteFeed feed, Session session) throws IllegalArgumentException,
 			FeedException, IOException {
 		URL url = new URL(feed.url);
 
 		SyndFeedInput input = new SyndFeedInput();
 		SyndFeed inFeed = input.build(new XmlReader(url));
-
-		Session session = sessionFactory.getCurrentSession();
-		session.beginTransaction();
 
 		Date lastEntry = null;
 		for (Object obj : inFeed.getEntries()) {
@@ -140,8 +148,9 @@ public class RouteStatus {
 				item.date = new GregorianCalendar();
 				item.date.setTimeInMillis(date.getTime());
 				item.description = entry.getDescription().getValue();
-				item.feed = feed;
 				item.link = entry.getLink();
+				item.feed = feed;
+				feed.items.add(item);
 				session.save(item);
 			}
 		}
@@ -149,14 +158,12 @@ public class RouteStatus {
 			feed.lastEntry.setTimeInMillis(lastEntry.getTime());
 		}
 		session.save(feed);
-		session.flush();
-		session.getTransaction().commit();
+
 	}
 
 	@SuppressWarnings("unchecked")
-	private RouteFeed getFeed(String agency, String route) {
-		Session session = sessionFactory.getCurrentSession();
-		session.beginTransaction();
+	private RouteFeed getFeed(String agency, String route, Session session) {
+
 		Query query = session
 				.createQuery("from RouteFeed where agency = :agency and route = :route");
 		query.setParameter("agency", agency);
@@ -166,7 +173,6 @@ public class RouteStatus {
 			return null;
 		}
 		RouteFeed feed = (RouteFeed) list.get(0);
-		session.getTransaction().commit();
 		return feed;
 	}
 

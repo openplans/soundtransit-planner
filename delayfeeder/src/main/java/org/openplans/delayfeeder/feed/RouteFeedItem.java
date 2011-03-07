@@ -14,6 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 package org.openplans.delayfeeder.feed;
 
+import java.io.Serializable;
 import java.util.Calendar;
 
 import javax.persistence.CascadeType;
@@ -22,22 +23,19 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "route_feed_item")
 @org.hibernate.annotations.Entity(mutable = true)
-public class RouteFeedItem {
+public class RouteFeedItem implements Serializable {
 	@Id
 	@GeneratedValue
 	private long id;
 
 	@ManyToOne(cascade=CascadeType.ALL)
-    @JoinColumns ({
-        @JoinColumn(name="feed_id", referencedColumnName = "id"),
-    })
+	@JoinColumn(name="feed_id", referencedColumnName = "id")
 	public RouteFeed feed;
 
 	@Column(name="description", nullable=false, length=30000)

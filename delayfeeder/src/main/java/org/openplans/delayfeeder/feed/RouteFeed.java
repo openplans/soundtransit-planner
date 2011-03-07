@@ -15,22 +15,24 @@
 
 package org.openplans.delayfeeder.feed;
 
+import java.io.Serializable;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "route_feed")
 @org.hibernate.annotations.Entity(mutable = true)
-public class RouteFeed {
+public class RouteFeed implements Serializable {
 	@Id
 	@GeneratedValue
 	private long id;
@@ -41,13 +43,11 @@ public class RouteFeed {
 	public Calendar lastFetched;
 	public Calendar lastEntry;
 
-    @OneToMany(cascade=CascadeType.ALL)
-    @JoinColumns ({
-        @JoinColumn(name="feed", referencedColumnName = "id"),
-    })
-    public Set<RouteFeedItem> items; //unidirectional
-	
-	
+    /*@OneToMany(cascade=CascadeType.ALL)
+    @JoinColumn(name="feed", referencedColumnName = "id")*/
+    @OneToMany(mappedBy="feed", fetch=FetchType.LAZY)
+    public Set<RouteFeedItem> items = new HashSet<RouteFeedItem>();
+    
 	public long getId() {
 		return id;
 	}
