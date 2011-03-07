@@ -909,6 +909,27 @@ padding: 0 8px;
 width: 50%;
 }
 
+p.alertIcon {
+height: 16px;
+width: 16px;
+text-indent: -9999px;
+display: inline-block;
+background-repeat: no-repeat;
+margin-left: 10px;
+}
+
+p.alertIcon.yellow {
+background-image: url(../images/tripplanner/alert-yellow.jpg);
+}
+
+p.alertIcon.red {
+background-image: url(../images/tripplanner/alert-red.jpg);
+}
+
+p.alertIcon.green {
+background-image: url(../images/tripplanner/alert-green.jpg);
+}
+
 ul.trip-stepbystep {
 }
 
@@ -963,6 +984,27 @@ padding-right: 30px;
 p.alert {
 padding: 5px;
 font-weight: bold;
+}
+
+p.alert.yellow,
+p.alert.red,
+p.alert.green {
+height: 16px;
+padding-left: 22px;
+background-position: left center;
+background-repeat: no-repeat;
+}
+
+p.alert.yellow {
+background-image: url(../images/tripplanner/alert-yellow.jpg);
+}
+
+p.alert.red {
+background-image: url(../images/tripplanner/alert-red.jpg);
+}
+
+p.alert.green {
+background-image: url(../images/tripplanner/alert-green.jpg);
 }
 
 /* - */

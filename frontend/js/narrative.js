@@ -142,29 +142,39 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 } else {
                     items = [data.items.item];
                 }
-                
+
                 if(items.length === 0) {
                     return;
                 }
 
-                tripWrapper.addClass("hasAlert");
-
                 jQuery.each(items, function(_, item) {
-                    var alertItem = jQuery("<p></p>")
-                                        .addClass("alert");
+                    if(typeof item.status !== 'undefined' && typeof item.category !== 'undefined') {
+                        var alertText = jQuery("<p></p>")
+                                                .addClass("alert")
+                                                .addClass(item.category.toLowerCase());
 
-                    if(typeof item.status !== 'undefined' && typeof item.link !== 'undefined') {
-                        jQuery("<a></a>")
-                                .text(item.status)
-                                .attr("href", item.link)
-                                .attr("target", "_new")
-                                .appendTo(alertItem);
-                    } else if(typeof item.status !== 'undefined') {
-                        alertItem.text(item.status);
+                        if(typeof item.link !== 'undefined') {
+                            jQuery("<a></a>")
+                                    .text(item.status)
+                                    .attr("href", item.link)
+                                    .attr("target", "_new")
+                                    .appendTo(alertText);
+                        } else {
+                            alertText.text(item.status);
+                        }
+
+                        tripWrapper.find(".trip-stepbystep li." + item.agency + item.route)
+                            .append(alertText);
+
+                        var alertIconContainer = tripWrapper.find(".trip-prices thead th.last");
+                        if(alertIconContainer.find("p.alertIcon").length <= 0) {
+                            jQuery("<p></p>")
+                                .text(item.category + " Alert")
+                                .addClass("alertIcon")
+                                .addClass(item.category.toLowerCase())
+                                .appendTo(alertIconContainer);
+                        }
                     }
-
-                    tripWrapper.find(".trip-stepbystep li." + item.agency + item.route)
-                                .append(alertItem);
                 });
             }
         });
@@ -301,7 +311,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
 
             // trip descripton: price header
             jQuery('<table class="trip-prices">' + 
-                    '<thead><tr><th><h3>Trip ' + tripNumber + '</h3></th><th colspan="2">' + OTP.Util.millisecondsToString(tripDuration) + ', ' + transfers + ' Transfer' + ((transfers === 1) ? "" : "s") + '</th></tr></thead>' + 
+                    '<thead><tr><th><h3>Trip ' + tripNumber + '</h3></th><th colspan="2" class="last">' + OTP.Util.millisecondsToString(tripDuration) + ', ' + transfers + ' Transfer' + ((transfers === 1) ? "" : "s") + '</th></tr></thead>' + 
                     '<tbody>' + 
                     '<tr><th scope="row">Adult</th><td>' + regularFare + ' Cash</td><td>' + regularFareORCA + ' <a href="http://www.orcacard.com/" target="_new">ORCA</a></td></tr>' +
                     '<tr><th scope="row">Youth</th><td>' + studentFare + ' Cash</td><td>' + studentFareORCA + ' <a href="http://www.orcacard.com/" target="_new">ORCA</a></td></tr>' + 
