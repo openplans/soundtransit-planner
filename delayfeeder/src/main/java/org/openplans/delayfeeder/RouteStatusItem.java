@@ -7,5 +7,6 @@ public class RouteStatusItem {
 	public String route;
 	public String link;
 	public String status;
+	public String category;
 	public Calendar date;
 }

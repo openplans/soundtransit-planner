@@ -46,6 +46,8 @@ public class RouteFeedItem {
 
 	public String link;
 	
+	public String category;
+	
 	public long getId() {
 		return id;
 	}

@@ -9,7 +9,7 @@
 		<property name="driverClassName" value="org.postgresql.Driver" />
 		<property name="url" value="jdbc:postgresql://localhost/org_soundtransit_delayfeeder" />
 		<property name="username" value="postgres" />
-		<property name="password" value="" />
+		<property name="password" value="changeme" />
         		
 	</bean>
 	
