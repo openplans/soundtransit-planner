@@ -104,14 +104,9 @@ public class RouteStatus {
 		return new JSONWithPadding(response,callback);
 	}
 
-<<<<<<< HEAD
 	@SuppressWarnings("unchecked")
 	private RouteFeedItem getLatestItem(String agency, String route, Session session) {
 		RouteFeed feed = getFeed(agency, route, session);
-=======
-	private RouteFeedItem getLatestItem(String agency, String route) {
-		RouteFeed feed = getFeed(agency, route);
->>>>>>> 0fe4150a998ef1694598c2eba2af045884659309
 		if (feed == null) {
 			return null;
 		}
@@ -125,13 +120,8 @@ public class RouteStatus {
 				logger.warn(e.fillInStackTrace());
 			}
 		}
-<<<<<<< HEAD
 
-=======
-		Session session = sessionFactory.getCurrentSession();
-		session.beginTransaction();
 		@SuppressWarnings("rawtypes")
->>>>>>> 0fe4150a998ef1694598c2eba2af045884659309
 		List list = session.createQuery(
 				"from RouteFeedItem order by date desc limit 1").list();
 		if (list.size() == 0) {
@@ -160,8 +150,6 @@ public class RouteStatus {
 				item.date = new GregorianCalendar();
 				item.date.setTimeInMillis(date.getTime());
 				item.description = entry.getDescription().getValue();
-<<<<<<< HEAD
-=======
 				
 				StringBuilder categoryStringBuilder = new StringBuilder();
 				@SuppressWarnings("unchecked")
@@ -173,8 +161,6 @@ public class RouteStatus {
 				}
 				item.category = categoryStringBuilder.toString();
 				
-				item.feed = feed;
->>>>>>> 0fe4150a998ef1694598c2eba2af045884659309
 				item.link = entry.getLink();
 				item.feed = feed;
 				feed.items.add(item);
@@ -188,15 +174,9 @@ public class RouteStatus {
 
 	}
 
-<<<<<<< HEAD
 	@SuppressWarnings("unchecked")
 	private RouteFeed getFeed(String agency, String route, Session session) {
 
-=======
-	private RouteFeed getFeed(String agency, String route) {
-		Session session = sessionFactory.getCurrentSession();
-		session.beginTransaction();
->>>>>>> 0fe4150a998ef1694598c2eba2af045884659309
 		Query query = session
 				.createQuery("from RouteFeed where agency = :agency and route = :route");
 		query.setParameter("agency", agency);
