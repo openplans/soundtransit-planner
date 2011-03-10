@@ -89,7 +89,7 @@ public class RouteStatus {
 			status.agency = agency;
 			status.route = route;
 			if (item != null) {
-				status.status = item.description;
+				status.status = item.title;
 				status.date = item.date;
 				status.link = item.link;
 				status.category = item.category;
@@ -104,7 +104,6 @@ public class RouteStatus {
 		return new JSONWithPadding(response,callback);
 	}
 
-	@SuppressWarnings("unchecked")
 	private RouteFeedItem getLatestItem(String agency, String route, Session session) {
 		RouteFeed feed = getFeed(agency, route, session);
 		if (feed == null) {
@@ -149,7 +148,7 @@ public class RouteStatus {
 				RouteFeedItem item = new RouteFeedItem();
 				item.date = new GregorianCalendar();
 				item.date.setTimeInMillis(date.getTime());
-				item.description = entry.getDescription().getValue();
+				item.title = entry.getTitle();
 				
 				StringBuilder categoryStringBuilder = new StringBuilder();
 				@SuppressWarnings("unchecked")
@@ -174,7 +173,6 @@ public class RouteStatus {
 
 	}
 
-	@SuppressWarnings("unchecked")
 	private RouteFeed getFeed(String agency, String route, Session session) {
 
 		Query query = session

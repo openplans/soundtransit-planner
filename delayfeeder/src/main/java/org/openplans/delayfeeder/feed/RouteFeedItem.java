@@ -38,8 +38,9 @@ public class RouteFeedItem implements Serializable {
 	@JoinColumn(name="feed_id", referencedColumnName = "id")
 	public RouteFeed feed;
 
-	@Column(name="description", nullable=false, length=30000)
-	public String description;
+	@Column(name="title", nullable=false, length=4096)
+	public String title;
+
 	public Calendar date;
 
 	public String link;
