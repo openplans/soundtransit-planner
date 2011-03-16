@@ -209,7 +209,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                             .html(route)
                             .appendTo(contentWrapper);
 
-        if(options.hasTripPlanner !== true) {
+        if(options.hasTripPlanner !== true && options.showScheduleLinkInRouteMarker !== false) {
             contentLabel
                 .append('<a href="' + OTP.Agency.getScheduleURLForLeg(mode, route) + '" target="_new">Schedule</a>');
                 
@@ -1737,6 +1737,10 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
     // public methods    
     return {
+        showScheduleLinkInRouteMarker: function(v) {
+            options.showScheduleLinkInRouteMarker = v;
+        },
+        
         setModeChooserUIVisibility: function(v) {
             var modeChooserButtons = controlsRoot.find("#toggle-bus,#toggle-sounder,#toggle-link,#toggle-ferry");
 

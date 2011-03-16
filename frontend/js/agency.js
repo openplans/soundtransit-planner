@@ -102,43 +102,23 @@ OTP.Agency = {
         }
     },
     
-    getURLForLeg: function(mode, route) {
-        if(mode === null || route === null) {
+    getURLForLeg: function(operatorId) {
+        if(operatorId === null) {
             return null;
         }
-        
-        var label = OTP.Agency.getModeLabelForLeg(mode, route); 
-        if(label === "Sounder") {
-            return "http://www.soundtransit.org/sounder";
-        } else if(label === "Link") {
-            return "http://www.soundtransit.org/link";
-        } else {
-            var agencyIdentifier = (route + '').toUpperCase().match('^MWSF|WSF|M|P|CT|ST|EE');
-            if(agencyIdentifier !== null && typeof agencyIdentifier[0] !== 'undefined') {
-                agencyIdentifier = agencyIdentifier[0];
-                if(agencyIdentifier === "M") {
-                    return "http://metro.kingcounty.gov/";
-                } else if(agencyIdentifier === "P") {
-                    return "http://www.piercetransit.org/";
-                } else if(agencyIdentifier === "ST") {
-                    return "http://www.soundtransit.org";
-                } else if(agencyIdentifier === "EE") {
-                    return "http://www.everettwa.org/transit/";
-                } else if(agencyIdentifier === "WSF" || agencyIdentifier === "MWSF") {
-                    return "http://www.wsdot.wa.gov/ferries/";
-                } else if(agencyIdentifier === "CT") {
-                    return "http://www.commtrans.org/";
-                }
-            } else {
-                // if there is no route identifier, it's a CT route, except if it's between 500 and 599. 
-                try {
-                    var routeNum = parseInt(route,10);
-                    if(routeNum >= 500 && routeNum <= 599) {
-                        return "http://www.soundtransit.org";
-                    }
-                } catch(e) {}
-                return "http://www.commtrans.org/";
-            }
+
+        if(operatorId === "M" || operatorId === "MT") {
+            return "http://metro.kingcounty.gov/";
+        } else if(operatorId === "PT") {
+            return "http://www.piercetransit.org/";
+        } else if(operatorId === "ST" || operatorId === "SDR" || operatorId === "LLR") {
+            return "http://www.soundtransit.org";
+        } else if(operatorId === "EE") {
+            return "http://www.everettwa.org/transit/";
+        } else if(operatorId === "WSF" || operatorId === "MWSF") {
+            return "http://www.wsdot.wa.gov/ferries/";
+        } else if(operatorId === "CT") {
+            return "http://www.commtrans.org/";
         }
         return "#";
     },
@@ -150,7 +130,7 @@ OTP.Agency = {
 
         if(operatorId === "M" || operatorId === "MT") {
             return "King County Metro";
-        } else if(operatorId === "P") {
+        } else if(operatorId === "PT") {
             return "Pierce Transit";
         } else if(operatorId === "ST" || operatorId === "SDR" || operatorId === "LLR") {
             return "Sound Transit";
@@ -160,8 +140,7 @@ OTP.Agency = {
             return "Washington State Ferry";
         } else if(operatorId === "CT") {
             return "Community Transit";
-        } else {
-            return "Unknown Agency";
         }
+        return "Unknown Agency";
     }
 };

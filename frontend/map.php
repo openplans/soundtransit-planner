@@ -58,18 +58,22 @@
             <?php
                 if(isset($_REQUEST['WSFRoute'])) {
                     echo "map.showFerryRouteFor('" . $_REQUEST['WSFRoute'] . "');\n";
+                    echo "map.showScheduleLinkInRouteMarker(false);\n";
                     echo "map.setModeChooserUIVisibility(false);\n";
                 }
                 if(isset($_REQUEST['LINKRoute'])) {
                     echo "map.showLinkRouteFor('" . $_REQUEST['LINKRoute'] . "');\n";  
+                    echo "map.showScheduleLinkInRouteMarker(false);\n";
                     echo "map.setModeChooserUIVisibility(false);\n";
                 }
                 if(isset($_REQUEST['SOUNDERRoute']) && isset($_REQUEST['SOUNDERStops'])) {
                     echo "map.showSounderRouteFor('" . $_REQUEST['SOUNDERRoute'] . "','" . $_REQUEST['SOUNDERStops'] . "');\n";  
+                    echo "map.showScheduleLinkInRouteMarker(false);\n";
                     echo "map.setModeChooserUIVisibility(false);\n";
                 }
                 if(isset($_REQUEST['BUSOperator']) && isset($_REQUEST['BUSRoute'])) {
                     echo "map.showBusRouteFor('" . $_REQUEST['BUSOperator'] . "','" . $_REQUEST['BUSRoute'] . "');\n";  
+                    echo "map.showScheduleLinkInRouteMarker(false);\n";
                     echo "map.setModeChooserUIVisibility(false);\n";
                 }
             ?>        

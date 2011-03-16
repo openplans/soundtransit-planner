@@ -496,7 +496,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             return jQuery('<li class="' + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]).toLowerCase() + ' leg-' + legIndex + '"></li>').html(
                     '<img class="mode-icon" src="' + OTP.Config.tripPlannerImagePath + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]).toLowerCase() + '16x16.png" alt="' + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]) + '" />' + 
                         OTP.Util.makeSentenceCase(leg["@mode"]) + ' - ' + 
-                            '<a href="' + OTP.Agency.getURLForLeg(leg["@mode"], leg["@route"]) + '" class="agency" target="_new">' + 
+                            '<a href="' + OTP.Agency.getURLForLeg(leg["@agencyId"]) + '" class="agency" target="_new">' + 
                                 OTP.Agency.getAgencyNameForLeg(leg["@agencyId"]) + 
                             '</a>' + 
                             ' <strong>' + OTP.Agency.getDisplayNameForLeg(leg["@mode"], leg["@route"]) + '</strong> ' +
