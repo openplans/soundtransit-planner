@@ -20,19 +20,20 @@ import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "route_feed")
 @org.hibernate.annotations.Entity(mutable = true)
 public class RouteFeed implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
 	@Id
 	@GeneratedValue
 	private long id;
@@ -43,9 +44,8 @@ public class RouteFeed implements Serializable {
 	public Calendar lastFetched;
 	public Calendar lastEntry;
 
-    /*@OneToMany(cascade=CascadeType.ALL)
-    @JoinColumn(name="feed", referencedColumnName = "id")*/
-    @OneToMany(mappedBy="feed", fetch=FetchType.LAZY)
+    @OneToMany(mappedBy="feed")
+    @OrderBy("date desc")
     public Set<RouteFeedItem> items = new HashSet<RouteFeedItem>();
     
 	public long getId() {

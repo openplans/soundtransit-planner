@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -70,49 +71,62 @@ public class RouteStatus {
 			@QueryParam("route") List<String> routes,
 			@QueryParam("callback") String callback) {
 
-		Session session = sessionFactory.getCurrentSession();
-		TransactionSynchronizationManager.bindResource(sessionFactory, new SessionHolder(session));
-		
-		session.beginTransaction();
-		
 		RouteStatusResponse response = new RouteStatusResponse();
-		response.items = new ArrayList<RouteStatusItem>(routes.size());
-		for (String routeId : routes) {
-			String[] parts = routeId.split(",");
-			String agency = parts[0];
-			String route = parts[1];
-			/* get data from cache */
-			RouteFeedItem item = getLatestItem(agency, route, session);
-			RouteStatusItem status = new RouteStatusItem();
-			response.items.add(status);
-			/* serve data */
-			status.agency = agency;
-			status.route = route;
-			if (item != null) {
-				status.status = item.description;
-				status.date = item.date;
-				status.link = item.link;
-				status.category = item.category;
+
+		try {
+			Session session = sessionFactory.getCurrentSession();
+			TransactionSynchronizationManager.bindResource(sessionFactory, new SessionHolder(session));
+			
+			session.beginTransaction();
+			
+			response.items = new ArrayList<RouteStatusItem>(routes.size());
+			for (String routeId : routes) {
+				String[] parts = routeId.split(",");
+
+				if(parts.length != 2)
+					continue;
+					
+				String agency = parts[0];
+				String route = parts[1];
+
+				if(agency == null || route == null)
+					continue;
+				
+				/* get data from cache */
+				RouteFeedItem item = getLatestItem(agency, route, session);
+				RouteStatusItem status = new RouteStatusItem();
+				response.items.add(status);
+				
+				/* serve data */
+				status.agency = agency;
+				status.route = route;
+				if (item != null) {
+					status.status = item.title;
+					status.date = item.date;
+					status.link = item.link;
+					status.category = item.category;
+				}
 			}
+			
+			session.flush();
+			session.getTransaction().commit();
+		} finally {
+			TransactionSynchronizationManager.unbindResource(sessionFactory);			
 		}
 		
-		session.flush();
-		session.getTransaction().commit();
-		
-		TransactionSynchronizationManager.unbindResource(sessionFactory);
-		  
 		return new JSONWithPadding(response,callback);
 	}
 
-	@SuppressWarnings("unchecked")
 	private RouteFeedItem getLatestItem(String agency, String route, Session session) {
 		RouteFeed feed = getFeed(agency, route, session);
 		if (feed == null) {
 			return null;
 		}
+
 		GregorianCalendar now = new GregorianCalendar();
 		if (feed.lastFetched == null
 				|| now.getTimeInMillis() - feed.lastFetched.getTimeInMillis() > FEED_UPDATE_FREQUENCY) {
+
 			try {
 				refreshFeed(feed, session);
 			} catch (Exception e) {
@@ -121,13 +135,12 @@ public class RouteStatus {
 			}
 		}
 
-		@SuppressWarnings("rawtypes")
-		List list = session.createQuery(
-				"from RouteFeedItem order by date desc limit 1").list();
+		Set<RouteFeedItem> list = feed.items;
+
 		if (list.size() == 0) {
 			return null;
 		}
-		RouteFeedItem item = (RouteFeedItem) list.get(0);
+		RouteFeedItem item = (RouteFeedItem)list.toArray()[0];
 		return item;
 	}
 
@@ -139,17 +152,19 @@ public class RouteStatus {
 		SyndFeed inFeed = input.build(new XmlReader(url));
 
 		Date lastEntry = null;
+		if(feed.lastEntry != null) 
+			lastEntry = feed.lastEntry.getTime();
+		
 		for (Object obj : inFeed.getEntries()) {
 			SyndEntry entry = (SyndEntry) obj;
 			Date date = entry.getPublishedDate();
-			if (date.getTime() > feed.lastEntry.getTimeInMillis()) {
-				if (lastEntry == null || date.getTime() > lastEntry.getTime()) {
-					lastEntry = date;
-				}
+			if (lastEntry == null || date.getTime() > lastEntry.getTime()) {
+				lastEntry = date;
+
 				RouteFeedItem item = new RouteFeedItem();
 				item.date = new GregorianCalendar();
 				item.date.setTimeInMillis(date.getTime());
-				item.description = entry.getDescription().getValue();
+				item.title = entry.getTitle();
 				
 				StringBuilder categoryStringBuilder = new StringBuilder();
 				@SuppressWarnings("unchecked")
@@ -167,14 +182,20 @@ public class RouteStatus {
 				session.save(item);
 			}
 		}
-		if (lastEntry != null) {
-			feed.lastEntry.setTimeInMillis(lastEntry.getTime());
+		if(feed.lastEntry == null) {
+			feed.lastEntry = new GregorianCalendar();
 		}
+		if (lastEntry != null) {
+			feed.lastEntry.setTime(lastEntry);
+		}
+		if(feed.lastFetched == null) {
+			feed.lastFetched = new GregorianCalendar();
+		}
+		feed.lastFetched.setTime(new Date());
+		
 		session.save(feed);
-
 	}
 
-	@SuppressWarnings("unchecked")
 	private RouteFeed getFeed(String agency, String route, Session session) {
 
 		Query query = session
