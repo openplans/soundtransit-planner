@@ -113,7 +113,7 @@ OTP.Agency = {
             return "http://www.piercetransit.org/";
         } else if(operatorId === "ST" || operatorId === "SDR" || operatorId === "LLR") {
             return "http://www.soundtransit.org";
-        } else if(operatorId === "EE") {
+        } else if(operatorId === "ET") {
             return "http://www.everettwa.org/transit/";
         } else if(operatorId === "WSF" || operatorId === "MWSF") {
             return "http://www.wsdot.wa.gov/ferries/";
@@ -134,7 +134,7 @@ OTP.Agency = {
             return "Pierce Transit";
         } else if(operatorId === "ST" || operatorId === "SDR" || operatorId === "LLR") {
             return "Sound Transit";
-        } else if(operatorId === "EE") {
+        } else if(operatorId === "ET") {
             return "Everett Transit";
         } else if(operatorId === "WSF" || operatorId === "MWSF") {
             return "Washington State Ferry";
