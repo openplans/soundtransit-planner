@@ -984,12 +984,12 @@ padding-right: 30px;
 p.alert {
 padding: 5px;
 font-weight: bold;
+line-height: 100%;
 }
 
 p.alert.yellow,
 p.alert.red,
 p.alert.green {
-height: 16px;
 padding-left: 22px;
 background-position: left center;
 background-repeat: no-repeat;
