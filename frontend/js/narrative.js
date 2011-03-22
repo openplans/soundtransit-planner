@@ -44,11 +44,12 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             .fadeOut("fast", function() {
                 map.showBusy();
                 
-                $(this)
+                jQuery(this)
                     .html('<div id="trip-spinner">Planning your trip...</div>')
                     .fadeIn("fast");
                 });
 
+        // mode selector
         var includeModes = "";
         root.find("#bus, #train").each(function(e) {
             var checked = jQuery(this).attr("checked");
@@ -105,7 +106,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 
                 map.hideBusy();
             },
-            error:function(xError, status) {                
+            error:function(xError, status) {
                 root.find("#trip-data")
                     .html(
                         '<div id="no-results">' + 
@@ -183,6 +184,8 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     function updateNarrative(data) {
         // error returned
         if(typeof data.error !== 'undefined') {
+            map.hideBusy();
+
             var msg = null;
             var errorId_r = data.error.msg.match(/[0-9]*/ig);
             if(errorId_r !== null && typeof errorId_r[1] !== 'undefined') {
@@ -496,8 +499,8 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             return jQuery('<li class="' + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]).toLowerCase() + ' leg-' + legIndex + '"></li>').html(
                     '<img class="mode-icon" src="' + OTP.Config.tripPlannerImagePath + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]).toLowerCase() + '16x16.png" alt="' + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]) + '" />' + 
                         OTP.Util.makeSentenceCase(leg["@mode"]) + ' - ' + 
-                            '<a href="' + OTP.Agency.getURLForLeg(leg["@agencyId"]) + '" class="agency" target="_new">' + 
-                                OTP.Agency.getAgencyNameForLeg(leg["@agencyId"]) + 
+                            '<a href="' + OTP.Agency.getURLForLeg(leg["@agencyId"], leg["@route"]) + '" class="agency" target="_new">' + 
+                                OTP.Agency.getAgencyNameForLeg(leg["@agencyId"], leg["@route"]) + 
                             '</a>' + 
                             ' <strong>' + OTP.Agency.getDisplayNameForLeg(leg["@mode"], leg["@route"]) + '</strong> ' +
                             OTP.Agency.getFormattedHeadsign(leg["@route"], leg["@headsign"]) + 

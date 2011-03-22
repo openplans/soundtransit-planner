@@ -21,7 +21,7 @@ OTP.Agency = {
         if(headsign === null || route === null) {
             return null;
         }
-        return headsign.substr(route.length);
+        return headsign.replace(route, "");
     },
     
     getScheduleURLForLeg: function(mode, route) {
@@ -83,7 +83,7 @@ OTP.Agency = {
             return "Unknown";
         }
 
-        var agencyIdentifier = (route + '').toUpperCase().match('^MWSF-|WSF-|M|P|CT|ST|EE');
+        var agencyIdentifier = (route + '').toUpperCase().match('^MWSF-|WSF-|M|P|IT|CT|ST|EE');
         if(agencyIdentifier !== null && typeof agencyIdentifier[0] !== 'undefined') {
             route = route.substring(agencyIdentifier[0].length);
         }
@@ -102,13 +102,23 @@ OTP.Agency = {
         }
     },
     
-    getURLForLeg: function(operatorId) {
+    getURLForLeg: function(operatorId, route) {
         if(operatorId === null) {
             return null;
         }
 
         if(operatorId === "M" || operatorId === "MT") {
             return "http://metro.kingcounty.gov/";
+        } else if(operatorId === "IT") {
+            var agencyIdentifier = (route + '').toUpperCase().match('^MWSF-|WSF-|M|P|IT|CT|ST|EE');
+            if(agencyIdentifier !== null && typeof agencyIdentifier[0] !== 'undefined') {
+                route = route.substring(agencyIdentifier[0].length);
+            }
+
+            if(route === "411") {
+                return "http://www.islandtransit.org/";
+            }
+            return "http://www.intercitytransit.com/";
         } else if(operatorId === "PT") {
             return "http://www.piercetransit.org/";
         } else if(operatorId === "ST" || operatorId === "SDR" || operatorId === "LLR") {
@@ -123,13 +133,23 @@ OTP.Agency = {
         return "#";
     },
 
-    getAgencyNameForLeg: function(operatorId) {
+    getAgencyNameForLeg: function(operatorId, route) {
         if(operatorId === null) {
             return null;
         }
 
         if(operatorId === "M" || operatorId === "MT") {
             return "King County Metro";
+        } else if(operatorId === "IT") {
+            var agencyIdentifier = (route + '').toUpperCase().match('^MWSF-|WSF-|M|P|IT|CT|ST|EE');
+            if(agencyIdentifier !== null && typeof agencyIdentifier[0] !== 'undefined') {
+                route = route.substring(agencyIdentifier[0].length);
+            }
+
+            if(route === "411") {
+                return "Island Transit";
+            }
+            return "Intercity Transit";
         } else if(operatorId === "PT") {
             return "Pierce Transit";
         } else if(operatorId === "ST" || operatorId === "SDR" || operatorId === "LLR") {

@@ -42,7 +42,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     var legInfoMarkers = [];
     
     // vector layers
-    var routeLayer = null;   
+    var routeLayer = null;
     var markersLayer = null;
     var dataMarkerLayers = {};
 
@@ -114,14 +114,25 @@ OTP.Map = function(_root, _controlsRoot, options) {
     }
 
     function reset() {
+        hideInfoWindow();
+
+        // route lines
         if(routeLayer !== null) {
             routeLayer.removeAllFeatures();
         }
 
+        // route-filtered stops
+        var routeStopsLayer = dataMarkerLayers["stops_routes"];
+        if(typeof routeStopsLayer !== 'undefined' && routeStopsLayer !== null) {
+            routeStopsLayer.removeAllFeatures();
+        }
+
+        // to/from markers, etc.
         if(markersLayer !== null) {
             markersLayer.removeAllFeatures();
         }
 
+        // route info markers
         if(legInfoMarkers !== null) {
             jQuery.each(legInfoMarkers, function(_, m) {
                 if(m !== null) {
@@ -133,8 +144,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
         if(markersDragControl !== null) {
             markersDragControl.deactivate();
         }
-        
-        removeDataLayer("stops_routes");
     }
 
     // leg info markers
@@ -521,7 +530,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     var routesByAgencyMap = {};
                     jQuery.each(services, function(_, service) {
                         var route = OTP.Agency.getDisplayNameForLeg(null, service.route);
-                        var agency = OTP.Agency.getAgencyNameForLeg(service.operator);
+                        var agency = OTP.Agency.getAgencyNameForLeg(service.operator, service.route);
                         if(typeof routesByAgencyMap[agency] === 'undefined') {
                             routesByAgencyMap[agency] = [];
                         }
@@ -674,23 +683,32 @@ OTP.Map = function(_root, _controlsRoot, options) {
     }
 
     function removeRouteLayerForMode(mode) {
+        hideInfoWindow();
+        
         systemMapRouteCriteria[mode] = "";
         removeRouteLayerFeaturesForMode(mode);
-        removeDataLayer("stops_routes");
     }
 
     function removeRouteLayerFeaturesForMode(mode) {
-        // remove features from map
-        var features = systemMapRouteFeatures[mode];
+        // route-filtered stops
+        var stopFeatures = systemMapRouteFeatures["stops_routes" + mode];
+        var routeStopsLayer = dataMarkerLayers["stops_routes"];
+        if(typeof routeStopsLayer !== 'undefined' && routeStopsLayer !== null 
+            && typeof stopFeatures !== 'undefined' && stopFeatures !== null) {
 
-        if(typeof features !== 'undefined' && features !== null) {
-            routeLayer.removeFeatures(features);
+            routeStopsLayer.removeFeatures(stopFeatures);
+            systemMapRouteFeatures["stops_routes" + mode] = null;
+        }
+
+        // route lines
+        var routeLineFeatures = systemMapRouteFeatures[mode];
+        if(typeof routeLineFeatures !== 'undefined' && routeLineFeatures !== null) {
+            routeLayer.removeFeatures(routeLineFeatures);
             systemMapRouteFeatures[mode] = null;
         }
 
         // remove old existing feature info markers
         var infoMarkers = systemMapRouteInfoMarkers[mode];
-
         if(typeof infoMarkers !== 'undefined' && infoMarkers !== null) {
             jQuery.each(infoMarkers, function(_, m) {
                 if(m !== null) {
@@ -705,16 +723,13 @@ OTP.Map = function(_root, _controlsRoot, options) {
         removeRouteLayerFeaturesForMode(mode);
 
         var cqlQuery = systemMapRouteCriteria[mode];
-
         if(cqlQuery === null || cqlQuery === "") {
             return;
         }
 
         showBusy();
 
-        // add stops for this route only
-        addDataLayer("stops_routes", null, null, false, cqlQuery);
-
+        var routeIds = {};
         var callbackFunction = "drawRouteLayerForModeCallback" + Math.floor(Math.random() * 1000000000);
         jQuery.ajax({
              url: OTP.Config.wfsServiceUrl,
@@ -725,7 +740,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                  outputFormat: "json",
                  format_options: "callback:" + callbackFunction,
                  typeName: "soundtransit:routes",
-                 propertyName: "the_geom,designator,operator,routetyp",
+                 propertyName: "the_geom,designator,operator,routeid",
                  cql_filter: cqlQuery
              },
              success: function(data) {
@@ -742,7 +757,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                  }
 
                  if(typeof systemMapRouteFeatures[mode] === 'undefined' || systemMapRouteFeatures[mode] === null) {
-                     systemMapRouteFeatures[mode] = [];
+                    systemMapRouteFeatures[mode] = [];
                  }
 
                  var flagsAdded = {};
@@ -768,14 +783,11 @@ OTP.Map = function(_root, _controlsRoot, options) {
                         var lineFeature = new OpenLayers.Feature.Vector(polyline, null, style);
                         routeLayer.addFeatures([lineFeature]);
                         systemMapRouteFeatures[mode].push(lineFeature);
+                        routeIds[feature.properties.routeid] = feature.properties.routeid;
 
                         // add marker to middle leg of line
-                        var routeName = feature.properties.designator;
-                        var agencyIdentifier = (routeName + '').toUpperCase().match('^[M|P|CT|ST]');
-                        if(agencyIdentifier !== null && typeof agencyIdentifier[0] !== 'undefined') {
-                            routeName = routeName.substring(agencyIdentifier[0].length);
-                        }
-
+                        var routeName = OTP.Agency.getDisplayNameForLeg(null, feature.properties.designator);
+                        
                         // add info marker to middle leg
                         if((routeName in flagsAdded) === false) {
                             var lineLength = lineFeature.geometry.getLength();
@@ -819,8 +831,42 @@ OTP.Map = function(_root, _controlsRoot, options) {
                  });
 
                  zoomToRouteLayerExtent();
+             }, // success()
+             complete: function(xhr, status) {
+                 showBusy();
+
+                 // get stop IDs from ATIS, then add the WFS layer of those stops
+                 var routeQuery = "";
+                 for(routeId in routeIds) {
+                    if(routeQuery.length > 0) {
+                        routeQuery += ",";
+                    }
+                    routeQuery += routeId;
+                 }
+
+                 var callbackFunction = "drawRouteLayerForModeGetStopsCallback" + Math.floor(Math.random() * 1000000000);
+                 jQuery.ajax({
+                      url: OTP.Config.atisProxyStopsUrl,
+                      dataType: "jsonp",
+                      jsonpCallback: callbackFunction,
+                      data: {
+                          routeid: routeQuery
+                      },
+                      success: function(data) {
+                          hideBusy();
+                          
+                          var cqlSet = "";
+                          jQuery.each(data.stops, function(_, stop) {
+                              if(cqlSet.length > 0) {
+                                  cqlSet += ",";
+                              }
+                              cqlSet += "'" + stop.atisstopid + "'"; 
+                          });
+                          addDataLayer("stops", "stops_routes", null, false, "atisid IN (" + cqlSet + ")", "stops_routes" + mode);
+                      }
+                });
              }
-        });        
+        });
     }
     
     // data layer stuff (fare outlets, etc.)
@@ -879,14 +925,13 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }
     }
 
-    function addDataLayer(type, layerId, element, constrainToBBOX, cql) {
+    function addDataLayer(type, layerId, element, constrainToBBOX, cql, featureStoreKey) {
         if(layerId === null) {
             layerId = type;
         }
-        
-        var layer = dataMarkerLayers[layerId];
 
-        if(layer === null) {
+        var layer = dataMarkerLayers[layerId];
+        if(typeof layer === 'undefined' || layer === null) {
             return;
         }
 
@@ -919,6 +964,10 @@ OTP.Map = function(_root, _controlsRoot, options) {
             data.cql_filter = cql;
         }
 
+        if(typeof featureStore !== 'undefined' && featureStore !== null) {
+            layer.removeFeatures(featureStore);
+        }
+
         if(constrainToBBOX === true) {           
             // clear features not visible anymore from map if we're getting lots of features on this layer
             if(layer.features.length > 300) {
@@ -935,9 +984,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
             
             data.BBOX = map.getExtent().toBBOX() + "," + layer.projection;
         }
-    
+
         showBusy();
-    
+
         jQuery.ajax({
              url: OTP.Config.wfsServiceUrl,
              dataType: "jsonp",
@@ -969,14 +1018,19 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     features.push(icon);
                 });
                 layer.addFeatures(features);
+
+                // save the features we're adding by mode, so we can remove if the user removes only one
+                // mode of routes (+ stops) FIXME
+                if(layerId === "stops_routes") {
+                    systemMapRouteFeatures[featureStoreKey] = features;
+                }
            }
         });     
     }
     
     function removeDataLayer(type) {
         var layer = dataMarkerLayers[type];
-
-        if(layer !== null) {
+        if(typeof layer !== 'undefined' && layer !== null) {
             layer.removeAllFeatures();
         }
 
@@ -986,7 +1040,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
             if(typeof stopsRoutesLayer !== 'undefined') {
                 stopsRoutesLayer.setVisibility(true);
             }
-
             hideTooMany();
         }
     }
@@ -1006,21 +1059,22 @@ OTP.Map = function(_root, _controlsRoot, options) {
         routeLayer = new OpenLayers.Layer.Vector("Routes");
         markersLayer = new OpenLayers.Layer.Vector("Trip Planner Markers", { rendererOptions: {zIndexing: true}});
 
-        // data layer markers:
-        // layer style configuration
+        // stops layers styling contexts
         var stopContext = {
             getPointRadius: getStopMarkerRadiusAtCurrentZoomLevel,
             getOffset : function() {
                 return 0 - getStopMarkerRadiusAtCurrentZoomLevel();
             }            
         };
-
+        
         var templateStops = {
             graphicXOffset: "${getOffset}",
             graphicYOffset: "${getOffset}",
             pointRadius: "${getPointRadius}",
             externalGraphic: OTP.Config.tripPlannerImagePath + "location-icon.png"
         };
+
+        // all stops layer
         dataMarkerLayers.stops = new OpenLayers.Layer.Vector("Stop Markers");
         dataMarkerLayers.stops.styleMap = new OpenLayers.StyleMap({
             'default': new OpenLayers.Style(templateStops, {context:stopContext}),
@@ -1035,18 +1089,21 @@ OTP.Map = function(_root, _controlsRoot, options) {
             }
         });
 
+        // route stops layer
         dataMarkerLayers.stops_routes = new OpenLayers.Layer.Vector("Stop Markers Filtered To Route");
         dataMarkerLayers.stops_routes.styleMap = new OpenLayers.StyleMap({
             'default': new OpenLayers.Style(templateStops, {context:stopContext}),
             'select': new OpenLayers.Style(templateStops, {context:stopContext})
         });
 
+        // other data layer styling:
         var context = {
             getPointRadius: getMarkerRadiusAtCurrentZoomLevel,
             getOffset : function() {
                 return 0 - getMarkerRadiusAtCurrentZoomLevel();
             }            
         };
+        
         var templateParking = {
             graphicXOffset: "${getOffset}",
             graphicYOffset: "${getOffset}",
@@ -1099,7 +1156,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
             if(feature === null) {
                 return;
             }
-
             if(feature.attributes.type === "disambiguation") {
                 onSelectDisambiguationOption(feature);
             } else {
@@ -1237,7 +1293,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     var v = jQuery(this).val();
                     
                     if(v !== null && v !== "" && v !== "Select route") {
-                        systemMapRouteCriteria.WSF = "(designator LIKE '" + v + "')";
+                        systemMapRouteCriteria.WSF = "(designator LIKE '" + v + "' AND routetyp LIKE 'P')";
                     } else {
                         systemMapRouteCriteria.WSF = "";
                     }
@@ -1269,7 +1325,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                             if(systemMapRouteCriteria.LINK.length > 0) {
                                 systemMapRouteCriteria.LINK += " OR ";
                             }
-                            systemMapRouteCriteria.LINK += "(designator LIKE '" + checkbox.val() + "')";
+                            systemMapRouteCriteria.LINK += "(designator LIKE '" + checkbox.val() + "' AND routetyp LIKE 'P')";
                         }
                     });
 
@@ -1304,7 +1360,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                             if(systemMapRouteCriteria.SOUNDER.length > 0) {
                                 systemMapRouteCriteria.SOUNDER += " OR ";
                             }
-                            systemMapRouteCriteria.SOUNDER += "(designator LIKE '" + values[0] + "' AND stops=" + values[1] + ")";
+                            systemMapRouteCriteria.SOUNDER += "(designator LIKE '" + values[0] + "' AND stops=" + values[1] + " AND routetyp LIKE 'P')";
                         }
                     });
                     
@@ -1403,7 +1459,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
                         var v = jQuery(this).val();
                         
                         if(v !== null && v !== "" && v !== "Select route") {
-                            systemMapRouteCriteria.BUS = "(operator LIKE '" + content.find("#bus-agency").val() + "' AND designator LIKE '" + v + "')";
+                            systemMapRouteCriteria.BUS = "(operator LIKE '" + content.find("#bus-agency").val() 
+                                                            + "' AND designator LIKE '" + v + "' AND routetyp LIKE 'P')";
                         } else {
                             systemMapRouteCriteria.BUS = "";
                         }
@@ -1756,7 +1813,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 return;
             }
 
-            systemMapRouteCriteria.WSF = "(designator LIKE '" + v + "')";
+            systemMapRouteCriteria.WSF = "(designator LIKE '" + v + "' AND routetyp LIKE 'P')";
             drawRouteLayerForMode("WSF", '#toggle-ferry');               
         },
 
@@ -1765,7 +1822,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 return;
             }
 
-            systemMapRouteCriteria.LINK = "(designator LIKE '" + v + "')";
+            systemMapRouteCriteria.LINK = "(designator LIKE '" + v + "' AND routetyp LIKE 'P')";
             drawRouteLayerForMode("LINK", '#toggle-link');           
         },
 
@@ -1774,7 +1831,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 return;
             }
 
-            systemMapRouteCriteria.SOUNDER = "(designator LIKE '" + v + "' AND stops=" + s + ")";
+            systemMapRouteCriteria.SOUNDER = "(designator LIKE '" + v + "' AND stops=" + s + " AND routetyp LIKE 'P')";
             drawRouteLayerForMode("SOUNDER", '#toggle-sounder');
         },
 
@@ -1783,7 +1840,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 return;
             }
 
-            systemMapRouteCriteria.BUS = "(operator LIKE '" + v + "' AND designator LIKE '" + s + "')";
+            systemMapRouteCriteria.BUS = "(operator LIKE '" + v + "' AND designator LIKE '" + s + "' AND routetyp LIKE 'P')";
             drawRouteLayerForMode("BUS", '#toggle-bus');
         },
         
@@ -1887,7 +1944,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 }
                 cqlSet += "'" + id + "'"; 
             });
-
             addDataLayer("stops", "stops_routes", null, false, "localid IN (" + cqlSet + ")");
         },
 

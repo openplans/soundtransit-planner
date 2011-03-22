@@ -137,6 +137,9 @@ OTP.NarrativeForm = function(_root, map) {
                 map.reset();
             }
 
+            originalTo = null;
+            originalFrom = null;
+            
             return false;
         });
 
@@ -153,7 +156,7 @@ OTP.NarrativeForm = function(_root, map) {
             return false; 
         });
   
-        // to/from
+        // to/from behavior
         root.find('#to, #from')
             .bind('blur', function() {
                 setBlankClassIfEmpty(this);
@@ -256,6 +259,7 @@ OTP.NarrativeForm = function(_root, map) {
         });
     }
 
+    // form submission--does/should not override other listeners attached to submit!!
     root.find("form#trip-plan-form").submit(function(e) {
         if(originalTo === null) {
             originalTo = root.find("#to").val();
