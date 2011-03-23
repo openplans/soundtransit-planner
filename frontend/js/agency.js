@@ -21,11 +21,41 @@ OTP.Agency = {
         if(headsign === null || route === null) {
             return null;
         }
-        return headsign.replace(route, "");
+        return jQuery.trim(headsign.replace(route, ""));
     },
     
-    getScheduleURLForLeg: function(mode, route) {
-        return "http://stageredesign.soundtransit.org/Schedules/ST-Express-Bus/" + route + ".xml";
+    getScheduleURLForLeg: function(mode, route, operatorId) {
+        if(operatorId === "M" || operatorId === "MT") {
+            var paddedRoute = "" + route;
+            while(paddedRoute.length < 3) {
+                paddedRoute = "0" + paddedRoute;
+            }
+            return "http://metro.kingcounty.gov/tops/bus/schedules/s" + paddedRoute + "_0_.html";
+        } else if(operatorId === "PT") {
+            return "http://www.piercetransit.org/schedules/" + route + "/" + route + ".htm";
+        } else if(operatorId === "ST" || operatorId === "SDR" || operatorId === "LLR") {
+            if(mode === "Bus") {
+                return "http://stageredesign.soundtransit.org/Schedules/ST-Express-Bus/" + route + ".xml";
+            } else if(mode === "LINK") {
+                
+/*
+                Central link:http://stageredesign.soundtransit.org/Schedules/Central-Link-light-rail.xml
+                Tacoma link:http://stageredesign.soundtransit.org/Schedules/Tacoma-Light-Link-Rail.xml
+*/                
+            } else if(mode === "SOUNDER") {
+/*
+                Everett: http://stageredesign.soundtransit.org/Schedules/Sounder-Everett-Seattle.xml
+                Tacoma: http://stageredesign.soundtransit.org/Schedules/Sounder-Tacoma-Seattle.xml 
+*/
+            }
+        } else if(operatorId === "ET") {
+            return "http://www.everettwa.org/default.aspx?ID=299";
+        } else if(operatorId === "WSF" || operatorId === "MWSF") {
+            return "http://www.wsdot.com/ferries/schedule/Default.aspx";
+        } else if(operatorId === "CT") {
+            return "http://www.commtrans.org/BusService/Schedule.cfm?route=" + route;
+        }
+        return "http://www.soundtransit.org";
     },
     
     getModeLabelForLeg: function(mode, route) {

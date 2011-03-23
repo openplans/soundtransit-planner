@@ -282,6 +282,7 @@ OTP.NarrativeForm = function(_root, map) {
                 
             root.find('#from')
                 .val(v)
+                .removeClass("blank")
                 .trigger("change");
         },
 
@@ -292,6 +293,7 @@ OTP.NarrativeForm = function(_root, map) {
                 
             root.find('#to')
                 .val(v)
+                .removeClass("blank")
                 .trigger("change");
         },
 

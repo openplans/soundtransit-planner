@@ -193,7 +193,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         ensureInfoWindowIsVisible();
     }
 
-    function addLegInfoMarker(route, mode, legInfoWindowHtml, lonlat) {
+    function addLegInfoMarker(route, mode, operatorId, legInfoWindowHtml, lonlat) {
         if(route === null || mode === null) {
             return null;
         }
@@ -220,7 +220,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
         if(options.hasTripPlanner !== true && options.showScheduleLinkInRouteMarker !== false) {
             contentLabel
-                .append('<a href="' + OTP.Agency.getScheduleURLForLeg(mode, route) + '" target="_new">Schedule</a>');
+                .append('<a href="' + OTP.Agency.getScheduleURLForLeg(mode, route, operatorId) + '" target="_new">Schedule</a>');
                 
             contentWrapper.addClass("has-schedule-link");
         }
@@ -816,7 +816,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
                             var infoMarkerLonLat = new OpenLayers.LonLat(infoMarkerPointGeom.x, infoMarkerPointGeom.y);
                             var infoMarker = addLegInfoMarker(OTP.Agency.getDisplayNameForLeg(mode, routeName), 
-                                                              OTP.Agency.getModeLabelForLeg(mode, routeName), 
+                                                              OTP.Agency.getModeLabelForLeg(mode, routeName),
+                                                              feature.properties.operator, 
                                                               null, 
                                                               infoMarkerLonLat);
 
@@ -833,6 +834,10 @@ OTP.Map = function(_root, _controlsRoot, options) {
                  zoomToRouteLayerExtent();
              }, // success()
              complete: function(xhr, status) {
+                 if(routeIds.length <= 0) {
+                     return;
+                 }
+                 
                  showBusy();
 
                  // get stop IDs from ATIS, then add the WFS layer of those stops
@@ -2015,7 +2020,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
             var lonlat = wgsLonLat.transform(proj, map.getProjectionObject())
 
             addLegInfoMarker(OTP.Agency.getDisplayNameForLeg(leg["@mode"], leg["@route"]), 
-                             OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]), 
+                             OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]),
+                             leg["@agencyId"], 
                              legInfoWindowHtml, 
                              lonlat); 
         },
