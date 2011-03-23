@@ -25,7 +25,7 @@ OTP.Agency = {
     },
     
     getScheduleURLForLeg: function(mode, route) {
-        return "http://www.example.com";
+        return "http://stageredesign.soundtransit.org/Schedules/ST-Express-Bus/" + route + ".xml";
     },
     
     getModeLabelForLeg: function(mode, route) {
