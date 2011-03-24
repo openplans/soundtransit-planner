@@ -33,7 +33,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     var disambiguationPageSize = 5;
     var disambiguationNameToLonLatMap = {};
 
-    // narrative logic
+    // form submission handler
     function makeTripRequest() {
         // remove ambiguous classes, since we don't know whether the new values are resolvable
         root.find('#to, #from')
@@ -117,6 +117,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         });
     }
 
+    // narrative updating
     function addServiceAlerts(tripWrapper, trip) {
         var routesUsed = "";
         jQuery.each(trip.legs.leg, function(legIndex, leg) {
@@ -348,6 +349,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
             .prependTo(root.find("#trip-data"));
     }
 
+    // map updating
     function updateMapForHover(data, targetTripNumber) {
         if(data === null) {
             return;
@@ -423,6 +425,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
         });
     }
 
+    // leg narrative formatting
     function formatLeg(legIndex, leg) {
         if(leg === null) {
             return null;
@@ -518,6 +521,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
     }
     
     function formatLegInfoWindowHtml(leg) {
+        // walk legs don't get an info marker window
         if(leg === null || leg["@mode"] === "WALK") {
             return null;
         }
@@ -549,6 +553,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                     '</tbody></table>');
     }
 
+    // disambiguation
     function getLocationForPlaceName(name) {
         if(typeof disambiguationNameToLonLatMap[name] !== 'undefined') {
             return disambiguationNameToLonLatMap[name];

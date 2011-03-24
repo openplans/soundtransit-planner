@@ -18,12 +18,17 @@ var OTP = window.OTP || {};
 
 OTP.Config = {
     wfsServiceUrl: "http://sea.dev.openplans.org:8080/geoserver/wfs",
+
+    serviceAlertAggregatorUrl: "http://sea.dev.openplans.org:8080/delayfeeder/ws/status",
+
+    feedbackUrl: "http://survey.soundtransit.org/fs.aspx?surveyid=8b406e435904b11a9c611932519ca44",
+
     atisProxyServiceUrl: "http://sea.dev.openplans.org:8080/translatis-api/ws/planP",
     atisProxyScheduleUrl: "http://sea.dev.openplans.org:8080/translatis-api/ws/schedule",
     atisProxyStopsUrl: "http://sea.dev.openplans.org:8080/translatis-api/ws/routepattern",
+
     bingMapsKey: "AgszXQ8Q5lbiJFYujII-Lcie9XQ-1DK3a2X7xWJmfSeipw8BAAF0ETX8AJ4K-PDm",
+
     openLayersUIImagePath: "js/openlayers/img/",
-    tripPlannerImagePath: "images/tripplanner/",
-    serviceAlertAggregatorUrl: "http://sea.dev.openplans.org:8080/delayfeeder/ws/status",
-    feedbackUrl: "http://survey.soundtransit.org/fs.aspx?surveyid=8b406e435904b11a9c611932519ca44"
+    tripPlannerImagePath: "images/tripplanner/"
 };

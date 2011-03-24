@@ -151,7 +151,6 @@ OTP.Agency = {
             if(agencyIdentifier !== null && typeof agencyIdentifier[0] !== 'undefined') {
                 route = route.substring(agencyIdentifier[0].length);
             }
-
             if(route === "411") {
                 return "http://www.islandtransit.org/";
             }

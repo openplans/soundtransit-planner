@@ -67,12 +67,12 @@ OTP.Util = {
     },
 
     // FIXME: potential timezone issues?
+    // adapted from http://anentropic.wordpress.com/2009/06/25/javascript-iso8601-parser-and-pretty-dates/
     ISO8601StringToDate: function(str) {
         if(str === null) {
             return null;
         }
 
-        // adapted from http://anentropic.wordpress.com/2009/06/25/javascript-iso8601-parser-and-pretty-dates/
         var parts = str.split('T'),
         dateParts = parts[0].split('-'),
         timeParts = parts[1].split('-'),

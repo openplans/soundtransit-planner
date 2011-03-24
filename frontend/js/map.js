@@ -218,6 +218,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                             .html(route)
                             .appendTo(contentWrapper);
 
+        // add schedule link to bubble
         if(options.hasTripPlanner !== true && options.showScheduleLinkInRouteMarker !== false) {
             contentLabel
                 .append('<a href="' + OTP.Agency.getScheduleURLForLeg(mode, route, operatorId, stops, rawRoute) + '" target="_new">Schedule</a>');
@@ -225,6 +226,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             contentWrapper.addClass("has-schedule-link");
         }
         
+        // place info marker on map
         var viewPortPx = map.getViewPortPxFromLonLat(lonlat);
         var layerContainerPx = map.getLayerPxFromViewPortPx(viewPortPx);
 
@@ -235,7 +237,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             .css("top", layerContainerPx.y - infoMarker.height() - 11)
             .css("left", layerContainerPx.x - (infoMarker.width() / 2));
 
-        // info bubble on this info marker
+        // for the info bubble on this info marker
         if(legInfoWindowHtml !== null && typeof legInfoWindowHtml !== 'undefined') {
             contentWrapper.click(function(e) {
                 var legInfoMarker = jQuery(this).parent();
@@ -1763,6 +1765,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }
     }
     
+    // status feedback to user
     function showBusy() {
         root.find("#loading").show();
     }

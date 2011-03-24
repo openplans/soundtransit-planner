@@ -27,6 +27,7 @@ OTP.NarrativeForm = function(_root, map) {
     // DOM elements
     var root = jQuery(_root);
 
+    // local utility functions
     function setBlankClassIfEmpty(element) {
         if(jQuery(element).val() === "") {
             jQuery(element).addClass('blank');
@@ -257,18 +258,18 @@ OTP.NarrativeForm = function(_root, map) {
             
             return false;
         });
-    }
 
-    // form submission--does/should not override other listeners attached to submit!!
-    root.find("form#trip-plan-form").submit(function(e) {
-        if(originalTo === null) {
-            originalTo = root.find("#to").val();
-        }
-        
-        if(originalFrom === null) {
-            originalFrom = root.find("#from").val();
-        }
-    });
+        // form submission--does/should not override other listeners attached to submit!!
+        root.find("form#trip-plan-form").submit(function(e) {
+            if(originalTo === null) {
+                originalTo = root.find("#to").val();
+            }
+
+            if(originalFrom === null) {
+                originalFrom = root.find("#from").val();
+            }
+        });
+    }
 
     // constructor
     addFormUIBehavior();
