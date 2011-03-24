@@ -24,7 +24,7 @@ OTP.Agency = {
         return jQuery.trim(headsign.replace(route, ""));
     },
     
-    getScheduleURLForLeg: function(mode, route, operatorId) {
+    getScheduleURLForLeg: function(mode, route, operatorId, stops, rawRoute) {
         if(operatorId === "M" || operatorId === "MT") {
             var paddedRoute = "" + route;
             while(paddedRoute.length < 3) {
@@ -36,17 +36,18 @@ OTP.Agency = {
         } else if(operatorId === "ST" || operatorId === "SDR" || operatorId === "LLR") {
             if(mode === "Bus") {
                 return "http://stageredesign.soundtransit.org/Schedules/ST-Express-Bus/" + route + ".xml";
-            } else if(mode === "LINK") {
-                
-/*
-                Central link:http://stageredesign.soundtransit.org/Schedules/Central-Link-light-rail.xml
-                Tacoma link:http://stageredesign.soundtransit.org/Schedules/Tacoma-Light-Link-Rail.xml
-*/                
-            } else if(mode === "SOUNDER") {
-/*
-                Everett: http://stageredesign.soundtransit.org/Schedules/Sounder-Everett-Seattle.xml
-                Tacoma: http://stageredesign.soundtransit.org/Schedules/Sounder-Tacoma-Seattle.xml 
-*/
+            } else if(mode === "Link") {
+                if(rawRoute === "M599") {
+                    return "http://stageredesign.soundtransit.org/Schedules/Central-Link-light-rail.xml";
+                } else if(rawRoute === "PTLDTC") {
+                    return "http://stageredesign.soundtransit.org/Schedules/Tacoma-Light-Link-Rail.xml";
+                }
+            } else if(mode === "Sounder") {
+                if(stops === 7) {
+                    return "http://stageredesign.soundtransit.org/Schedules/Sounder-Tacoma-Seattle.xml";
+                } else if(stops === 4) {
+                    return "http://stageredesign.soundtransit.org/Schedules/Sounder-Everett-Seattle.xml";
+                }
             }
         } else if(operatorId === "ET") {
             return "http://www.everettwa.org/default.aspx?ID=299";
@@ -75,7 +76,7 @@ OTP.Agency = {
         } else if(mode === "TRAIN" || mode === "LINK" || mode === "SOUNDER") {
             if(route === "MSOUNDER" || mode === "SOUNDER") {
                 return "Sounder";
-            } else if(route === "M599" || route === "TLDTC" || mode === "LINK") {
+            } else if(mode === "LINK" || route === "M599" || route === "TLDTC" || route === "PTLDTC") {
                 return "Link";
             } else {
                 //return "Streetcar";
@@ -120,7 +121,7 @@ OTP.Agency = {
 
         if(route.toUpperCase() === "SOUNDER") {
             return "Sounder";
-        } else if(route === "599" || route.toUpperCase() === "TLDTC") {
+        } else if(route === "599" || route.toUpperCase() === "TLDTC" || route.toUpperCase() === "PTLDTC") {
             return "Link";
         } else {
             // strip off direction modifier if present, at end of numeric routes
@@ -175,7 +176,6 @@ OTP.Agency = {
             if(agencyIdentifier !== null && typeof agencyIdentifier[0] !== 'undefined') {
                 route = route.substring(agencyIdentifier[0].length);
             }
-
             if(route === "411") {
                 return "Island Transit";
             }

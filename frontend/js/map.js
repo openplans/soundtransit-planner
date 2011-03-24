@@ -193,7 +193,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         ensureInfoWindowIsVisible();
     }
 
-    function addLegInfoMarker(route, mode, operatorId, legInfoWindowHtml, lonlat) {
+    function addLegInfoMarker(route, mode, operatorId, legInfoWindowHtml, lonlat, stops, rawRoute) {
         if(route === null || mode === null) {
             return null;
         }
@@ -220,7 +220,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
         if(options.hasTripPlanner !== true && options.showScheduleLinkInRouteMarker !== false) {
             contentLabel
-                .append('<a href="' + OTP.Agency.getScheduleURLForLeg(mode, route, operatorId) + '" target="_new">Schedule</a>');
+                .append('<a href="' + OTP.Agency.getScheduleURLForLeg(mode, route, operatorId, stops, rawRoute) + '" target="_new">Schedule</a>');
                 
             contentWrapper.addClass("has-schedule-link");
         }
@@ -740,7 +740,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                  outputFormat: "json",
                  format_options: "callback:" + callbackFunction,
                  typeName: "soundtransit:routes",
-                 propertyName: "the_geom,designator,operator,routeid",
+                 propertyName: "the_geom,designator,operator,routeid,stops",
                  cql_filter: cqlQuery
              },
              success: function(data) {
@@ -787,9 +787,10 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
                         // add marker to middle leg of line
                         var routeName = OTP.Agency.getDisplayNameForLeg(null, feature.properties.designator);
+                        var routeKey = routeName + feature.properties.stops;
                         
                         // add info marker to middle leg
-                        if((routeName in flagsAdded) === false) {
+                        if((routeKey in flagsAdded) === false) {
                             var lineLength = lineFeature.geometry.getLength();
                             var length_p = 0;
                             var infoMarkerPointGeom = null;
@@ -815,18 +816,20 @@ OTP.Map = function(_root, _controlsRoot, options) {
                             }
 
                             var infoMarkerLonLat = new OpenLayers.LonLat(infoMarkerPointGeom.x, infoMarkerPointGeom.y);
-                            var infoMarker = addLegInfoMarker(OTP.Agency.getDisplayNameForLeg(mode, routeName), 
+                            var infoMarker = addLegInfoMarker(routeName, 
                                                               OTP.Agency.getModeLabelForLeg(mode, routeName),
                                                               feature.properties.operator, 
                                                               null, 
-                                                              infoMarkerLonLat);
+                                                              infoMarkerLonLat,
+                                                              feature.properties.stops,
+                                                              feature.properties.designator);
 
                             if(typeof systemMapRouteInfoMarkers[mode] === 'undefined' || systemMapRouteInfoMarkers[mode] === null) {
                                 systemMapRouteInfoMarkers[mode] = [];
                             }
                             systemMapRouteInfoMarkers[mode].push(infoMarker);
 
-                            flagsAdded[routeName] = true;
+                            flagsAdded[routeKey] = routeName;
                         }
                     }
                  });
@@ -2023,7 +2026,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
                              OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]),
                              leg["@agencyId"], 
                              legInfoWindowHtml, 
-                             lonlat); 
+                             lonlat,
+                             null,
+                             null); 
         },
         
         removeHoverRoute: function() {
