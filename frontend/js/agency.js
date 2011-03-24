@@ -21,6 +21,12 @@ OTP.Agency = {
         if(headsign === null || route === null) {
             return null;
         }
+
+        // special case to get a better headsign value
+        if(route === "PTLDTC") {
+            route = "PTacoma Link Light Rail -";
+        }
+        
         return jQuery.trim(headsign.replace(route, ""));
     },
     
