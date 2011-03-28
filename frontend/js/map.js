@@ -1413,7 +1413,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                 format_options: "callback:" + callbackFunction,
                                 propertyName: "designator,routedescription",
                                 typeName: "soundtransit:routes",
-                                cql_filter: "(operator LIKE '" + agency + "')"
+                                cql_filter: "(operator LIKE '" + agency + "' AND type LIKE 'B')"
                             },
                             success: function(data) {
                                 hideBusy();
@@ -1426,13 +1426,34 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                 var routesToAdd = [];
                                 for(var i = 0; i < data.features.length; i++) {
                                     var route = data.features[i];
+                                    
+                                    // hide non-bus routes from bus picker
+                                    var routeLabel = OTP.Agency.getDisplayNameForLeg(null, route.properties.designator);
+                                    if(routeLabel === "Sounder" || routeLabel === "Link") {
+                                        continue;
+                                    }
+                                    
                                     routesToAdd.push(route.properties);
                                 }
                                 
                                 // sort features
                                 routesToAdd.sort(function(a, b) {
-                                    if (a.designator < b.designator) { return -1; }
-                                    else if (a.designator > b.designator) { return 1; }
+                                    var _a = a.designator;
+                                    var _b = b.designator;
+                                    try {
+                                        var t = OTP.Agency.getDisplayNameForLeg(null, a.designator);
+                                        _a = parseInt(t);
+                                    } catch(e) {
+                                        _a = a.designator;
+                                    }
+                                    try {
+                                        var t = OTP.Agency.getDisplayNameForLeg(null, b.designator);
+                                        _b = parseInt(t);
+                                    } catch(e) {
+                                        _b = b.designantor;
+                                    }
+                                    if (_a < _b) { return -1; }
+                                    else if (_a > _b) { return 1; }
                                     else { return 0; }
                                 });
 
