@@ -198,12 +198,12 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                         break;
                     case '20003':
                         msg = "<p>There are no transit stops within walking distance of your starting location.</p>Please try to:</br>" + 
-                                "<ul><li>Increase your walking distance to 1 mile (see “more options” above), or</li><li>Change the starting point by dragging the A marker on the map, or</li><li>Type in a new address, intersection or landmark for your starting location</li></ul>" + 
+                                "<ul><li>Increase your walking distance to 1 mile (see “advanced search” above), or</li><li>Change the starting point by dragging the A marker on the map, or</li><li>Type in a new address, intersection or landmark for your starting location</li></ul>" + 
                                 "<div><strong>Tip</strong>: You can show the stops on the map by clicking on the <img src='" + OTP.Config.tripPlannerImagePath + "location-icon.png'> icon.</div>";
                         break;
                     case '20004':
                         msg = "<p>There are no transit stops within walking distance of your destination.</p>Please try to:</br>" + 
-                                "<ul><li>Increase your walking distance to 1 mile (see “more options” above), or</li><li>Change the starting point by dragging the A marker on the map, or</li><li>Type in a new address, intersection or landmark for your starting location</li></ul>" +
+                                "<ul><li>Increase your walking distance to 1 mile (see “advanced search” above), or</li><li>Change the starting point by dragging the A marker on the map, or</li><li>Type in a new address, intersection or landmark for your starting location</li></ul>" +
                                 "<div><strong>Tip</strong>: You can show the stops on the map by clicking on the <img src='" + OTP.Config.tripPlannerImagePath + "location-icon.png'> icon.</div>";
                         break;
                     case '20008':
