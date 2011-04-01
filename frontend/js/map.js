@@ -789,7 +789,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
                         // add marker to middle leg of line
                         var routeName = OTP.Agency.getDisplayNameForLeg(null, feature.properties.designator);
-                        var routeKey = routeName + feature.properties.stops;
+                        var routeKey = feature.properties.designator;
+//                        var routeKey = routeName + feature.properties.stops;
                         
                         // add info marker to middle leg
                         if((routeKey in flagsAdded) === false) {
