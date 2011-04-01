@@ -1413,7 +1413,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                 format_options: "callback:" + callbackFunction,
                                 propertyName: "designator,routedescription",
                                 typeName: "soundtransit:routes",
-                                cql_filter: "(operator LIKE '" + agency + "' AND type LIKE 'B')"
+                                cql_filter: "(operator LIKE '" + agency + "' AND (type LIKE 'B' OR type LIKE 'X' OR type LIKE 'K'))"
                             },
                             success: function(data) {
                                 hideBusy();

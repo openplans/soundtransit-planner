@@ -127,7 +127,10 @@ OTP.Agency = {
 
         if(route.toUpperCase() === "SOUNDER") {
             return "Sounder";
-        } else if(route === "599" || route.toUpperCase() === "TLDTC" || route.toUpperCase() === "PTLDTC") {
+        } else if((agencyIdentifier !== null && typeof agencyIdentifier[0] !== 'undefined' 
+                    && agencyIdentifier[0] === "M" && route === "599") 
+                    || route.toUpperCase() === "TLDTC" || route.toUpperCase() === "PTLDTC") {
+
             return "Link";
         } else {
             // strip off direction modifier if present, at end of numeric routes
