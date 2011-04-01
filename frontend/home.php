@@ -37,18 +37,12 @@
 
     <!--INCLUDE ALL OF THESE FILES IN A PRODUCTION DEPLOYMENT, IN THIS ORDER-->
     <script type="text/javascript" src="js/jquery/jquery-1.4.2.min.js"></script>
-    <script type="text/javascript" src="js/jquery/jquery-jsonp.min.js"></script>
     <script type="text/javascript" src="js/jquery/jquery-ui-1.8.6.custom.min.js"></script>
     <script type="text/javascript" src="js/jquery/jquery-ui-selectmenu.min.js"></script>
     <script type="text/javascript" src="js/jquery/jquery-ui-spinner.min.js"></script>
     <script type="text/javascript" src="js/jquery/jquery-fancybox.min.js"></script>
-    <script type="text/javascript" src="js/openlayers/OpenLayers.js"></script>
     <script type="text/javascript" src="js/config.js"></script>
-    <script type="text/javascript" src="js/util.js"></script>
-    <script type="text/javascript" src="js/agency.js"></script>
     <script type="text/javascript" src="js/narrativeForm.js"></script>
-    <script type="text/javascript" src="js/narrative.js"></script>
-    <script type="text/javascript" src="js/map.js"></script>
 
     <!--THE BLOCK BELOW IS SPECIFIC TO THIS PAGE AND USE CASE-->
   	<script type="text/javascript">
