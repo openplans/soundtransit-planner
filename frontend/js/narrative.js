@@ -113,6 +113,9 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                         '<h3>We\'re sorry!</h3>' + 
                         '<p>Something went wrong when trying to plan your trip&mdash;try your request again later.</p>' + 
                         '</div>');
+            },
+            complete: function(xhr, status) {
+                hideBusy();
             }
         });
     }
@@ -178,6 +181,9 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                         }
                     }
                 });
+            },
+            complete: function(xhr, status) {
+                hideBusy();
             }
         });
     }

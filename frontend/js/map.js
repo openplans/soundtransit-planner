@@ -855,10 +855,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
                  }
 
                  var callbackFunction = "drawRouteLayerForModeGetStopsCallback" + Math.floor(Math.random() * 1000000000);
-                 jQuery.ajax({
-                      url: OTP.Config.atisProxyStopsUrl,
-                      dataType: "jsonp",
-                      jsonpCallback: callbackFunction,
+                 jQuery.jsonp({
+                      url: OTP.Config.atisProxyStopsUrl + "?callback=?",
+                      callback: callbackFunction,
                       data: {
                           routeid: routeQuery
                       },
@@ -873,6 +872,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
                               cqlSet += "'" + stop.atisstopid + "'"; 
                           });
                           addDataLayer("stops", "stops_routes", null, false, "atisid IN (" + cqlSet + ")", "stops_routes" + mode);
+                      },
+                      complete: function(xhr, status) {
+                          hideBusy();
                       }
                 });
              }
@@ -1010,7 +1012,12 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 }
 
                 if(type === "stops") {
-                    if(data.features.length > 512) {
+                    var maxfeatures = 512;                    
+                    if(jQuery.browser.msie === true) {
+                        maxfeatures = 256;
+                    }
+                    
+                    if(data.features.length > maxfeatures) {
                         showTooMany(type);
                         layer.removeAllFeatures();
                         data = null;
