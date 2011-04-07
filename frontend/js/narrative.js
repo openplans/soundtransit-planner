@@ -115,7 +115,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                         '</div>');
             },
             complete: function(xhr, status) {
-                hideBusy();
+                map.hideBusy();
             }
         });
     }
@@ -183,7 +183,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
                 });
             },
             complete: function(xhr, status) {
-                hideBusy();
+                map.hideBusy();
             }
         });
     }
