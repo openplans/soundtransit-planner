@@ -20,13 +20,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
     if(typeof _root === 'undefined' || _root === null) {
         return null;
     }
-    
-    // configuration options--valid values are:
-    //
-    // * updateFromLocationFunction: function called when end marker is dragged
-    // * updateToLocationFunction: function called when start marker is dragged
-    // * hasTripPlanner: true or false, indicating whether a trip planner is present with this map
-    //
+
     options = jQuery.extend(options, {});
 
     // DOM elements
@@ -982,7 +976,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
         if(constrainToBBOX === true) {           
             // clear features not visible anymore from map if we're getting lots of features on this layer
-            if(layer.features.length > 300) {
+            if(layer.features.length > 250) {
                 var featuresToRemove = [];             
                 var viewportBounds = map.getExtent();
                 jQuery.each(layer.features, function(_, feature) {
@@ -1012,12 +1006,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 }
 
                 if(type === "stops") {
-                    var maxfeatures = 512;                    
-                    if(jQuery.browser.msie === true) {
-                        maxfeatures = 256;
-                    }
-                    
-                    if(data.features.length > maxfeatures) {
+                    if(data.features.length > 250) {
                         showTooMany(type);
                         layer.removeAllFeatures();
                         data = null;
