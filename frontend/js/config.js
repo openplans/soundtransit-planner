@@ -17,15 +17,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 var OTP = window.OTP || {};
 
 OTP.Config = {
-    wfsServiceUrl: "http://tpapi.soundtransit.org/geoserver/wfs",
+    wfsServiceUrl: "http://sea.dev.openplans.org:8080/geoserver/wfs",
 
-    serviceAlertAggregatorUrl: "http://tpapi.soundtransit.org/delayfeeder/ws/status",
+    serviceAlertAggregatorUrl: "http://sea.dev.openplans.org:8080/delayfeeder/ws/status",
 
     feedbackUrl: "http://survey.soundtransit.org/fs.aspx?surveyid=8b406e435904b11a9c611932519ca44",
 
-    atisProxyServiceUrl: "http://tpapi.soundtransit.org/translatis-api/ws/planP",
-    atisProxyScheduleUrl: "http://tpapi.soundtransit.org/translatis-api/ws/schedule",
-    atisProxyStopsUrl: "http://tpapi.soundtransit.org/translatis-api/ws/routepattern",
+    atisProxyServiceUrl: "http://sea.dev.openplans.org:8080/translatis-api/ws/planP",
+    atisProxyScheduleUrl: "http://sea.dev.openplans.org:8080/translatis-api/ws/schedule",
+    atisProxyStopsUrl: "http://sea.dev.openplans.org:8080/translatis-api/ws/routestops",
 
     bingMapsKey: "AgszXQ8Q5lbiJFYujII-Lcie9XQ-1DK3a2X7xWJmfSeipw8BAAF0ETX8AJ4K-PDm",
 

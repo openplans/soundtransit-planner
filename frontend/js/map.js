@@ -736,7 +736,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                  outputFormat: "json",
                  format_options: "callback:" + callbackFunction,
                  typeName: "soundtransit:routes",
-                 propertyName: "the_geom,designator,operator,routeid,stops",
+                 propertyName: "the_geom,designator,operator,routeid,direction,stops",
                  cql_filter: cqlQuery
              },
              success: function(data) {
@@ -779,7 +779,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
                         var lineFeature = new OpenLayers.Feature.Vector(polyline, null, style);
                         routeLayer.addFeatures([lineFeature]);
                         systemMapRouteFeatures[mode].push(lineFeature);
-                        routeIds[feature.properties.routeid] = feature.properties.routeid;
+                        routeIds[feature.properties.designator + feature.properties.direction] = 
+                            [feature.properties.designator, feature.properties.direction]
 
                         // add marker to middle leg of line
                         var routeName = OTP.Agency.getDisplayNameForLeg(null, feature.properties.designator);
@@ -841,11 +842,14 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
                  // get stop IDs from ATIS, then add the WFS layer of those stops
                  var routeQuery = "";
-                 for(routeId in routeIds) {
+                 for(routeIdKey in routeIds) {
                     if(routeQuery.length > 0) {
                         routeQuery += ",";
                     }
-                    routeQuery += routeId;
+                    var routeIdStruct = routeIds[routeIdKey];
+                    if(typeof routeIdStruct !== 'undefined' && routeIdStruct.length === 2) {
+                        routeQuery += routeIdStruct[0] + "|" + routeIdStruct[1];
+                    }
                  }
 
                  var callbackFunction = "drawRouteLayerForModeGetStopsCallback" + Math.floor(Math.random() * 1000000000);
@@ -853,7 +857,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                       url: OTP.Config.atisProxyStopsUrl + "?callback=?",
                       callback: callbackFunction,
                       data: {
-                          routeid: routeQuery
+                          routeDirections: routeQuery
                       },
                       success: function(data) {
                           hideBusy();
