@@ -195,7 +195,7 @@ OTP.Agency = {
         } else if(operatorId === "ET") {
             return "Everett Transit";
         } else if(operatorId === "WSF" || operatorId === "MWSF") {
-            return "Washington State Ferry";
+            return "Washington State Ferries";
         } else if(operatorId === "CT") {
             return "Community Transit";
         }
