@@ -339,13 +339,13 @@ OTP.NarrativeForm = function(_root, map) {
             if(v === null || v === "") {
                 return;
             }
-            
+
             var realSelect = root.find('#leaveampm-wrap select');
-            var styledSelect = root.find('#leaveampm-wrap input');
+            var styledSelect = root.find('#leaveampm-wrap .ui-selectmenu-status');
 
             realSelect.children().each(function(_, option) {
                if(option.value === v) {
-                   styledSelect.val(option.text);
+                   styledSelect.text(option.text);
                    return false;
                } 
             });
