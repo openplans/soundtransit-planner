@@ -41,18 +41,18 @@ OTP.Agency = {
             return "http://www.piercetransit.org/schedules/" + route + "/" + route + ".htm";
         } else if(operatorId === "ST" || operatorId === "SDR" || operatorId === "LLR") {
             if(mode === "Bus") {
-                return "http://stageredesign.soundtransit.org/Schedules/ST-Express-Bus/" + route + ".xml";
+                return "http://www.soundtransit.org/Schedules/ST-Express-Bus/" + route + ".xml";
             } else if(mode === "Link") {
                 if(rawRoute === "M599") {
-                    return "http://stageredesign.soundtransit.org/Schedules/Central-Link-light-rail.xml";
+                    return "http://www.soundtransit.org/Schedules/Central-Link-light-rail.xml";
                 } else if(rawRoute === "PTLDTC") {
-                    return "http://stageredesign.soundtransit.org/Schedules/Tacoma-Light-Link-Rail.xml";
+                    return "http://www.soundtransit.org/Schedules/Tacoma-Light-Link-Rail.xml";
                 }
             } else if(mode === "Sounder") {
                 if(stops === 7) {
-                    return "http://stageredesign.soundtransit.org/Schedules/Sounder-Tacoma-Seattle.xml";
+                    return "http://www.soundtransit.org/Schedules/Sounder-Tacoma-Seattle.xml";
                 } else if(stops === 4) {
-                    return "http://stageredesign.soundtransit.org/Schedules/Sounder-Everett-Seattle.xml";
+                    return "http://www.soundtransit.org/Schedules/Sounder-Everett-Seattle.xml";
                 }
             }
         } else if(operatorId === "ET") {

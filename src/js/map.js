@@ -202,12 +202,12 @@ OTP.Map = function(_root, _controlsRoot, options) {
                             .addClass("content")
                             .appendTo(infoMarker);
 
-        var modeIcon = jQuery("<p></p>")
+        var modeIcon = jQuery("<div></div>")
                             .addClass("leg-mode")
                             .addClass(mode.toLowerCase())
                             .appendTo(contentWrapper);
 
-        var contentLabel = jQuery("<p></p>")
+        var contentLabel = jQuery("<div></div>")
                             .addClass("route-label")
                             .html(route)
                             .appendTo(contentWrapper);
