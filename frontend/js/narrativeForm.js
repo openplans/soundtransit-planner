@@ -345,6 +345,7 @@ OTP.NarrativeForm = function(_root, map) {
 
             realSelect.children().each(function(_, option) {
                if(option.value === v) {
+                   realSelect.val(option.text);
                    styledSelect.text(option.text);
                    return false;
                } 
