@@ -303,8 +303,16 @@ OTP.NarrativeForm = function(_root, map) {
                 return;
             }
                 
-            root.find('#leavetype')
-                .val(v);
+            var realSelect = root.find('#leavetype-wrap select');
+            var styledSelect = root.find('#leavetype-wrap .ui-selectmenu-status');
+
+            realSelect.children().each(function(_, option) {
+               if(option.value === v) {
+                   realSelect.val(option.text);
+                   styledSelect.text(option.text);
+                   return false;
+               } 
+            });
         },
 
         setDay: function(v) {
@@ -367,11 +375,12 @@ OTP.NarrativeForm = function(_root, map) {
             }
  
             var realSelect = root.find('#trippriority-wrap select');
-            var styledSelect = root.find('#trippriority-wrap input');
+            var styledSelect = root.find('#trippriority-wrap .ui-selectmenu-status');
 
             realSelect.children().each(function(_, option) {
-                if(option.value === v) {
-                   styledSelect.val(option.text);
+               if(option.value === v) {
+                   realSelect.val(option.text);
+                   styledSelect.text(option.text);
                    return false;
                } 
             });
@@ -390,13 +399,14 @@ OTP.NarrativeForm = function(_root, map) {
                 root.find('a#optionstoggle').html('Fewer Options<span></span>')
                     .addClass('active');
             }
-                    
-            var realSelect = root.find('#maxwalk-wrap select');
-            var styledSelect = root.find('#maxwalk-wrap input');
 
-            realSelect.children().each(function(_, option) { 
+            var realSelect = root.find('#maxwalk-wrap select');
+            var styledSelect = root.find('#maxwalk-wrap .ui-selectmenu-status');
+
+            realSelect.children().each(function(_, option) {
                if(option.value === v) {
-                   styledSelect.val(option.text);
+                   realSelect.val(option.text);
+                   styledSelect.text(option.text);
                    return false;
                } 
             });
@@ -408,7 +418,7 @@ OTP.NarrativeForm = function(_root, map) {
             }
 
             // deploy extras section if value was changed
-            var currentValue = root.find('accessible').attr("checked");
+            var currentValue = root.find('#accessible').attr("checked");
             if(currentValue !== v) {
                 root.find('#moreoptions').show();
 
@@ -416,7 +426,7 @@ OTP.NarrativeForm = function(_root, map) {
                     .addClass('active');
             }
 
-            root.find('accessible')
+            root.find('#accessible')
                 .attr('checked', v);
         }        
     };
