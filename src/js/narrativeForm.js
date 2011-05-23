@@ -306,9 +306,10 @@ OTP.NarrativeForm = function(_root, map) {
             var realSelect = root.find('#leavetype-wrap select');
             var styledSelect = root.find('#leavetype-wrap .ui-selectmenu-status');
 
-            realSelect.children().each(function(_, option) {
+            realSelect.find('option').each(function(_, option) {
                if(option.value === v) {
                    realSelect.val(option.text);
+                   option.selected = true;
                    styledSelect.text(option.text);
                    return false;
                } 
@@ -351,9 +352,10 @@ OTP.NarrativeForm = function(_root, map) {
             var realSelect = root.find('#leaveampm-wrap select');
             var styledSelect = root.find('#leaveampm-wrap .ui-selectmenu-status');
 
-            realSelect.children().each(function(_, option) {
+            realSelect.find('option').each(function(_, option) {
                if(option.value === v) {
                    realSelect.val(option.text);
+                   option.selected = true;
                    styledSelect.text(option.text);
                    return false;
                } 
@@ -373,13 +375,14 @@ OTP.NarrativeForm = function(_root, map) {
                 root.find('a#optionstoggle').html('Fewer Options<span></span>')
                     .addClass('active');
             }
- 
+
             var realSelect = root.find('#trippriority-wrap select');
             var styledSelect = root.find('#trippriority-wrap .ui-selectmenu-status');
 
-            realSelect.children().each(function(_, option) {
+            realSelect.find('option').each(function(_, option) {
                if(option.value === v) {
                    realSelect.val(option.text);
+                   option.selected = true;
                    styledSelect.text(option.text);
                    return false;
                } 
@@ -403,9 +406,10 @@ OTP.NarrativeForm = function(_root, map) {
             var realSelect = root.find('#maxwalk-wrap select');
             var styledSelect = root.find('#maxwalk-wrap .ui-selectmenu-status');
 
-            realSelect.children().each(function(_, option) {
+            realSelect.find('option').each(function(_, option) {
                if(option.value === v) {
                    realSelect.val(option.text);
+                   option.selected = true;
                    styledSelect.text(option.text);
                    return false;
                } 
