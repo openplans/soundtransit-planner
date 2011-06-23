@@ -690,7 +690,7 @@ OTP.Narrative = function(_root, _map, _mapControlsRoot) {
 
                 // put the lat/lon for this location in a map that we can get later--this is so we can display
                 // the "friendly" name for this place, also allowing the user to enter it manually if they ever were to?
-                disambiguationNameToLonLatMap[result.name + ', ' + result.area] = result.latitude + ',' + result.longitude;
+                disambiguationNameToLonLatMap[result.name + ', ' + result.area] = result.latitude + ',' + result.longitude + ',' + result.landmarkId;
             });
 
             map.zoomToDisambiguationExtent();
