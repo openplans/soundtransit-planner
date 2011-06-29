@@ -282,7 +282,7 @@ OTP.NarrativeForm = function(_root, map) {
             }
                 
             root.find('#from')
-                .val(v)
+                .val(v.replace("&amp;", "&"))
                 .removeClass("blank")
                 .trigger("change");
         },
@@ -293,7 +293,7 @@ OTP.NarrativeForm = function(_root, map) {
             }
                 
             root.find('#to')
-                .val(v)
+                .val(v.replace("&amp;", "&"))
                 .removeClass("blank")
                 .trigger("change");
         },
