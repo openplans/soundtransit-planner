@@ -1976,6 +1976,11 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 }
                 cqlSet += "'" + id + "'"; 
             });
+            
+            if(cqlSet === "") {
+                return;
+            }
+            
             addDataLayer("stops", "stops_routes", null, false, "localid IN (" + cqlSet + ")");
         },
 
