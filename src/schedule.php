@@ -20,35 +20,18 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<meta http-equiv="X-UA-Compatible" content="IE=8" />
+
     <title>Schedules/Route Maps</title>
 
     <!--INCLUDE ALL OF THESE FILES IN A PRODUCTION DEPLOYMENT, IN THIS ORDER-->
     <link type="text/css" href="css/screen-reset.css" rel="stylesheet" media="screen, projection" />
     <link type="text/css" href="css/print-reset.css" rel="stylesheet" media="print" />
-    <link type="text/css" href="css/jquery/ui-custom/jquery-ui-1.8.6.custom.css" rel="stylesheet" media="screen, projection" />
-    <link type="text/css" href="css/jquery/ui.selectmenu.css" rel="stylesheet" media="screen, projection" />
-    <link type="text/css" href="css/jquery/ui.spinner.css" rel="stylesheet" media="screen, projection" />
-    <link type="text/css" href="css/jquery/fancybox.css" rel="stylesheet" media="screen, projection" />
-    <link type="text/css" href="css/otp.css" rel="stylesheet" media="screen, projection" />
+    
+    <link type="text/css" href="css/tripplanner/otp-screen.css" rel="stylesheet" media="screen, projection, print" />
     <!--[if lt IE 8]><link rel="stylesheet" href="css/ie.css" type="text/css" media="screen, projection"><![endif]-->
 
     <!--DO NOT INCLUDE THE FILE BELOW IN A PRODUCTION DEPLOYMENT - FOR DEMO ONLY-->
     <link type="text/css" href="css/demo.css" rel="stylesheet" media="screen, projection" />
-
-    <!--INCLUDE ALL OF THESE FILES IN A PRODUCTION DEPLOYMENT, IN THIS ORDER-->
-    <script type="text/javascript" src="js/jquery/jquery-1.4.2.min.js"></script>
-    <script type="text/javascript" src="js/jquery/jquery-jsonp.min.js"></script>
-    <script type="text/javascript" src="js/jquery/jquery-ui-1.8.6.custom.min.js"></script>
-    <script type="text/javascript" src="js/jquery/jquery-ui-selectmenu.min.js"></script>
-    <script type="text/javascript" src="js/jquery/jquery-ui-spinner.min.js"></script>
-    <script type="text/javascript" src="js/jquery/jquery-fancybox.min.js"></script>
-    <script type="text/javascript" src="js/openlayers/OpenLayers.js"></script>
-    <script type="text/javascript" src="js/config.js"></script>
-    <script type="text/javascript" src="js/util.js"></script>
-    <script type="text/javascript" src="js/agency.js"></script>
-    <script type="text/javascript" src="js/narrativeForm.js"></script>
-    <script type="text/javascript" src="js/narrative.js"></script>
-    <script type="text/javascript" src="js/map.js"></script>
 </head>
 
 <body class="schedule">
@@ -63,16 +46,34 @@
     <!--END-->
 
     <div>
-      <h2>Direct links for Route Map pages</h2>
-      <ul>
-        <li><a href="./map.php?SOUNDERRoute=MSOUNDER&amp;SOUNDERStops=7">Sounder: Tacoma/Seattle route</a></li>
-        <li><a href="./map.php?SOUNDERRoute=MSOUNDER&amp;SOUNDERStops=4">Sounder: Everett/Seattle route</a></li>
-        <li><a href="./map.php?LINKRoute=M599">Central Link Light Rail</a></li>
-        <li><a href="./map.php?LINKRoute=PTLDTC">Tacoma Link Light Rail</a></li>
-        <li><a href="./map.php?BUSOperator=ST&amp;BUSRoute=510">Bus Route 510</a></li>
-        <li><a href="./map.php?BUSOperator=ST&amp;BUSRoute=P590">Bus Route 590</a></li>
+      <h2>Direct links for Route Map demo pages:</h2>
+      <ul class="scheduledemo">
+        <li>
+            <a href="./map.php?SOUNDERRoute=MSOUNDER&amp;SOUNDERStops=7">Sounder: Tacoma/Seattle route</a>
+            <a href="./map_printable.php?route=MSOUNDER&amp;stops=7&amp;mode=SOUNDER" target="_new">(printable)</a>
+        </li>
+        
+        <li>
+            <a href="./map.php?SOUNDERRoute=MSOUNDER&amp;SOUNDERStops=4">Sounder: Everett/Seattle route</a>
+            <a href="./map_printable.php?route=MSOUNDER&amp;stops=4&amp;mode=SOUNDER" target="_new">(printable)</a>
+        </li>
+        <li>
+            <a href="./map.php?LINKRoute=M599">Central Link Light Rail</a>
+            <a href="./map_printable.php?route=M599&amp;mode=LINK" target="_new">(printable)</a>
+        </li>
+        <li>
+            <a href="./map.php?LINKRoute=PTLDTC">Tacoma Link Light Rail</a>
+            <a href="./map_printable.php?route=PTLDTC&amp;mode=LINK" target="_new">(printable)</a>
+        </li>
+        <li>
+            <a href="./map.php?BUSOperator=ST&amp;BUSRoute=510">Bus Route 510</a>
+            <a href="./map_printable.php?operator=ST&amp;route=510&amp;mode=BUS" target="_new">(printable)</a>
+        </li>
+        <li>
+            <a href="./map.php?BUSOperator=ST&amp;BUSRoute=P590">Bus Route 590</a>
+            <a href="./map_printable.php?operator=ST&amp;route=P590&amp;mode=BUS" target="_new">(printable)</a>
+        </li>
       </ul>
     </div>
-    
 </body>
 </html>

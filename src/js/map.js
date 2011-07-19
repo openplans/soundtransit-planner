@@ -202,9 +202,10 @@ OTP.Map = function(_root, _controlsRoot, options) {
                             .addClass("content")
                             .appendTo(infoMarker);
 
-        var modeIcon = jQuery("<div></div>")
+        var modeIcon = jQuery("<img></img>")
                             .addClass("leg-mode")
                             .addClass(mode.toLowerCase())
+                            .attr("src", OTP.Config.tripPlannerImagePath + mode.toLowerCase() + "16x16.png")
                             .appendTo(contentWrapper);
 
         var contentLabel = jQuery("<div></div>")
@@ -1034,6 +1035,10 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 if(layerId === "stops_routes") {
                     systemMapRouteFeatures[featureStoreKey] = features;
                 }
+                
+                if(typeof options.addDataLayerCallback === 'function') {
+                    options.addDataLayerCallback(data);
+                }
            }
         });     
     }
@@ -1159,11 +1164,11 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 updateLegInfoMarkerPositions();
             }
         });
-                        
+
         // enable selection of features in data layers and disambiguation markers
         // HACK: a hack to get around the OL limitation of only allowing one marker select control per map.
         var selectFeatureEventDispatcher = function(feature) {
-            if(feature === null) {
+            if(feature === null || options.inert === true) {
                 return;
             }
             if(feature.attributes.type === "disambiguation") {
@@ -1178,10 +1183,12 @@ OTP.Map = function(_root, _controlsRoot, options) {
         map.addControl(markersSelectControl);
         markersSelectControl.activate();
 
-        // listener for drag events on trip planner markers--enabled when we add a to/from icon to map
-        markersDragControl = new OpenLayers.Control.DragFeature(markersLayer, { onComplete: onCompleteMarkerMove });
-        map.addControl(markersDragControl);
-        markersDragControl.activate();
+        if(options.inert !== true) {
+            // listener for drag events on trip planner markers--enabled when we add a to/from icon to map
+            markersDragControl = new OpenLayers.Control.DragFeature(markersLayer, { onComplete: onCompleteMarkerMove });
+            map.addControl(markersDragControl);
+            markersDragControl.activate();
+        }
         
         // add this layer separately after the drag control so the event handlers don't accidently catch it.
         map.addLayers([routeLayer]);
@@ -1796,15 +1803,20 @@ OTP.Map = function(_root, _controlsRoot, options) {
     }
 
     // constructor
-    map = new OpenLayers.Map(root.attr("id"), {
-        projection: new OpenLayers.Projection("EPSG:900913"),
-        maxExtent: new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34),
-        controls: [
+    var controls = [];
+    if(options.inert !== true) { 
+        controls = [
             new OpenLayers.Control.Navigation({'zoomWheelEnabled': false}),
             new OpenLayers.Control.PanZoomBar({zoomWorldIcon:false, zoomStopHeight: 6, zoomStopWidth: 28}),
             new OpenLayers.Control.PanPanel(),
             new OpenLayers.Control.Attribution()
-        ]
+        ];
+    }
+    
+    map = new OpenLayers.Map(root.attr("id"), {
+        projection: new OpenLayers.Projection("EPSG:900913"),
+        maxExtent: new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34),
+        controls: controls
     });
 
     // this points OL to our custom icon set
@@ -1814,7 +1826,9 @@ OTP.Map = function(_root, _controlsRoot, options) {
     addBaseLayers();
     setupDataLayers();
     
-    addContextMenuBehavior();
+    if(options.inert !== true) {
+        addContextMenuBehavior();
+    }    
     addMapLayerChooserBehavior();
     addLegendBehavior();
     addMapToggleWidthBehavior();
@@ -1882,6 +1896,11 @@ OTP.Map = function(_root, _controlsRoot, options) {
 
         zoomToPlannedRoute: function() {
             zoomToRouteLayerExtent();
+        },
+        
+        zoomAroundPoint: function(lonlat) {
+            var proj = new OpenLayers.Projection("EPSG:4326");
+            map.setCenter(lonlat.transform(proj, map.getProjectionObject()), 13, false, false);
         },
         
         zoomToDisambiguationExtent: function() {

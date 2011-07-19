@@ -22,7 +22,7 @@ OTP.Agency = {
             return null;
         }
 
-        // special case to get a better headsign value
+        // (special case to get a better headsign value)
         if(route === "PTLDTC") {
             route = "PTacoma Link Light Rail -";
         }
@@ -85,9 +85,8 @@ OTP.Agency = {
             } else if(mode === "LINK" || route === "M599" || route === "TLDTC" || route === "PTLDTC") {
                 return "Link";
             } else {
-                //return "Streetcar";
-
                 // For now, street cars appear as/along with buses. (FIXME)
+                //return "Streetcar";
                 return "Bus";
             }
         }

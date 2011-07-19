@@ -20,16 +20,18 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<meta http-equiv="X-UA-Compatible" content="IE=8" />
+
 	<title>Interactive System Map</title>
 
     <!--INCLUDE ALL OF THESE FILES IN A PRODUCTION DEPLOYMENT, IN THIS ORDER-->
     <link type="text/css" href="css/screen-reset.css" rel="stylesheet" media="screen, projection" />
     <link type="text/css" href="css/print-reset.css" rel="stylesheet" media="print" />
+    
     <link type="text/css" href="css/jquery/ui-custom/jquery-ui-1.8.6.custom.css" rel="stylesheet" media="screen, projection" />
     <link type="text/css" href="css/jquery/ui.selectmenu.css" rel="stylesheet" media="screen, projection" />
-    <link type="text/css" href="css/jquery/ui.spinner.css" rel="stylesheet" media="screen, projection" />
-    <link type="text/css" href="css/jquery/fancybox.css" rel="stylesheet" media="screen, projection" />
-    <link type="text/css" href="css/otp.css" rel="stylesheet" media="screen, projection" />
+    
+    <link type="text/css" href="css/tripplanner/otp-screen.css" rel="stylesheet" media="screen, projection, print" />
+    <link type="text/css" href="css/tripplanner/otp-print.css" rel="stylesheet" media="print" />
     <!--[if lt IE 8]><link rel="stylesheet" href="css/ie.css" type="text/css" media="screen, projection"><![endif]-->
 
     <!--DO NOT INCLUDE THE FILE BELOW IN A PRODUCTION DEPLOYMENT - FOR DEMO ONLY-->
@@ -40,45 +42,48 @@
     <script type="text/javascript" src="js/jquery/jquery-jsonp.min.js"></script>
     <script type="text/javascript" src="js/jquery/jquery-ui-1.8.6.custom.min.js"></script>
     <script type="text/javascript" src="js/jquery/jquery-ui-selectmenu.min.js"></script>
-    <script type="text/javascript" src="js/jquery/jquery-ui-spinner.min.js"></script>
-    <script type="text/javascript" src="js/jquery/jquery-fancybox.min.js"></script>
     <script type="text/javascript" src="js/openlayers/OpenLayers.js"></script>
+    
     <script type="text/javascript" src="js/config.js"></script>
     <script type="text/javascript" src="js/util.js"></script>
     <script type="text/javascript" src="js/agency.js"></script>
-    <script type="text/javascript" src="js/narrativeForm.js"></script>
-    <script type="text/javascript" src="js/narrative.js"></script>
     <script type="text/javascript" src="js/map.js"></script>
-	
+	<script type="text/javascript" src="js/systemMap.js"></script>
+    
     <!--THE BLOCK BELOW IS SPECIFIC TO THIS PAGE AND USE CASE-->
   	<script type="text/javascript">
         function init() {
-            var map = OTP.Map(document.getElementById("map"), document.getElementById("map-controls"));
+            var systemMap = OTP.SystemMap(document.getElementById("map"), 
+                                          document.getElementById("map-controls"));
+            
             // SET PROPERTIES PASSED TO US FROM THE HOMEPAGE OR ANOTHER FORM
             <?php
                 if(isset($_REQUEST['WSFRoute'])) {
-                    echo "map.showFerryRouteFor('" . $_REQUEST['WSFRoute'] . "');\n";
-                    echo "map.showScheduleLinkInRouteMarker(false);\n";
-                    echo "map.setModeChooserUIVisibility(false);\n";
+                    echo "systemMap.showFerryRouteFor('" . $_REQUEST['WSFRoute'] . "');\n";
+                    echo "systemMap.showScheduleLinkInRouteMarker(false);\n";
+                    echo "systemMap.setModeChooserUIVisibility(false);\n";
                 }
                 if(isset($_REQUEST['LINKRoute'])) {
-                    echo "map.showLinkRouteFor('" . $_REQUEST['LINKRoute'] . "');\n";  
-                    echo "map.showScheduleLinkInRouteMarker(false);\n";
-                    echo "map.setModeChooserUIVisibility(false);\n";
+                    echo "systemMap.showLinkRouteFor('" . $_REQUEST['LINKRoute'] . "');\n";  
+                    echo "systemMap.showScheduleLinkInRouteMarker(false);\n";
+                    echo "systemMap.setModeChooserUIVisibility(false);\n";
                 }
                 if(isset($_REQUEST['SOUNDERRoute']) && isset($_REQUEST['SOUNDERStops'])) {
-                    echo "map.showSounderRouteFor('" . $_REQUEST['SOUNDERRoute'] . "','" . $_REQUEST['SOUNDERStops'] . "');\n";  
-                    echo "map.showScheduleLinkInRouteMarker(false);\n";
-                    echo "map.setModeChooserUIVisibility(false);\n";
+                    echo "systemMap.showSounderRouteFor('" . $_REQUEST['SOUNDERRoute'] . "','" . $_REQUEST['SOUNDERStops'] . "');\n";  
+                    echo "systemMap.showScheduleLinkInRouteMarker(false);\n";
+                    echo "systemMap.setModeChooserUIVisibility(false);\n";
                 }
                 if(isset($_REQUEST['BUSOperator']) && isset($_REQUEST['BUSRoute'])) {
-                    echo "map.showBusRouteFor('" . $_REQUEST['BUSOperator'] . "','" . $_REQUEST['BUSRoute'] . "');\n";  
-                    echo "map.showScheduleLinkInRouteMarker(false);\n";
-                    echo "map.setModeChooserUIVisibility(false);\n";
+                    echo "systemMap.showBusRouteFor('" . $_REQUEST['BUSOperator'] . "','" . $_REQUEST['BUSRoute'] . "');\n";  
+                    echo "systemMap.showScheduleLinkInRouteMarker(false);\n";
+                    echo "systemMap.setModeChooserUIVisibility(false);\n";
                 }
             ?>        
         }
 
+        /*
+            Needed for OpenLayers--do not remove! 
+        */
         if(jQuery.browser.msie) {
             window.onload = init;
         } else {
@@ -105,18 +110,15 @@
         </div>
         <div id="toggle-layers">
             <strong>Show on map:</strong> 
-
             <a id="toggle-bus" href="#">Bus</a>
             <a id="toggle-sounder" href="#">Sounder</a>
             <a id="toggle-link" href="#">Link</a>
             <a id="toggle-ferry" href="#">Ferry</a>
-
             <div id="bus-layer-chooser" class="layer-chooser bus">
                 <div class="header">
                     <p>Show <strong>Bus Routes</strong> on map</p>
                     <a href="#" class="close">Close</a>
                 </div>
-                
                 <form>
                     <label>
                         Agency
@@ -129,7 +131,6 @@
                             <option value="ET">Everett Transit</option>
                         </select>
                     </label>
-
                     <label>
                         Route
                         <select id="bus-route">
@@ -138,39 +139,33 @@
                     </label>
                 </form>
             </div>
-            
             <div id="sounder-layer-chooser" class="layer-chooser sounder">
                 <div class="header">
                     <p>Show <strong>Sounder Train</strong> on map</p>
                     <a href="#" class="close">Close</a>
                 </div>
-                
                 <form>
                     <label>
                         <input type="checkbox" id="sounder-tacoma-seattle" value="MSOUNDER/7"> 
                         Tacoma/Seattle route
                     </label>
-
                     <label>
                         <input type="checkbox" id="sounder-everett-seattle" value="MSOUNDER/4"> 
                         Everett/Seattle route
                     </label>
                 </form>
             </div>
-
             <div id="link-layer-chooser" class="layer-chooser link">
                 <div class="header">
                     <p>Show <strong>Link Light Rail</strong> on map</p>
                     <a href="#" class="close">Close</a>                    
                 </div>
-                
                 <form>                    
                     <label>
                         <input type="checkbox" id="link-central" value="M599"> 
                         Central Link Light Rail
                         <span class="small">(Seatac Airport to Downtown Seattle)</span>
                     </label>
-                    
                     <label>
                         <input type="checkbox" id="link-tacoma" value="PTLDTC"> 
                         Tacoma Link Light Rail
@@ -178,13 +173,11 @@
                     </label>
                 </form>
             </div>
-
             <div id="ferry-layer-chooser" class="layer-chooser WSF">
                 <div class="header">
                     <p>Show <strong>Washington State Ferries</strong> on map</p>
                     <a href="#" class="close">Close</a>
                 </div>
-                
                 <form>
                     <select id="ferry">
                         <option selected="true" value="">Select route</option>
@@ -199,10 +192,12 @@
                     </select>
                 </form>
             </div>
-            
             <a id="toggle-fares" href="#">Fares</a>
             <a id="toggle-parking" href="#">Parking</a>
             <a id="toggle-location" href="#">Locations</a>
+        </div>
+        <div id="print-controls">
+             <a id="print" href="#">Print</a>
         </div>
     </div>
 </div>
@@ -216,5 +211,10 @@
       </div>
   </div>
 </div><!-- /#tripplanner-wrap -->
+<div id="print-warning">
+    <p>
+    To print the contents of this page, choose the print icon (<img src="images/tripplanner/print.png" alt="Print Icon"/>).
+    </p>
+</div>
 </body>
 </html>

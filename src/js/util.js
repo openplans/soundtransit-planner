@@ -147,6 +147,20 @@ OTP.Util = {
         return hours + ":" + minutes + amOrPm;
     },
 
+    dateToPrettyDate: function(date) {
+        if(date === null) {
+            return "Unknown";
+        }
+        
+        var month = date.getMonth();
+        month = (month < 10) ? "0" + month : "" + month;
+
+        var day = date.getDay();
+        day = (day < 10) ? "0" + day : "" + day;
+        
+        return month + "/" + day + "/" + (date.getYear() + 1900);
+    },
+
     makeSentenceCase: function(str) {
         if(str === null) {
             return str;
@@ -156,6 +170,146 @@ OTP.Util = {
 
         // assume all two letter words at end of headsign is abbreviation--all caps.
         return str.replace(/(\W[A-Z]{2}$)/ig,function(c){return c.toUpperCase();});
+    },
+
+    getParameterByName: function(name, defaultValue) {
+        name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+        var regexS = "[\\?&]"+name+"=([^&#]*)";
+        var regex = new RegExp(regexS);
+        var results = regex.exec(window.location.href);
+        if(results == null) {
+                return defaultValue;
+        } else {
+                return decodeURIComponent(results[1].replace(/\+/g, " "));
+        }
+    },
+
+    // leg narrative formatting
+    formatLeg: function(legIndex, leg) {
+        if(leg === null) {
+            return null;
+        }
+        
+        if(leg["@mode"] === "WALK") {
+            var html = '<img class="mode-icon" src="' + OTP.Config.tripPlannerImagePath + 'walk16x16.png" alt="Walk" />' +
+                            'Walk from <strong>' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '</strong> to <strong>' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + '</strong>';
+
+            html += '<table class="substeps"><tbody>';
+
+            var stepCollection = null;
+            if(leg.steps.walkSteps instanceof Array) {
+                stepCollection = leg.steps.walkSteps;
+            } else {
+                stepCollection = [leg.steps.walkSteps];
+            }
+
+            var stepNumber = 1;
+            var lastStreetName = "unknown street";
+            jQuery.each(stepCollection, function(i, walkStep) {
+                if(typeof walkStep["@nil"] !== 'undefined') {
+                    return;
+                }
+
+                html += '<tr><td>' + stepNumber + '. ';
+
+                if(typeof walkStep.absoluteDirection !== 'undefined') {
+                    html += 'Walk ' + walkStep.absoluteDirection.toLowerCase() + ' on <strong>' + walkStep.streetName + '</strong>';
+                } else {
+                    var relativeDirection = walkStep.relativeDirection.toLowerCase();
+
+                    if(relativeDirection === "continue") {
+                        html += 'Continue on <strong>' + walkStep.streetName + '</strong>';
+                    } else if(walkStep.stayOn === true) {
+                        html += 'Proceed ' + relativeDirection + ' to stay on <strong>' + walkStep.streetName + '</strong>';
+                    } else if(walkStep.becomes === true) {
+                        html += 'Continue ' + relativeDirection + ' as <strong>' + lastStreetName + '</strong> becomes <strong>' + walkStep.streetName + '</strong>';
+                    } else {
+                        html += 'Turn ' + relativeDirection + ' at <strong>' + walkStep.streetName + '</strong>';
+                    }
+                }
+
+                if(i === stepCollection.length - 1) {
+                    html += '<div class="stepmeta">' + OTP.Util.millisecondsToString(leg.duration) + ' (' + OTP.Util.metersToPrettyDistance(leg.distance) + ')</div>';
+                }
+
+                html += '</td></tr>';
+
+                lastStreetName = walkStep.streetName;
+                stepNumber++;
+            });
+
+            html += '</tbody></table>';
+
+            return jQuery('<li class="walk leg-' + legIndex + '"></li>').html(html);
+        } else {
+            // previous stop at end point + stops passed on leg
+            var stopsPassed = -1;
+            var previousToStop = "unknown";
+            if(typeof leg.intermediateStops !== 'undefined' && leg.intermediateStops !== null) {
+                var intermediateLegs = null;
+                if(leg.intermediateStops.stop instanceof Array) {
+                    intermediateLegs = leg.intermediateStops.stop;
+                } else {
+                    intermediateLegs = [leg.intermediateStops.stop];
+                }
+                if(intermediateLegs.length >= 1) {
+                    previousToStop = intermediateLegs[intermediateLegs.length - 1].name;
+                    stopsPassed = intermediateLegs.length;
+                }
+            }
+
+            return jQuery('<li class="' + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]).toLowerCase() + ' leg-' + legIndex + '"></li>').html(
+                    '<img class="mode-icon" src="' + OTP.Config.tripPlannerImagePath + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]).toLowerCase() + '16x16.png" alt="' + OTP.Agency.getModeLabelForLeg(leg["@mode"], leg["@route"]) + '" />' + 
+                        OTP.Util.makeSentenceCase(leg["@mode"]) + ' - ' + 
+                            '<a href="' + OTP.Agency.getURLForLeg(leg["@agencyId"], leg["@route"]) + '" class="agency" target="_new">' + 
+                                OTP.Agency.getAgencyNameForLeg(leg["@agencyId"], leg["@route"]) + 
+                            '</a>' + 
+                            ' <strong>' + OTP.Agency.getDisplayNameForLeg(leg["@mode"], leg["@route"]) + '</strong> ' +
+                            OTP.Agency.getFormattedHeadsign(leg["@route"], leg["@headsign"]) + 
+                    '<table class="substeps"><tbody>' + 
+                    '<tr><td>' + OTP.Util.dateToPrettyTime(OTP.Util.ISO8601StringToDate(leg.startTime)) + '</td><td>Depart ' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '</div></td></tr>' + 
+                    '<tr><td>' + OTP.Util.dateToPrettyTime(OTP.Util.ISO8601StringToDate(leg.endTime)) + '</td><td>Arrive ' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + 
+                        '<div class="stepmeta">' +
+                            OTP.Util.millisecondsToString(leg.duration) + ((stopsPassed >= 0) ? ' (' + stopsPassed + ' stop' + ((stopsPassed === 1) ? '' : 's') + ')' : '') +
+                            '<br />Previous stop is ' + previousToStop + 
+                        '</div>' + 
+                    '</td></tr>' + 
+                    '</tbody></table>')
+                    .addClass(leg["@agencyId"] + OTP.Agency.getDisplayNameForLeg(leg["@mode"], leg["@route"]));
+        }
+    },
+    
+    formatLegInfoWindowHtml: function(leg) {
+        // walk legs don't get an info marker window
+        if(leg === null || leg["@mode"] === "WALK") {
+            return null;
+        }
+
+        // previous stop at end point + stops passed on leg
+        var stopsPassed = -1;
+        var previousToStop = "unknown";
+        if(typeof leg.intermediateStops !== 'undefined' && leg.intermediateStops !== null) {
+            var intermediateLegs = null;
+            if(leg.intermediateStops.stop instanceof Array) {
+                intermediateLegs = leg.intermediateStops.stop;
+            } else {
+                intermediateLegs = [leg.intermediateStops.stop];
+            }
+            if(intermediateLegs.length >= 1) {
+                previousToStop = intermediateLegs[intermediateLegs.length - 1].name;
+                stopsPassed = intermediateLegs.length;
+            }
+        }
+
+        return jQuery('<table class="substeps"><tbody>' + 
+                    '<tr><td>' + OTP.Util.dateToPrettyTime(OTP.Util.ISO8601StringToDate(leg.startTime)) + '</td><td>Depart ' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '</div></td></tr>' + 
+                    '<tr><td>' + OTP.Util.dateToPrettyTime(OTP.Util.ISO8601StringToDate(leg.endTime)) + '</td><td>Arrive ' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + 
+                        '<div class="stepmeta">' +
+                            OTP.Util.millisecondsToString(leg.duration) + ((stopsPassed >= 0) ? ' (' + stopsPassed + ' stop' + ((stopsPassed === 1) ? '' : 's') + ')' : '') +
+                            '<br />Previous stop is ' + previousToStop + 
+                        '</div>' + 
+                    '</td></tr>' + 
+                    '</tbody></table>');
     }
 };
 

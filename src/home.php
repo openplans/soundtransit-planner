@@ -20,16 +20,19 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=8" />
+
     <title>Homepage</title>
 
     <!--INCLUDE ALL OF THESE FILES IN A PRODUCTION DEPLOYMENT, IN THIS ORDER-->
     <link type="text/css" href="css/screen-reset.css" rel="stylesheet" media="screen, projection" />
-    <link type="text/css" href="css/print-reset.css" rel="stylesheet" media="print" />
+    <link type="text/css" href="css/print-reset.css" rel="stylesheet" media="print" />    
+
     <link type="text/css" href="css/jquery/ui-custom/jquery-ui-1.8.6.custom.css" rel="stylesheet" media="screen, projection" />
     <link type="text/css" href="css/jquery/ui.selectmenu.css" rel="stylesheet" media="screen, projection" />
     <link type="text/css" href="css/jquery/ui.spinner.css" rel="stylesheet" media="screen, projection" />
     <link type="text/css" href="css/jquery/fancybox.css" rel="stylesheet" media="screen, projection" />
-    <link type="text/css" href="css/otp.css" rel="stylesheet" media="screen, projection" />
+
+    <link type="text/css" href="css/tripplanner/otp-screen.css" rel="stylesheet" media="screen, projection" />
     <!--[if lt IE 8]><link rel="stylesheet" href="css/ie.css" type="text/css" media="screen, projection"><![endif]-->
 
     <!--DO NOT INCLUDE THE FILE BELOW IN A PRODUCTION DEPLOYMENT - FOR DEMO ONLY-->
@@ -41,19 +44,23 @@
     <script type="text/javascript" src="js/jquery/jquery-ui-selectmenu.min.js"></script>
     <script type="text/javascript" src="js/jquery/jquery-ui-spinner.min.js"></script>
     <script type="text/javascript" src="js/jquery/jquery-fancybox.min.js"></script>
+    
     <script type="text/javascript" src="js/config.js"></script>
-    <script type="text/javascript" src="js/narrativeForm.js"></script>
+    <script type="text/javascript" src="js/tripPlannerForm.js"></script>
 
     <!--THE BLOCK BELOW IS SPECIFIC TO THIS PAGE AND USE CASE-->
   	<script type="text/javascript">
         function init() {
-            OTP.NarrativeForm(document.getElementById("plannerform"), null);
+            OTP.TripPlannerForm(document.getElementById("plannerform"), null);
         }
 
+        /*
+            Needed for OpenLayers--do not remove! 
+        */
         if(jQuery.browser.msie) {
-          window.onload = init;
+            window.onload = init;
         } else {
-          jQuery(document).ready(init);
+            jQuery(document).ready(init);
         }
     </script>
 </head>
@@ -128,7 +135,6 @@
     <div id="help-content">
         <div class="section">
             <h1>Plan your trip</h1>
-            
             <p>
             <strong>Enter information in the start and end boxes</strong>
             <ul>
@@ -138,7 +144,6 @@
                 <li>To reverse your trip, click the arrow (<img src="images/tripplanner/toggle.png" alt="reverse arrow"/>)</li>
             </ul>
             </p>
-            
             <p>
             <strong>Select your location on the map</strong>
             <ul>
@@ -147,7 +152,6 @@
                 <li>To change the start or end point, drag the flag to a new location</li>
             </ul>
             </p>
-
             <p>
             <strong>Refining your results</strong>
             <ul>
@@ -156,10 +160,8 @@
             </ul>
             </p>
         </div>
-    
         <div class="section">
             <h1>Selecting date and time</h1>
-
             <p>
                 <ul>
                     <li><strong>Leave at</strong> – Set the time you’d like to leave your starting point.</li>
@@ -169,10 +171,8 @@
                 </ul>
             </p>
         </div>
-
         <div class="section">
             <h1>Advanced search</h1>
-
             <p>
                 <ul>
                     <li><strong>Fastest trip</strong> – Choose this option to find the trip that takes the shortest amount of time from start to finish.</li> 
@@ -181,10 +181,8 @@
                 </ul>
             </p>
         </div>
-
         <div class="section">
             <h1>Using the map</h1>
-
             <p>
                 <ul>
                     <li><strong>Plan a trip</strong> – you can plan a trip using the map by selecting a start or end point by right clicking (or control clicking on a Mac).</li>

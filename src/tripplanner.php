@@ -20,17 +20,21 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=8" />
+
     <title>Trip Planner</title>
 
     <!--INCLUDE ALL OF THESE FILES IN A PRODUCTION DEPLOYMENT, IN THIS ORDER-->
     <link type="text/css" href="css/screen-reset.css" rel="stylesheet" media="screen, projection" />
     <link type="text/css" href="css/print-reset.css" rel="stylesheet" media="print" />
-    <link type="text/css" href="css/jquery/ui-custom/jquery-ui-1.8.6.custom.css" rel="stylesheet" media="screen, projection" />
-    <link type="text/css" href="css/jquery/ui.selectmenu.css" rel="stylesheet" media="screen, projection" />
-    <link type="text/css" href="css/jquery/ui.spinner.css" rel="stylesheet" media="screen, projection" />
-    <link type="text/css" href="css/jquery/fancybox.css" rel="stylesheet" media="screen, projection" />
-    <link type="text/css" href="css/otp.css" rel="stylesheet" media="screen, projection" />
-    <!--[if lt IE 8]><link rel="stylesheet" href="css/ie.css" type="text/css" media="screen, projection"><![endif]-->
+    
+    <link type="text/css" href="css/jquery/ui-custom/jquery-ui-1.8.6.custom.css" rel="stylesheet" media="screen, projection, print" />
+    <link type="text/css" href="css/jquery/ui.selectmenu.css" rel="stylesheet" media="screen, projection, print" />
+    <link type="text/css" href="css/jquery/ui.spinner.css" rel="stylesheet" media="screen, projection, print" />
+    <link type="text/css" href="css/jquery/fancybox.css" rel="stylesheet" media="screen, projection, print" />
+    
+    <link type="text/css" href="css/tripplanner/otp-screen.css" rel="stylesheet" media="screen, projection, print" />
+    <link type="text/css" href="css/tripplanner/otp-print.css" rel="stylesheet" media="print" />
+    <!--[if lt IE 8]><link rel="stylesheet" href="css/ie.css" type="text/css" media="screen, projection, print"><![endif]-->
 
     <!--DO NOT INCLUDE THE FILE BELOW IN A PRODUCTION DEPLOYMENT - FOR DEMO ONLY-->
     <link type="text/css" href="css/demo.css" rel="stylesheet" media="screen, projection" />
@@ -43,58 +47,64 @@
     <script type="text/javascript" src="js/jquery/jquery-ui-spinner.min.js"></script>
     <script type="text/javascript" src="js/jquery/jquery-fancybox.min.js"></script>
     <script type="text/javascript" src="js/openlayers/OpenLayers.js"></script>
+    
     <script type="text/javascript" src="js/config.js"></script>
     <script type="text/javascript" src="js/util.js"></script>
     <script type="text/javascript" src="js/agency.js"></script>
-    <script type="text/javascript" src="js/narrativeForm.js"></script>
-    <script type="text/javascript" src="js/narrative.js"></script>
+    <script type="text/javascript" src="js/tripPlannerForm.js"></script>
+    <script type="text/javascript" src="js/tripPlanner.js"></script>
     <script type="text/javascript" src="js/map.js"></script>
   
     <!--THE BLOCK BELOW IS SPECIFIC TO THIS PAGE AND USE CASE-->
     <script type="text/javascript">
         function init() {
-            // INITIALIZE THE TRIP PLANNER PANEL--PASS IN THE DOM NODE FOR THE PLANNER PANEL, MAP AND MAP CONTROLS AS BELOW.
-            var narrative = OTP.Narrative(document.getElementById("plannerpanel"), document.getElementById("map"), document.getElementById("map-controls"));
+            // INITIALIZE THE TRIP PLANNER--PASS IN THE DOM NODE FOR THE PLANNER PANEL, MAP AND MAP CONTROLS AS BELOW.
+            var tripPlanner = OTP.TripPlanner(document.getElementById("plannerpanel"), 
+                                              document.getElementById("map"), 
+                                              document.getElementById("map-controls"));
 
             // SET PROPERTIES PASSED TO US FROM THE HOMEPAGE OR ANOTHER FORM
             <?php
                 if(isset($_REQUEST['from'])) 
-                    echo "narrative.setFrom('" . $_REQUEST['from'] . "');\n";
+                    echo "tripPlanner.setFrom('" . $_REQUEST['from'] . "');\n";
 
                 if(isset($_REQUEST['to'])) 
-                    echo "narrative.setTo('" . $_REQUEST['to'] . "');\n";
+                    echo "tripPlanner.setTo('" . $_REQUEST['to'] . "');\n";
 
                 if(isset($_REQUEST['leavetype'])) 
-                    echo "narrative.setLeaveType('" . $_REQUEST['leavetype'] . "');\n";
+                    echo "tripPlanner.setLeaveType('" . $_REQUEST['leavetype'] . "');\n";
 
                 if(isset($_REQUEST['leaveday'])) 
-                    echo "narrative.setDay('" . $_REQUEST['leaveday'] . "');\n";
+                    echo "tripPlanner.setDay('" . $_REQUEST['leaveday'] . "');\n";
 
                 if(isset($_REQUEST['leavehour'])) 
-                    echo "narrative.setHour('" . $_REQUEST['leavehour'] . "');\n";
+                    echo "tripPlanner.setHour('" . $_REQUEST['leavehour'] . "');\n";
 
                 if(isset($_REQUEST['leaveminute'])) 
-                    echo "narrative.setMinute('" . $_REQUEST['leaveminute'] . "');\n";
+                    echo "tripPlanner.setMinute('" . $_REQUEST['leaveminute'] . "');\n";
 
                 if(isset($_REQUEST['leaveampm'])) 
-                    echo "narrative.setAmPm('" . $_REQUEST['leaveampm'] . "');\n";
+                    echo "tripPlanner.setAmPm('" . $_REQUEST['leaveampm'] . "');\n";
 
                 if(isset($_REQUEST['trippriority'])) 
-                    echo "narrative.setTripPriority('" . $_REQUEST['trippriority'] . "');\n";
+                    echo "tripPlanner.setTripPriority('" . $_REQUEST['trippriority'] . "');\n";
 
                 if(isset($_REQUEST['maxwalk'])) 
-                    echo "narrative.setMaxWalk('" . $_REQUEST['maxwalk'] . "');\n";
+                    echo "tripPlanner.setMaxWalk('" . $_REQUEST['maxwalk'] . "');\n";
 
                 if(isset($_REQUEST['accessible'])) 
-                    echo "narrative.setAccessible('true');\n";
+                    echo "tripPlanner.setAccessible('true');\n";
                     
-                // submit form if to/from is set
+                // submit form if to/from is set, for demo purposes
                 if(isset($_REQUEST['from']) && isset($_REQUEST['to']) && $_REQUEST['from'] != "" && $_REQUEST['to'] != "") {
-                    echo "narrative.planTrip();\n";
+                    echo "tripPlanner.planTrip();\n";
                 }
             ?>
         }
 
+        /*
+            Needed for OpenLayers--do not remove! 
+        */
         if(jQuery.browser.msie) {
             window.onload = init;
         } else {
@@ -121,10 +131,12 @@
         </div>
         <div id="toggle-layers">
             <strong>Show on map:</strong> 
-            
             <a id="toggle-fares" href="#">Fares</a>
             <a id="toggle-parking" href="#">Parking</a>
             <a id="toggle-location" href="#">Locations</a>
+        </div>
+        <div id="print-controls">
+            <a id="print" href="#">Print</a>
         </div>
     </div>
 </div>
@@ -191,7 +203,6 @@
     <div id="help-content">
         <div class="section">
             <h1>Plan your trip</h1>
-            
             <p>
             <strong>Enter information in the start and end boxes</strong>
             <ul>
@@ -201,7 +212,6 @@
                 <li>To reverse your trip, click the arrow (<img src="images/tripplanner/toggle.png" alt="reverse arrow"/>)</li>
             </ul>
             </p>
-            
             <p>
             <strong>Select your location on the map</strong>
             <ul>
@@ -210,7 +220,6 @@
                 <li>To change the start or end point, drag the flag to a new location</li>
             </ul>
             </p>
-
             <p>
             <strong>Refining your results</strong>
             <ul>
@@ -219,10 +228,8 @@
             </ul>
             </p>
         </div>
-    
         <div class="section">
             <h1>Selecting date and time</h1>
-
             <p>
                 <ul>
                     <li><strong>Leave at</strong> – Set the time you’d like to leave your starting point.</li>
@@ -232,10 +239,8 @@
                 </ul>
             </p>
         </div>
-
         <div class="section">
             <h1>Advanced search</h1>
-
             <p>
                 <ul>
                     <li><strong>Fastest trip</strong> – Choose this option to find the trip that takes the shortest amount of time from start to finish.</li> 
@@ -244,10 +249,8 @@
                 </ul>
             </p>
         </div>
-
         <div class="section">
             <h1>Using the map</h1>
-
             <p>
                 <ul>
                     <li><strong>Plan a trip</strong> – you can plan a trip using the map by selecting a start or end point by right clicking (or control clicking on a Mac).</li>
@@ -270,5 +273,10 @@
     <a id="toggle-map-width" href="#" title="Show Map Full Screen">&nbsp;</a>
   </div>
 </div><!-- /#tripplanner-wrap -->
+<div id="print-warning">
+    <p>
+    To print the contents of this page, choose the print icon (<img src="images/tripplanner/print.png" alt="Print Icon"/>).
+    </p>
+</div>
 </body>
 </html>
