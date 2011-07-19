@@ -1,0 +1,271 @@
+/*
+Copyright 2011, Sound Transit
+
+This program is free software: you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public License
+as published by the Free Software Foundation, either version 3 of
+the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+body {
+padding-left: 10px;
+margin: 10px;
+width: 800px;
+font-size: 12px;
+}
+
+#print-controls {
+position: relative;
+height: 30px;
+width: 100%;
+background-color: #F2F2F3;
+border-bottom: 3px solid #CDCDCD;
+text-align: center;
+}
+
+#print-controls #print {
+position: absolute;
+right: 10px;
+top: 7px;
+}
+
+#print-controls ul {
+padding-top: 5px;
+}
+
+#print-controls ul li {
+display: inline;
+list-style-type: none;
+}
+
+#print-controls ul li a {
+padding-left: 10px;
+}
+
+#print-controls ul li a.selected {
+text-decoration: none;
+font-weight: bold;
+}
+
+/* - */
+
+#map-header,
+#trip-header {
+margin-left: 20px;
+width: 750px;
+position: relative;
+padding-top: 30px;
+padding-bottom: 20px;
+font-size: 1.2em;
+color: #656565;
+}
+
+#map-header {
+padding-bottom: 0px;
+}
+
+#trip-header #to-label {
+padding: 0px;
+margin: 0px;
+display: inline;
+float: right;
+width: 48%;
+}
+
+#trip-header #from-label {
+padding: 0px;
+margin: 0px;
+display: inline;
+float: left;
+width: 48%;
+border-right: 2px solid #CDCDCD;
+}
+
+#trip-header #to-label,
+#trip-header #from-label {
+position: relative;
+padding-bottom: 20px;
+}
+
+#trip-header img {
+position: absolute;
+top: 0px;
+left: 0px;    
+}
+
+#trip-header p, 
+#trip-header h1 {
+padding: 0px;
+margin: 0px;
+padding-left: 35px;
+}
+
+#map-header h1,
+#trip-header h1 {
+font-size: 125%;
+font-weight: bold;
+}
+
+#map-header h1 {
+font-weight: normal;
+}
+
+/* - */
+
+#travelTime {
+width: 750px;    
+clear: both;
+padding-bottom: 5px;
+margin-bottom: 5px;
+border-bottom: 1px solid #656565;
+}
+
+#travelTime span {
+font-weight: bold;
+}
+
+#travelTime p {
+padding: 0px;
+margin: 0px;
+display:inline;
+}
+
+/* - */
+
+#fare {
+width: 750px;
+}
+
+#fare span {
+font-weight: bold;
+}
+
+#fare ul {
+padding: 0px;
+margin: 0px;
+padding-top: 4px;
+padding-bottom: 4px;
+}
+
+#fare ul li {
+float: left;
+display: inline;
+line-height: 80%;
+padding-right: 10px;
+margin-right: 10px;
+border-right: 1px solid #656565;
+}
+
+#fare ul li.last {
+border-right: none;
+}
+
+/* - */
+
+#map_wrapper {
+padding-left: 20px;
+padding-right: 20px;
+margin-bottom: 20px;
+}
+
+#map {
+border: 1px solid #656565;
+background-color: #EFEFEF;
+position: relative;
+display: block;
+width: 750px;
+height: 725px;
+}
+
+#map.taller {
+height: 900px;
+}
+
+/* - */
+
+#details {
+width: 800px;
+position: relative;
+padding-left: 20px;
+}
+
+body.map_text #details {
+page-break-before: always;
+}
+
+#narrative {
+width: 360px;
+padding: 20px;
+padding-left: 0px;
+font-size: 1.2em;
+}
+
+#fromDetailMap,
+#toDetailMap {
+border: 1px solid #656565;
+background-color: #EFEFEF;
+width: 350px;
+height: 400px;
+}
+
+#fromDetailMap {
+position: absolute;
+right: 48px;
+top: 20px;    
+}
+
+#toDetailMap {
+position: absolute;
+right: 48px;
+top: 440px;
+}
+
+#details .stop_list {
+font-size: 1.5em;
+color: #666666;
+width: 750px;
+}
+
+#details tbody tr td {
+padding: 5px;
+}
+
+#details tbody tr td,
+#details .stop_list thead tr td {
+font-weight: bold;
+} 
+
+#details tbody tr.alt td {
+font-weight: normal;
+background-color: #EFEFEF;
+}
+
+#details .stop_list thead tr td {
+border-bottom: 1px solid #666666;
+}
+
+/* - */
+
+body.map_only #trip-header #from-label,
+body.map_only #trip-header #to-label,
+body.map_only #details {
+display: none;
+}    
+
+body.text_only #map_wrapper,
+body.text_only #toDetailMap,
+body.text_only #fromDetailMap {
+display: none;
+}    
+
+body.text_only #details #narrative {
+width: 800px;
+}
