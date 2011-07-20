@@ -99,7 +99,7 @@
             <div id="loading"><p>Loading...</p></div>
         </div>
         <div id="fromDetailMap">
-            <div id="loading"><p>Loading...</p></div>            
+            <div id="loading"><p>Loading...</p></div>
         </div>
     </div>
 </body>

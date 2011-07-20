@@ -16,10 +16,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 body {
-padding-left: 10px;
+padding: 10px;
 margin: 10px;
 width: 800px;
 font-size: 12px;
+overflow-x: hidden;
 }
 
 #print-controls {
@@ -195,6 +196,7 @@ height: 900px;
 width: 800px;
 position: relative;
 padding-left: 20px;
+min-height: 850px;
 }
 
 body.map_text #details {

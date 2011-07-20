@@ -659,6 +659,14 @@ OTP.TripPlanner = function(_root, _map, _mapControlsRoot) {
                 }
             });
             
+            var activeTrip = root.find("#tripresult-summaries tbody tr.active");
+            var selectedTripIndex = null;
+            if(activeTrip !== null) {
+                selectedTripIndex = activeTrip.attr("id").split('-')[0].match(/([0-9]*)$/ig)[0];
+            } else {
+                return;
+            }
+            
             printableUrl += "?arriveBy=" + (root.find("#leavetype option:selected").val() === "Arrive By");
             printableUrl += "&date=" + root.find("#leaveday").val();
             printableUrl += "&time=" + root.find("#leavehour").val() + ":" + root.find("#leaveminute").val() + " " + root.find("#leaveampm option:selected").val();
@@ -670,9 +678,9 @@ OTP.TripPlanner = function(_root, _map, _mapControlsRoot) {
             printableUrl += "&from=" +  root.find("#from").val();
             printableUrl += "&to=" + root.find("#to").val();
             printableUrl += "&mode=" + includeModes;
-            printableUrl += "&itineraryIndex=" + root.find("#tripresult-summaries tbody tr.active").attr("id").split('-')[0].match(/([0-9]*)$/ig)[0];
+            printableUrl += "&itineraryIndex=" + selectedTripIndex;
 
-            window.open(printableUrl);
+            window.open(printableUrl, "print", "status=0,toolbar=0,scrollbars=1,width=850,height=800");
 
             return false;
         });
