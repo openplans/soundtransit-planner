@@ -23,9 +23,9 @@ OTP.Config = {
 
     feedbackUrl: "http://survey.soundtransit.org/fs.aspx?surveyid=8b406e435904b11a9c611932519ca44",
 
-    atisProxyServiceUrl: "http://10.52.11.197:8080/translatis-api/ws/planP",
-    atisProxyScheduleUrl: "http://10.52.11.197:8080/translatis-api/ws/schedule",
-    atisProxyStopsUrl: "http://10.52.11.197:8080/translatis-api/ws/routestops",
+    atisProxyServiceUrl: "http://sea.dev.openplans.org:8080/translatis-api/ws/planP",
+    atisProxyScheduleUrl: "http://sea.dev.openplans.org:8080/translatis-api/ws/schedule",
+    atisProxyStopsUrl: "http://sea.dev.openplans.org:8080/translatis-api/ws/routestops",
 
     bingMapsKey: "AgszXQ8Q5lbiJFYujII-Lcie9XQ-1DK3a2X7xWJmfSeipw8BAAF0ETX8AJ4K-PDm",
 
