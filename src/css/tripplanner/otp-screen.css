@@ -511,11 +511,11 @@ color: #666;
 }
 a#optionstoggle span {
 padding: 0 8px;
-background-image: url(./jquery/ui-custom/images/ui-icons_888888_256x240.png);
+background-image: url(../jquery/ui-custom/images/ui-icons_888888_256x240.png);
 background-position: -64px -16px;
 }
 a#optionstoggle:hover span {
-background-image: url(./jquery/ui-custom/images/ui-icons_222222_256x240.png);
+background-image: url(../jquery/ui-custom/images/ui-icons_222222_256x240.png);
 }
 
 a#optionstoggle.active span {
@@ -1171,13 +1171,14 @@ cursor: pointer;
 
 body #map #legend .toggler .ui-selectmenu-icon {
 position: absolute;
-right: 0;
-background-image: url("./jquery/ui-custom/images/ui-icons_454545_256x240.png");
+right: 3px;
+top: 11px;
+background-image: url("../jquery/ui-custom/images/ui-icons_454545_256x240.png");
 }
 
 #map #legend .toggler:hover .ui-selectmenu-icon,
 #map #legend .toggler.expanded  .ui-selectmenu-icon {
-background-image: url("./jquery/ui-custom/images/ui-icons_222222_256x240.png");
+background-image: url("../jquery/ui-custom/images/ui-icons_222222_256x240.png");
 }
 
 #map #legend .content {
