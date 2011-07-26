@@ -108,7 +108,6 @@
                             <div id="loading"><p>Loading...</p></div>
                         </div>
                     </div>
-                
                     <div id="toDetailMap">
                         <div id="loading"><p>Loading...</p></div>
                     </div>

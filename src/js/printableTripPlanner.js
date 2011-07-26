@@ -229,8 +229,25 @@ OTP.PrintableTripPlanner = function() {
     
             jQuery("#map_text, #map_only, #text_only")
                 .removeClass();
-            jQuery(this).addClass("selected");
+                
+            var activeLink = jQuery(this);
+            
+            activeLink.addClass("selected");
 
+            // HACK for IE. OpenLayers and IE don't play nicely, because 
+            // OpenLayers seems to set some explicit "display" rule on its
+            // map containers that confuses IE, even if the container is set 
+            // to hidden. 
+            if(activeLink.attr("id") === "text_only") {
+                setTimeout(function() {
+                    jQuery("#toDetailMap").hide();
+                    jQuery("#fromDetailMap").hide();
+                }, 100);
+            } else {
+                jQuery("#toDetailMap").show();
+                jQuery("#fromDetailMap").show();
+            }
+            
             return false;
         });
     }

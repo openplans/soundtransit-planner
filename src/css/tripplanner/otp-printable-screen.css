@@ -272,7 +272,9 @@ display: none;
 }
 
 body.text_only #map_wrapper,
-body.text_only #details td.mapSidebar {
+body.text_only #fromDetailMap,
+body.text_only #toDetailMap,
+body.text_only #details .mapSidebar {
 display: none;
 }    
 
