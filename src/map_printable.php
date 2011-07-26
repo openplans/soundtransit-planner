@@ -19,7 +19,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<meta http-equiv="X-UA-Compatible" content="IE=8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=7" />
 
 	<title>Interactive System Map: Printable Page</title>
 
@@ -76,7 +76,10 @@
             <div id="atis-credits">ATIS: Powered by Trapeze</div>
         </div>
     </div>
-    <div id="details">
-    </div>
+    
+    <!-- FOR IE -->
+    <div class="pagebreaker" style="page-break-before:always;font-size:1;margin:0;border:0;"><span style="visibility: hidden;">-</span></div>
+    
+    <div id="details"></div>
 </body>
 </html>

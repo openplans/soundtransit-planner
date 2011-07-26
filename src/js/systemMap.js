@@ -25,19 +25,6 @@ OTP.SystemMap = function(_root, _mapControlsRoot) {
     var map = new OTP.Map(_root, _mapControlsRoot);
     var mapControls = jQuery(_mapControlsRoot);
     
-    function addPrintUIBehavior() {
-        // print button
-        mapControls.find("#print").click(function() {
-            var printableUrl = OTP.Config.systemMapPrintUrl;
-
-            window.open(printableUrl);
-
-            return false;
-        });
-    }
-
-    addPrintUIBehavior();
-
     return {
         showFerryRouteFor: function(v) {
             return map.showFerryRouteFor(v);

@@ -680,7 +680,7 @@ OTP.TripPlanner = function(_root, _map, _mapControlsRoot) {
             printableUrl += "&mode=" + includeModes;
             printableUrl += "&itineraryIndex=" + selectedTripIndex;
 
-            window.open(printableUrl, "print", "status=0,toolbar=0,scrollbars=1,width=850,height=800");
+            window.open(printableUrl, "print", "status=0,toolbar=0,scrollbars=1,width=760,height=600");
 
             return false;
         });

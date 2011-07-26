@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 body {
 padding: 10px;
 margin: 10px;
-width: 800px;
+width: 700px;
 font-size: 12px;
 overflow-x: hidden;
 }
@@ -61,7 +61,7 @@ font-weight: bold;
 #map-header,
 #trip-header {
 margin-left: 20px;
-width: 750px;
+width: 650px;
 position: relative;
 padding-top: 30px;
 padding-bottom: 20px;
@@ -122,7 +122,7 @@ font-weight: normal;
 /* - */
 
 #travelTime {
-width: 750px;    
+width: 650px;    
 clear: both;
 padding-bottom: 5px;
 margin-bottom: 5px;
@@ -142,7 +142,7 @@ display:inline;
 /* - */
 
 #fare {
-width: 750px;
+width: 650px;
 }
 
 #fare span {
@@ -182,70 +182,75 @@ border: 1px solid #656565;
 background-color: #EFEFEF;
 position: relative;
 display: block;
-width: 750px;
-height: 725px;
+width: 650px;
+height: 625px;
 }
 
 #map.taller {
-height: 900px;
+height: 750px;
 }
 
 /* - */
 
 #details {
-width: 800px;
+width: 700px;
 position: relative;
 padding-left: 20px;
-min-height: 850px;
-}
-
-body.map_text #details {
-page-break-before: always;
 }
 
 #narrative {
-width: 360px;
+width: 340px;
+margin: 0px;
 padding: 20px;
 padding-left: 0px;
+padding-top: 0px;
 font-size: 1.2em;
+}
+
+table.detailsMatrix {
+width: 665px;
+}
+
+table.detailsMatrix tr td {
+vertical-align: top;
 }
 
 #fromDetailMap,
 #toDetailMap {
 border: 1px solid #656565;
 background-color: #EFEFEF;
-width: 350px;
-height: 400px;
+width: 275px;
+height: 350px;
+position: relative;
 }
 
-#fromDetailMap {
-position: absolute;
-right: 48px;
-top: 20px;    
+#fromDetailMap #loading,
+#toDetailMap #loading {
+width: 40%;
+margin-left: 30%;
+margin-right: 30%;
 }
 
-#toDetailMap {
-position: absolute;
-right: 48px;
-top: 440px;
+#fromDetailMap_wrapper {
+padding-bottom: 20px;
 }
 
 #details .stop_list {
 font-size: 1.5em;
 color: #666666;
-width: 750px;
+width: 650px;
 }
 
-#details tbody tr td {
+#details .stop_list tbody tr td {
 padding: 5px;
 }
 
-#details tbody tr td,
+#details .stop_list tbody tr td,
 #details .stop_list thead tr td {
 font-weight: bold;
 } 
 
-#details tbody tr.alt td {
+#details .stop_list tbody tr.alt td {
 font-weight: normal;
 background-color: #EFEFEF;
 }
@@ -262,12 +267,19 @@ body.map_only #details {
 display: none;
 }    
 
+body.map_only .pagebreaker {
+display: none;
+}
+
 body.text_only #map_wrapper,
-body.text_only #toDetailMap,
-body.text_only #fromDetailMap {
+body.text_only #details td.mapSidebar {
 display: none;
 }    
 
+body.text_only .pagebreaker {
+display: none;
+}
+
 body.text_only #details #narrative {
-width: 800px;
+width: 650px;
 }

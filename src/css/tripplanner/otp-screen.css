@@ -144,6 +144,10 @@ font-weight: bold;
 padding-right: 40px;
 }
 
+body.map #toggle-layers {
+padding-right: 0px;
+}
+
 #toggle-layers a {
 text-align: left;
 width: 26px;

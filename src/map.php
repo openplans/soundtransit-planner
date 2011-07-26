@@ -196,9 +196,6 @@
             <a id="toggle-parking" href="#">Parking</a>
             <a id="toggle-location" href="#">Locations</a>
         </div>
-        <div id="print-controls">
-             <a id="print" href="#">Print</a>
-        </div>
     </div>
 </div>
 <div id="tripplanner-wrap" class="fullsize">

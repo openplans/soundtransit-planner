@@ -19,7 +19,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=7" />
 
     <title>Trip Planner: Printable Page</title>
 
@@ -94,13 +94,27 @@
         </div>
     </div>
     <div id="details">
-        <ul id="narrative" class="trip-stepbystep"></ul>
-        <div id="toDetailMap">
-            <div id="loading"><p>Loading...</p></div>
-        </div>
-        <div id="fromDetailMap">
-            <div id="loading"><p>Loading...</p></div>
-        </div>
+        <!-- FOR IE -->
+        <div class="pagebreaker" style="page-break-before:always;font-size:1;margin:0;border:0;"><span style="visibility: hidden;">-</span></div>
+
+        <table class="detailsMatrix">
+            <tr>
+                <td>
+                    <ul id="narrative" class="trip-stepbystep"></ul>
+                </td>
+                <td class="mapSidebar">
+                    <div id="fromDetailMap_wrapper">
+                        <div id="fromDetailMap">
+                            <div id="loading"><p>Loading...</p></div>
+                        </div>
+                    </div>
+                
+                    <div id="toDetailMap">
+                        <div id="loading"><p>Loading...</p></div>
+                    </div>
+                </td>
+            </tr>
+        </table>
     </div>
 </body>
 </html>
