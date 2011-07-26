@@ -19,24 +19,12 @@ var OTP = window.OTP || {};
 OTP.PrintableSystemMap = function() {
     var root = jQuery("body");
     var map = null;
-    
-    function updateMap() {
-        var mode = OTP.Util.getParameterByName("mode", null);
-        var route = OTP.Util.getParameterByName("route", null);
-        
-        if(mode === "BUS") {
-            var operator = OTP.Util.getParameterByName("operator", null);
-            map.showBusRouteFor(operator, route);
-        } else if(mode === "FERRY") {
-            map.showFerryRouteFor(route);
-        } else if(mode === "SOUNDER") {
-            var stops = OTP.Util.getParameterByName("stops", null);
-            map.showSounderRouteFor(route, stops);
-        } else if(mode === "LINK") {
-            map.showLinkRouteFor(route);
-        }
-    }
 
+    var _mode = OTP.Util.getParameterByName("mode", null);
+    var _route = OTP.Util.getParameterByName("route", null);
+    var _operator = OTP.Util.getParameterByName("operator", null);
+    var _stops = OTP.Util.getParameterByName("stops", null);
+    
     function generateStopTable(data) {
         var container = root.find("#details");
         
@@ -49,7 +37,7 @@ OTP.PrintableSystemMap = function() {
                          .appendTo(container);
 
         var tableHeader = jQuery('<thead><tr>' + 
-                                    '<td>Route</td>' + 
+                                    '<td>Stop</td>' + 
                                     '<td>Parking</td>' + 
                                     '<td>Accessible</td>' + 
                                  '</tr></thead>')
@@ -92,6 +80,7 @@ OTP.PrintableSystemMap = function() {
     
             jQuery("#map_text, #map_only")
                 .removeClass();
+                
             jQuery(this).addClass("selected");
 
             return false;
@@ -105,7 +94,8 @@ OTP.PrintableSystemMap = function() {
         { hasTripPlanner: true, inert: true, addDataLayerCallback: generateStopTable }
     );
 
-    updateMap();
+    map.showRouteWithCriteria(_route, _mode, _operator, _stops);
+
     addUIBehavior();
 
     return {};

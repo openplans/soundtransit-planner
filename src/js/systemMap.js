@@ -25,21 +25,80 @@ OTP.SystemMap = function(_root, _mapControlsRoot) {
     var map = new OTP.Map(_root, _mapControlsRoot);
     var mapControls = jQuery(_mapControlsRoot);
     
+    var _stops = null;
+    var _route = null;
+    var _operator = null;
+    var _mode = null;
+    
+    function addPrintUIBehavior() {
+        // print button
+        mapControls.find("#print").click(function() {
+            var printableUrl = OTP.Config.systemMapPrintUrl;
+
+            printableUrl += "?operator=" + _operator;
+            printableUrl += "&route=" + _route;
+            printableUrl += "&mode=" + _mode;
+            printableUrl += "&stops=" + _stops;
+
+            window.open(printableUrl, "print", "status=0,toolbar=0,scrollbars=1,width=760,height=600");
+
+            return false;
+        });
+    }    
+
+    addPrintUIBehavior();
+    
     return {
-        showFerryRouteFor: function(v) {
-            return map.showFerryRouteFor(v);
+        showRouteWithCriteria: function(route, mode, operator, stops) {
+            _stops = stops;
+            _route = route;
+            _operator = operator;
+            _mode = mode;
+            return map.showRouteWithCriteria(route, mode, operator, stops);
+        },
+
+        setPrintable: function(v) {
+            if(v === true) {
+                mapControls.find("#map-controls-wrap").addClass("printable");
+            } else {
+                mapControls.find("#map-controls-wrap").removeClass("printable");
+            }
+        },
+                
+        // legacy method
+        showFerryRouteFor: function(r) {
+            _mode = "WSF";
+            _route = r;
+            _operator = null;
+            _stops = null;
+            return map.showRouteWithCriteria(_route, _mode, _operator, _stops);
         },
         
-        showLinkRouteFor: function(v) {
-            return map.showLinkRouteFor(v);
+        // legacy method
+        showLinkRouteFor: function(r) {
+            _mode = "LINK";
+            _route = r;
+            _operator = "ST";
+            _stops = null;
+            return map.showRouteWithCriteria(_route, _mode, _operator, _stops);
         },
         
-        showSounderRouteFor: function(v, s) {
-            return map.showSounderRouteFor(v, s);
+        // legacy method
+        showSounderRouteFor: function(r, s) {
+            _mode = "SOUNDER";
+            _route = r;
+            _operator = "ST";
+            _stops = s;
+            return map.showRouteWithCriteria(_route, _mode, _operator, _stops);
         },
         
-        showBusRouteFor: function(v, s) {
-            return map.showBusRouteFor(v, s);
+        // legacy method
+        showBusRouteFor: function(o, r) {
+            _mode = "BUS";
+            _route = r;
+            _operator = o;
+            _stops = null;
+            return map.showRouteWithCriteria(_route, _mode, _operator, _stops);
         },
         
         showScheduleLinkInRouteMarker: function(v) {

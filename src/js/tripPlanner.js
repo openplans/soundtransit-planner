@@ -386,6 +386,8 @@ OTP.TripPlanner = function(_root, _map, _mapControlsRoot) {
             return;
         }
 
+        mapControls.find("#map-controls-wrap").addClass("printable");
+        
         map.reset();
 
         var itineraryCollection = null;
@@ -697,7 +699,7 @@ OTP.TripPlanner = function(_root, _map, _mapControlsRoot) {
         }
     );
 
-    narrativeForm = new OTP.TripPlannerForm(_root, map);
+    narrativeForm = new OTP.TripPlannerForm(_root, map, mapControls);
     addFormUIBehavior();
     addPrintUIBehavior();
 

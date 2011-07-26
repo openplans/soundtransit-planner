@@ -49,29 +49,22 @@
       <h2>Direct links for Route Map demo pages:</h2>
       <ul class="scheduledemo">
         <li>
-            <a href="./map.php?SOUNDERRoute=MSOUNDER&amp;SOUNDERStops=7">Sounder: Tacoma/Seattle route</a>
-            <a href="./map_printable.php?route=MSOUNDER&amp;stops=7&amp;mode=SOUNDER" target="_new">(printable)</a>
-        </li>
-        
-        <li>
-            <a href="./map.php?SOUNDERRoute=MSOUNDER&amp;SOUNDERStops=4">Sounder: Everett/Seattle route</a>
-            <a href="./map_printable.php?route=MSOUNDER&amp;stops=4&amp;mode=SOUNDER" target="_new">(printable)</a>
+            <a href="./map.php?mode=SOUNDER&amp;route=MSOUNDER&amp;stops=7">Sounder: Tacoma/Seattle route</a>
         </li>
         <li>
-            <a href="./map.php?LINKRoute=M599">Central Link Light Rail</a>
-            <a href="./map_printable.php?route=M599&amp;mode=LINK" target="_new">(printable)</a>
+            <a href="./map.php?mode=SOUNDER&amp;route=MSOUNDER&amp;stops=4">Sounder: Everett/Seattle route</a>
         </li>
         <li>
-            <a href="./map.php?LINKRoute=PTLDTC">Tacoma Link Light Rail</a>
-            <a href="./map_printable.php?route=PTLDTC&amp;mode=LINK" target="_new">(printable)</a>
+            <a href="./map.php?mode=LINK&amp;route=M599">Central Link Light Rail</a>
         </li>
         <li>
-            <a href="./map.php?BUSOperator=ST&amp;BUSRoute=510">Bus Route 510</a>
-            <a href="./map_printable.php?operator=ST&amp;route=510&amp;mode=BUS" target="_new">(printable)</a>
+            <a href="./map.php?mode=LINK&amp;route=PTLDTC">Tacoma Link Light Rail</a>
         </li>
         <li>
-            <a href="./map.php?BUSOperator=ST&amp;BUSRoute=P590">Bus Route 590</a>
-            <a href="./map_printable.php?operator=ST&amp;route=P590&amp;mode=BUS" target="_new">(printable)</a>
+            <a href="./map.php?mode=BUS&amp;operator=ST&amp;route=510">Bus Route 510</a>
+        </li>
+        <li>
+            <a href="./map.php?mode=BUS&amp;operator=ST&amp;route=P590">Bus Route 590</a>
         </li>
       </ul>
     </div>

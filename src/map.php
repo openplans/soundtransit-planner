@@ -58,25 +58,12 @@
             
             // SET PROPERTIES PASSED TO US FROM THE HOMEPAGE OR ANOTHER FORM
             <?php
-                if(isset($_REQUEST['WSFRoute'])) {
-                    echo "systemMap.showFerryRouteFor('" . $_REQUEST['WSFRoute'] . "');\n";
-                    echo "systemMap.showScheduleLinkInRouteMarker(false);\n";
-                    echo "systemMap.setModeChooserUIVisibility(false);\n";
-                }
-                if(isset($_REQUEST['LINKRoute'])) {
-                    echo "systemMap.showLinkRouteFor('" . $_REQUEST['LINKRoute'] . "');\n";  
-                    echo "systemMap.showScheduleLinkInRouteMarker(false);\n";
-                    echo "systemMap.setModeChooserUIVisibility(false);\n";
-                }
-                if(isset($_REQUEST['SOUNDERRoute']) && isset($_REQUEST['SOUNDERStops'])) {
-                    echo "systemMap.showSounderRouteFor('" . $_REQUEST['SOUNDERRoute'] . "','" . $_REQUEST['SOUNDERStops'] . "');\n";  
-                    echo "systemMap.showScheduleLinkInRouteMarker(false);\n";
-                    echo "systemMap.setModeChooserUIVisibility(false);\n";
-                }
-                if(isset($_REQUEST['BUSOperator']) && isset($_REQUEST['BUSRoute'])) {
-                    echo "systemMap.showBusRouteFor('" . $_REQUEST['BUSOperator'] . "','" . $_REQUEST['BUSRoute'] . "');\n";  
-                    echo "systemMap.showScheduleLinkInRouteMarker(false);\n";
-                    echo "systemMap.setModeChooserUIVisibility(false);\n";
+                echo "systemMap.showRouteWithCriteria('" . $_REQUEST['route'] . "', '" . $_REQUEST['mode'] . "', '" . $_REQUEST['operator'] . "', '" . $_REQUEST['stops'] . "');\n";
+                echo "systemMap.showScheduleLinkInRouteMarker(false);\n";
+                echo "systemMap.setModeChooserUIVisibility(false);\n";
+
+                if($_REQUEST['route'] != "" && $_REQUEST['mode'] != "") {
+                    echo "systemMap.setPrintable(true);\n";
                 }
             ?>        
         }
@@ -195,6 +182,9 @@
             <a id="toggle-fares" href="#">Fares</a>
             <a id="toggle-parking" href="#">Parking</a>
             <a id="toggle-location" href="#">Locations</a>
+        </div>
+        <div id="print-controls">
+            <a id="print" href="#">Print</a>
         </div>
     </div>
 </div>

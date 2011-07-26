@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 var OTP = window.OTP || {};
 
-OTP.TripPlannerForm = function(_root, map) {
+OTP.TripPlannerForm = function(_root, map, mapControls) {
     var originalTo = null;
     var originalFrom = null;
     
@@ -134,6 +134,11 @@ OTP.TripPlannerForm = function(_root, map) {
                 .html('<div id="how-to-plan"></div>')
                 .fadeIn('slow');
 
+            if(typeof mapControls !== 'undefined' && mapControls !== null) {
+                mapControls.find("#map-controls-wrap")
+                    .removeClass("printable");
+            }
+            
             if(typeof map !== 'undefined' && map !== null) {
                 map.reset();
             }

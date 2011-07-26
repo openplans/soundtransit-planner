@@ -1854,40 +1854,21 @@ OTP.Map = function(_root, _controlsRoot, options) {
             }
         },
         
-        showFerryRouteFor: function(v) {
-            if(v === null || v === "") {
-                return;
+        // FIXME
+        showRouteWithCriteria: function(route, mode, operator, stops) {
+            if(mode === "WSF") {
+                systemMapRouteCriteria.WSF = "(designator LIKE '" + route + "' AND routetyp LIKE 'P')";
+                drawRouteLayerForMode("WSF", '#toggle-ferry');
+            } else if(mode === "LINK") {
+                systemMapRouteCriteria.LINK = "(designator LIKE '" + route + "' AND routetyp LIKE 'P')";
+                drawRouteLayerForMode("LINK", '#toggle-link');
+            } else if(mode === "SOUNDER") {
+                systemMapRouteCriteria.SOUNDER = "(designator LIKE '" + route + "' AND stops=" + stops + " AND routetyp LIKE 'P')";
+                drawRouteLayerForMode("SOUNDER", '#toggle-sounder');                
+            } else if(mode === "BUS") {
+                systemMapRouteCriteria.BUS = "(operator LIKE '" + operator + "' AND designator LIKE '" + route + "' AND routetyp LIKE 'P')";
+                drawRouteLayerForMode("BUS", '#toggle-bus');                
             }
-
-            systemMapRouteCriteria.WSF = "(designator LIKE '" + v + "' AND routetyp LIKE 'P')";
-            drawRouteLayerForMode("WSF", '#toggle-ferry');               
-        },
-
-        showLinkRouteFor: function(v) {
-            if(v === null || v === "") {
-                return;
-            }
-
-            systemMapRouteCriteria.LINK = "(designator LIKE '" + v + "' AND routetyp LIKE 'P')";
-            drawRouteLayerForMode("LINK", '#toggle-link');           
-        },
-
-        showSounderRouteFor: function(v,s) {
-            if(v === null || v === "" || s === null || s === "") {
-                return;
-            }
-
-            systemMapRouteCriteria.SOUNDER = "(designator LIKE '" + v + "' AND stops=" + s + " AND routetyp LIKE 'P')";
-            drawRouteLayerForMode("SOUNDER", '#toggle-sounder');
-        },
-
-        showBusRouteFor: function(v,s) {
-            if(v === null || v === "" || s === null || s === "") {
-                return;
-            }
-
-            systemMapRouteCriteria.BUS = "(operator LIKE '" + v + "' AND designator LIKE '" + s + "' AND routetyp LIKE 'P')";
-            drawRouteLayerForMode("BUS", '#toggle-bus');
         },
         
         reset: function() {

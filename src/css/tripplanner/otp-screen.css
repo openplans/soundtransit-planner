@@ -140,12 +140,8 @@ color: #4a4a4a;
 font-weight: bold;
 }
 
-#toggle-layers {
+.printable #toggle-layers {
 padding-right: 40px;
-}
-
-body.map #toggle-layers {
-padding-right: 0px;
 }
 
 #toggle-layers a {
@@ -1589,4 +1585,9 @@ vertical-align: middle;
 background-image: url(../../images/tripplanner/print.png);
 height: 20px;
 width: 23px;
+display: none;
+}
+
+.printable #print {
+display: block;
 }
