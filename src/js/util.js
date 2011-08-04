@@ -152,7 +152,7 @@ OTP.Util = {
             return "Unknown";
         }
         
-        var month = date.getMonth();
+        var month = date.getMonth() + 1;
         month = (month < 10) ? "0" + month : "" + month;
 
         var day = date.getDay();
