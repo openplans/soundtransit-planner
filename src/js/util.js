@@ -196,47 +196,51 @@ OTP.Util = {
 
             html += '<table class="substeps"><tbody>';
 
-            var stepCollection = null;
-            if(leg.steps.walkSteps instanceof Array) {
-                stepCollection = leg.steps.walkSteps;
-            } else {
-                stepCollection = [leg.steps.walkSteps];
-            }
-
-            var stepNumber = 1;
-            var lastStreetName = "unknown street";
-            jQuery.each(stepCollection, function(i, walkStep) {
-                if(typeof walkStep["@nil"] !== 'undefined') {
-                    return;
-                }
-
-                html += '<tr><td>' + stepNumber + '. ';
-
-                if(typeof walkStep.absoluteDirection !== 'undefined') {
-                    html += 'Walk ' + walkStep.absoluteDirection.toLowerCase() + ' on <strong>' + walkStep.streetName + '</strong>';
+            if(leg.steps !== null) {
+                var stepCollection = null;
+                if(leg.steps.walkSteps instanceof Array) {
+                    stepCollection = leg.steps.walkSteps;
                 } else {
-                    var relativeDirection = walkStep.relativeDirection.toLowerCase();
-
-                    if(relativeDirection === "continue") {
-                        html += 'Continue on <strong>' + walkStep.streetName + '</strong>';
-                    } else if(walkStep.stayOn === true) {
-                        html += 'Proceed ' + relativeDirection + ' to stay on <strong>' + walkStep.streetName + '</strong>';
-                    } else if(walkStep.becomes === true) {
-                        html += 'Continue ' + relativeDirection + ' as <strong>' + lastStreetName + '</strong> becomes <strong>' + walkStep.streetName + '</strong>';
-                    } else {
-                        html += 'Turn ' + relativeDirection + ' at <strong>' + walkStep.streetName + '</strong>';
+                    stepCollection = [leg.steps.walkSteps];
+                }
+            
+                var stepNumber = 1;
+                var lastStreetName = "unknown street";
+                jQuery.each(stepCollection, function(i, walkStep) {
+                    if(typeof walkStep["@nil"] !== 'undefined') {
+                        return;
                     }
-                }
 
-                if(i === stepCollection.length - 1) {
-                    html += '<div class="stepmeta">' + OTP.Util.millisecondsToString(leg.duration) + ' (' + OTP.Util.metersToPrettyDistance(leg.distance) + ')</div>';
-                }
+                    html += '<tr><td>' + stepNumber + '. ';
 
-                html += '</td></tr>';
+                    if(typeof walkStep.absoluteDirection !== 'undefined') {
+                        html += 'Walk ' + walkStep.absoluteDirection.toLowerCase() + ' on <strong>' + walkStep.streetName + '</strong>';
+                    } else {
+                        var relativeDirection = walkStep.relativeDirection.toLowerCase();
 
-                lastStreetName = walkStep.streetName;
-                stepNumber++;
-            });
+                        if(relativeDirection === "continue") {
+                            html += 'Continue on <strong>' + walkStep.streetName + '</strong>';
+                        } else if(walkStep.stayOn === true) {
+                            html += 'Proceed ' + relativeDirection + ' to stay on <strong>' + walkStep.streetName + '</strong>';
+                        } else if(walkStep.becomes === true) {
+                            html += 'Continue ' + relativeDirection + ' as <strong>' + lastStreetName + '</strong> becomes <strong>' + walkStep.streetName + '</strong>';
+                        } else {
+                            html += 'Turn ' + relativeDirection + ' at <strong>' + walkStep.streetName + '</strong>';
+                        }
+                    }
+
+                    if(i === stepCollection.length - 1) {
+                        html += '<div class="stepmeta">' + OTP.Util.millisecondsToString(leg.duration) + ' (' + OTP.Util.metersToPrettyDistance(leg.distance) + ')</div>';
+                    }
+                    
+                    html += '</td></tr>';
+
+                    lastStreetName = walkStep.streetName;
+                    stepNumber++;
+                });
+            } else {
+                html += "<tr><td>(Walking directions are not available for this leg)</td></tr>";
+            }
 
             html += '</tbody></table>';
 

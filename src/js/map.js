@@ -1985,7 +1985,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         },
 
         addLegToPlannedRoute: function(leg) {
-            if(leg === null) {
+            if(leg === null || typeof leg.legGeometry === 'undefined') {
                 return;
             }
 
