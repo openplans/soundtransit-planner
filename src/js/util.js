@@ -155,7 +155,7 @@ OTP.Util = {
         var month = date.getMonth() + 1;
         month = (month < 10) ? "0" + month : "" + month;
 
-        var day = date.getDay();
+        var day = date.getDate();
         day = (day < 10) ? "0" + day : "" + day;
         
         return month + "/" + day + "/" + (date.getYear() + 1900);
