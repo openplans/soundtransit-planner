@@ -239,7 +239,7 @@ OTP.Util = {
                     stepNumber++;
                 });
             } else {
-                html += "<tr><td>(Walking directions are not available for this leg)</td></tr>";
+                html += '<tr><td class="notavailable">Walking directions are not available for this leg.</td></tr>';
             }
 
             html += '</tbody></table>';

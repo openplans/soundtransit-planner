@@ -958,6 +958,10 @@ background-image: none;
 color: #656565;
 }
 
+table.substeps td.notavailable {
+font-style: italic;
+}
+
 table.substeps td {
 vertical-align: top;
 padding-right: 30px;	
