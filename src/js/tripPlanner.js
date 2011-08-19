@@ -675,8 +675,8 @@ OTP.TripPlanner = function(_root, _map, _mapControlsRoot) {
             printableUrl += "&optimize=" + root.find("#trippriority option:selected").val();
             printableUrl += "&maxWalkDistance=" + root.find("#maxwalk option:selected").val();
             printableUrl += "&wheelchair=" + (root.find("#accessible").attr("checked") === true);
-            printableUrl += "&fromPlace=" + getLocationForPlaceName(root.find("#from").val());
-            printableUrl += "&toPlace=" + getLocationForPlaceName(root.find("#to").val());
+            printableUrl += "&fromPlace=" + root.find("#from").val();
+            printableUrl += "&toPlace=" + root.find("#to").val();
             printableUrl += "&from=" +  root.find("#from").val();
             printableUrl += "&to=" + root.find("#to").val();
             printableUrl += "&mode=" + includeModes;
