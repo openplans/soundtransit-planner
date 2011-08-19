@@ -49,22 +49,22 @@
       <h2>Direct links for Route Map demo pages:</h2>
       <ul class="scheduledemo">
         <li>
-            <a href="./map.php?mode=SOUNDER&amp;route=MSOUNDER&amp;stops=7">Sounder: Tacoma/Seattle route</a>
+            <a href="./map.php?mode=SOUNDER&amp;route=MSOUNDER&amp;stops=7&amp;title=Sounder: Tacoma/Seattle">Sounder: Tacoma/Seattle route</a>
         </li>
         <li>
-            <a href="./map.php?mode=SOUNDER&amp;route=MSOUNDER&amp;stops=4">Sounder: Everett/Seattle route</a>
+            <a href="./map.php?mode=SOUNDER&amp;route=MSOUNDER&amp;stops=4&amp;title=Sounder: Everett/Seattle">Sounder: Everett/Seattle route</a>
         </li>
         <li>
-            <a href="./map.php?mode=LINK&amp;route=M599">Central Link Light Rail</a>
+            <a href="./map.php?mode=LINK&amp;route=M599&amp;title=Central Link Light Rail">Central Link Light Rail</a>
         </li>
         <li>
-            <a href="./map.php?mode=LINK&amp;route=PTLDTC">Tacoma Link Light Rail</a>
+            <a href="./map.php?mode=LINK&amp;route=PTLDTC&amp;title=Tacoma Link Light Rail">Tacoma Link Light Rail</a>
         </li>
         <li>
-            <a href="./map.php?mode=BUS&amp;operator=ST&amp;route=510">Bus Route 510</a>
+            <a href="./map.php?mode=BUS&amp;operator=ST&amp;route=510&amp;title=510">Bus Route 510</a>
         </li>
         <li>
-            <a href="./map.php?mode=BUS&amp;operator=ST&amp;route=P590">Bus Route 590</a>
+            <a href="./map.php?mode=BUS&amp;operator=ST&amp;route=P590&amp;title=590">Bus Route 590</a>
         </li>
       </ul>
     </div>

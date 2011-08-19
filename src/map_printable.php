@@ -68,7 +68,7 @@
         <a id="print" href="#">Print</a>
     </div>
     <div id="map-header">
-        <h1>Friendly Title Gets Inserted Here By CMS</h1>
+        <h1>Route Map</h1>
     </div>
     <div id="map_wrapper">
         <div id="map" class="taller">

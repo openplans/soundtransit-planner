@@ -29,6 +29,7 @@ OTP.SystemMap = function(_root, _mapControlsRoot) {
     var _route = null;
     var _operator = null;
     var _mode = null;
+    var _title = null;
     
     function addPrintUIBehavior() {
         // print button
@@ -39,6 +40,7 @@ OTP.SystemMap = function(_root, _mapControlsRoot) {
             printableUrl += "&route=" + _route;
             printableUrl += "&mode=" + _mode;
             printableUrl += "&stops=" + _stops;
+            printableUrl += "&title=" + encodeURI(_title);
 
             window.open(printableUrl, "print", "status=0,toolbar=0,scrollbars=1,width=760,height=600");
 
@@ -49,11 +51,12 @@ OTP.SystemMap = function(_root, _mapControlsRoot) {
     addPrintUIBehavior();
     
     return {
-        showRouteWithCriteria: function(route, mode, operator, stops) {
+        showRouteWithCriteria: function(route, mode, operator, stops, title) {
             _stops = stops;
             _route = route;
             _operator = operator;
             _mode = mode;
+            _title = title;
             return map.showRouteWithCriteria(route, mode, operator, stops);
         },
 

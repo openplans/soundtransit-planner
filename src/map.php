@@ -58,7 +58,7 @@
             
             // SET PROPERTIES PASSED TO US FROM THE HOMEPAGE OR ANOTHER FORM
             <?php
-                echo "systemMap.showRouteWithCriteria('" . $_REQUEST['route'] . "', '" . $_REQUEST['mode'] . "', '" . $_REQUEST['operator'] . "', '" . $_REQUEST['stops'] . "');\n";
+                echo "systemMap.showRouteWithCriteria('" . $_REQUEST['route'] . "', '" . $_REQUEST['mode'] . "', '" . $_REQUEST['operator'] . "', '" . $_REQUEST['stops'] . "', '" . $_REQUEST['title'] . "');\n";
                 echo "systemMap.showScheduleLinkInRouteMarker(false);\n";
                 echo "systemMap.setModeChooserUIVisibility(false);\n";
 

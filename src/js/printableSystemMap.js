@@ -24,6 +24,7 @@ OTP.PrintableSystemMap = function() {
     var _route = OTP.Util.getParameterByName("route", null);
     var _operator = OTP.Util.getParameterByName("operator", null);
     var _stops = OTP.Util.getParameterByName("stops", null);
+    var _title = OTP.Util.getParameterByName("title", null);
     
     function generateStopTable(data) {
         var container = root.find("#details");
@@ -93,6 +94,12 @@ OTP.PrintableSystemMap = function() {
         null,
         { hasTripPlanner: true, inert: true, addDataLayerCallback: generateStopTable }
     );
+    
+    if(_title !== null) {
+        jQuery("#map-header")
+            .find("h1")
+            .text(decodeURI(_title));
+    }
 
     map.showRouteWithCriteria(_route, _mode, _operator, _stops);
 
