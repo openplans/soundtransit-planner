@@ -26,45 +26,61 @@ OTP.PrintableSystemMap = function() {
     var _stops = OTP.Util.getParameterByName("stops", null);
     var _title = OTP.Util.getParameterByName("title", null);
     
-    function generateStopTable(data) {
+    function generateStopTable(addStopsResponse, routeStopsResponse) {
         var container = root.find("#details");
-        
-        if(typeof data.features === 'undefined') {
-            return;
-        }
-        
-        var table = jQuery('<table></table>')
-                         .addClass("stop_list")
-                         .appendTo(container);
 
-        var tableHeader = jQuery('<thead><tr>' + 
-                                    '<td>Stop</td>' + 
-                                    '<td>Parking</td>' + 
-                                    '<td>Accessible</td>' + 
-                                 '</tr></thead>')
-                          .appendTo(table);
+        var referenceData = {};
+        jQuery.each(addStopsResponse.features, function(_, stop) {
+            referenceData[stop.properties.atisid] = stop;
+        });
 
-        var tableBody = jQuery('<tbody></tbody>')
-                          .appendTo(table);
-
-        var i = 0;
-        jQuery.each(data.features, function(_, feature) {
-            var accessible = (feature.properties.accessible === "Y");
-            var name = feature.properties.name;
-            var parking_near = feature.properties.parking_near;
-
-            var row = jQuery('<tr>' + 
-                                '<td>' + name + '</td>' + 
-                                '<td>' + ((parking_near !== null) ? OTP.Util.makeSentenceCase(parking_near) : "No") + '</td>' + 
-                                '<td>' + ((accessible === true) ? "Yes" : "No") + '</td>' + 
-                             '</tr>')
-                             .appendTo(tableBody);
-     
-            if(i % 2 == 0) {
-                row.addClass("alt");
+        var directionToStopsMap = {};
+        jQuery.each(routeStopsResponse.stops, function(_, stop) {
+            if(typeof directionToStopsMap[stop.direction] === 'undefined') {
+                directionToStopsMap[stop.direction] = [];
             }
+            directionToStopsMap[stop.direction].push(stop);
+        });
+
+        jQuery.each(directionToStopsMap, function(direction, stops) {
+            var header = jQuery("<h2>" + OTP.Agency.getDirectionLabelForDirectionCode(direction) + "</h2>")
+                            .appendTo(container);
+            
+            var table = jQuery('<table></table>')
+                            .addClass("stop_list")
+                            .appendTo(container);
+
+            var tableHeader = jQuery('<thead><tr>' + 
+                                        '<td>Stop</td>' + 
+                                        '<td>Parking</td>' + 
+                                        '<td>Accessible</td>' + 
+                                        '</tr></thead>')
+                                        .appendTo(table);
+
+            var tableBody = jQuery('<tbody></tbody>')
+                            .appendTo(table);
+
+            var i = 0;
+            jQuery.each(stops, function(_, stop) {
+                var feature = referenceData[stop.atisstopid];
+
+                var accessible = (feature.properties.accessible === "Y");
+                var name = feature.properties.name;
+                var parking_near = feature.properties.parking_near;
+
+                var row = jQuery('<tr>' + 
+                                    '<td>' + name + '</td>' + 
+                                    '<td>' + ((parking_near !== null) ? OTP.Util.makeSentenceCase(parking_near) : "No") + '</td>' + 
+                                    '<td>' + ((accessible === true) ? "Yes" : "No") + '</td>' + 
+                                 '</tr>')
+                                 .appendTo(tableBody);
+     
+                if(i % 2 == 0) {
+                    row.addClass("alt");
+                }
                    
-            i++;
+                i++;
+            });
         });
     }
 

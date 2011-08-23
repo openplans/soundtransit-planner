@@ -870,7 +870,8 @@ OTP.Map = function(_root, _controlsRoot, options) {
                               }
                               cqlSet += "'" + stop.atisstopid + "'"; 
                           });
-                          addDataLayer("stops", "stops_routes", null, false, "atisid IN (" + cqlSet + ")", "stops_routes" + mode);
+
+                          addDataLayer("stops", "stops_routes", null, false, "atisid IN (" + cqlSet + ")", "stops_routes" + mode, data);
                       },
                       complete: function(xhr, status) {
                           hideBusy();
@@ -936,7 +937,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
         }
     }
 
-    function addDataLayer(type, layerId, element, constrainToBBOX, cql, featureStoreKey) {
+    function addDataLayer(type, layerId, element, constrainToBBOX, cql, featureStoreKey, routeStopsResponse) {
         if(layerId === null) {
             layerId = type;
         }
@@ -1037,7 +1038,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 }
                 
                 if(typeof options.addDataLayerCallback === 'function') {
-                    options.addDataLayerCallback(data);
+                    options.addDataLayerCallback(data, routeStopsResponse);
                 }
            }
         });     
@@ -1099,7 +1100,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
             moveend: function(e) {        
                 var stopsToggleButton = controlsRoot.find("#toggle-location");
                 if(stopsToggleButton.hasClass("active")) {
-                    addDataLayer("stops", null, stopsToggleButton, true, null);
+                    addDataLayer("stops", null, stopsToggleButton, true, null, null);
                 }
             }
         });
@@ -1572,7 +1573,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     removeDataLayer("fareoutlets");
                     jQuery(this).removeClass("active");                    
                 } else {
-                    addDataLayer("fareoutlets", null, this, false, null);
+                    addDataLayer("fareoutlets", null, this, false, null, null);
                 }
                 hideInfoWindow();
                 return false;
@@ -1593,7 +1594,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     removeDataLayer("parkandrides");
                     jQuery(this).removeClass("active");                    
                 } else {
-                    addDataLayer("parkandrides", null, this, false, null);
+                    addDataLayer("parkandrides", null, this, false, null, null);
                 }
                 hideInfoWindow();
                 return false;
@@ -1614,7 +1615,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     removeDataLayer("stops");
                     jQuery(this).removeClass("active");                    
                 } else {
-                    addDataLayer("stops", null, this, true, null);
+                    addDataLayer("stops", null, this, true, null, null);
                 }
                 hideInfoWindow();
                 return false;
@@ -1981,7 +1982,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 return;
             }
             
-            addDataLayer("stops", "stops_routes", null, false, "localid IN (" + cqlSet + ")");
+            addDataLayer("stops", "stops_routes", null, false, "localid IN (" + cqlSet + ")", null);
         },
 
         addLegToPlannedRoute: function(leg) {

@@ -17,6 +17,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 var OTP = window.OTP || {};
 
 OTP.Agency = {
+    getDirectionLabelForDirectionCode: function(direction) {
+        switch(direction) {
+            case "S":
+                return "Southbound";
+            case "N":
+                return "Northbound";
+            case "W":
+                return "Westbound";
+            case "E":
+                return "Eastbound";
+            case "L":
+                return "Local";
+            case "E":
+                return "Express";
+            case "O":
+                return "Outbound";
+            case "I":
+                return "Inbound";
+            default:
+                return "Unknown Direction";
+        }
+    },
+    
     getFormattedHeadsign: function(route, headsign) {
         if(headsign === null || route === null) {
             return null;

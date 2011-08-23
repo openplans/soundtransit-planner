@@ -199,6 +199,14 @@ position: relative;
 padding-left: 20px;
 }
 
+#details h2 {
+color: #666666;
+padding-bottom: 10px;
+padding-top: 10px;
+font-size: 1.5em;
+font-weight: bold;
+}
+
 #narrative {
 width: 340px;
 margin: 0px;
@@ -240,6 +248,7 @@ padding-bottom: 20px;
 font-size: 1.5em;
 color: #666666;
 width: 650px;
+padding-bottom: 30px;
 }
 
 #details .stop_list tbody tr td {
