@@ -380,11 +380,6 @@ OTP.Map = function(_root, _controlsRoot, options) {
             showContextMenuWrapper(e);
             return false;
         });       
-
-        // click outside map
-        jQuery(document).mousedown(function(e) {
-            hideContextMenu();
-        });         
     }
 
     // feature info window/data layer query behavior
