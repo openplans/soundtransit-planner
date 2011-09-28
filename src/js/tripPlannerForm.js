@@ -110,7 +110,7 @@ OTP.TripPlannerForm = function(_root, map, mapControls) {
             feedbackUrl += "&agenciesUsed=" + escape(agenciesUsed.unique().join(","));
             feedbackUrl += "&accessible=" + (root.find("#maxwalk").attr("checked") === true);
 
-            window.open(feedbackUrl);
+            window.location(feedbackUrl);
 
             return false;
         });
