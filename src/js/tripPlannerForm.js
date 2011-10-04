@@ -245,7 +245,11 @@ OTP.TripPlannerForm = function(_root, map, mapControls) {
                 .attr('selected', 'selected');
         }          
 
-        root.find("#leavetype, #leaveampm, #trippriority, #maxwalk").selectmenu();
+        root.find("#trippriority, #maxwalk").selectmenu();
+
+        /* this is needed by safari for windows */
+        root.find("#leavetype").selectmenu({ 'width': '80px'});
+        root.find("#leaveampm").selectmenu({ 'width': '40px'});
 
         // more options
         root.find('a#optionstoggle').click(function() {
