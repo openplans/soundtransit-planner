@@ -60,7 +60,7 @@
             <?php
                 echo "systemMap.showRouteWithCriteria('" . $_REQUEST['route'] . "', '" . $_REQUEST['mode'] . "', '" . $_REQUEST['operator'] . "', '" . $_REQUEST['stops'] . "', '" . $_REQUEST['title'] . "');\n";
                 echo "systemMap.showScheduleLinkInRouteMarker(false);\n";
-                echo "systemMap.setModeChooserUIVisibility(false);\n";
+                echo "systemMap.setModeChooserUIVisibility(true);\n";
 
                 if($_REQUEST['route'] != "" && $_REQUEST['mode'] != "") {
                     echo "systemMap.setPrintable(true);\n";
