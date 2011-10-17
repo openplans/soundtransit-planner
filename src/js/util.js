@@ -158,7 +158,7 @@ OTP.Util = {
         var day = date.getDate();
         day = (day < 10) ? "0" + day : "" + day;
         
-        return month + "/" + day + "/" + (date.getYear() + 1900);
+        return month + "/" + day + "/" + date.getFullYear();
     },
 
     makeSentenceCase: function(str) {
