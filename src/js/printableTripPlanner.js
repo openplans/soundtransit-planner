@@ -97,7 +97,7 @@ OTP.PrintableTripPlanner = function() {
 
         // from label
         root.find("#from-label").find("h1")
-            .text(OTP.Util.getParameterByName("fromPlace", null));
+            .text(OTP.Util.getParameterByName("from", null));
     
         root.find("#from-label").find("p")
             .text("")
@@ -106,7 +106,7 @@ OTP.PrintableTripPlanner = function() {
 
         // to label
         root.find("#to-label").find("h1")
-            .text(OTP.Util.getParameterByName("toPlace", null));
+            .text(OTP.Util.getParameterByName("to", null));
     
         root.find("#to-label").find("p")
             .text("")
