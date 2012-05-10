@@ -1,0 +1,435 @@
+Agency,Route,ATISRoute,RouteDescription,RouteNumber
+CT,101,101,Aurora Village-Mariner Park & Ride,101
+CT,105,105,UW Bothell-Mariner Park & Ride,105
+CT,106,106,UW Bothell-Canyon Park Park & Ride,106
+CT,110,110,Edmonds-Lynnwood Transit Center,110
+CT,111,111,Brier-Mountlake Terrace,111
+CT,112,112,Edmonds Community College-Lynnwood Transit Center,112
+CT,113,113,Lynnwood Transit Center-Mukilteo,113
+CT,115,115,Mill Creek-Edmonds Community College,115
+CT,116,116,Silver Firs-Edmonds,116
+CT,118,118,Aurora Village-Lynnwood Transit Center,118
+CT,119,119,Lynnwood Transit Center-Ash Way Park & Ride,119
+CT,120,120,Canyon Park-Lynnwood Transit Center,120
+CT,121,121,Canyon Park Park & Ride-UW Bothell,121
+CT,130,130,Aurora Village-Lynnwood Transit Center,130
+CT,131,131,Aurora Village-Edmonds CC,131
+CT,190,190,Mukilteo-Edmonds Community College,190
+CT,201,201,Lynnwood Transit Center- Smokey Pt,201
+CT,202,202,Lynnwood Transit Center- Smokey Pt,202
+CT,221,221,Quil Ceda Village to Lake Stevens,221
+CT,222,222,Tulalip to Marysville,222
+CT,227,227,Boeing-Arlington,227
+CT,230,230,Smokey Point to Darrington,230
+CT,240,240,Stanwood to Arlington,240
+CT,247,247,Boeing-Stanwood,247
+CT,270,270,Everett Station-Gold Bar,270
+CT,271,271,Everett Station-Gold Bar,271
+CT,275,275,Everett Station-Monroe,275
+CT,277,277,Boeing-Monroe / Gold Bar,277
+CT,280,280,Everett Station-Granite Falls,280
+CT,401,401,North Lynnwood-Seattle,401
+CT,402,402,Lynnwood Transit Center-Seattle,402
+CT,405,405,Edmonds Park & Ride-Seattle,405
+CT,406,406,Edmonds Park & Ride-Seattle,406
+CT,408,408,Mountlake Terrace Transit Center-Seattle,408
+CT,410,410,Downtown Seattle-Mariner Park & Ride,410
+CT,412,412,Downtown Seattle-Silver Firs,412
+CT,413,413,Downtown Seattle-Swamp Creek Park & Ride,413
+CT,414,414,Downtown Seattle-McCollum Park Park & Ride,414
+CT,415,415,Downtown Seattle-North Lynnwood,415
+CT,416,416,Downtown Seattle-Edmonds,416
+CT,417,417,Downtown Seattle-Mukilteo,417
+CT,421,421,Downtown Seattle-Marysville,421
+CT,422,422,Downtown Seattle-Stanwood,422
+CT,424,424,Downtown Seattle-Snohomish Park & Ride,424
+CT,425,425,Downtown Seattle-Lake Stevens Transit Center,425
+CT,435,435,Downtown Seattle-Mays Pond,435
+CT,477,477,Downtown Seattle-Brier,477
+CT,810,810,University District-McCollum Park Park & Ride,810
+CT,821,821,University District-Marysville,821
+CT,855,855,University District-Lynnwood Transit Center,855
+CT,860,860,Univ. District-McCollum Park P&R,860
+CT,860,860,University District-McCollum Park Park & Ride,860
+CT,871,871,University District-Edmonds Park & Ride,871
+CT,880,880,University District-Mukilteo,880
+CT,885,885,885 University District-North Lynnwood,885
+CT,SWIFT,SWIFT,Aurora Village-Everett Station,SWIFT
+ET,2,EE2,South Everett Circulator,2
+ET,3,EE3,W Casino Road-Everett Station,3
+ET,4,EE4,North Everett Circulator,4
+ET,5,EE5,Harborfront-Everett Station,5
+ET,7,EE7,Evergreen Way,7
+ET,8,EE8,Evergreen Center-Merrill Creek,8
+ET,9,EE9,Airport Road-College Station,9
+ET,12 ,EE12,Mall Circulator,12
+ET,14 ,EE14,Mall Circulator,14
+ET,17 ,EE17,South Colby,17
+ET,18 ,EE18,Mukilteo-Everett Station,18
+ET,25 ,EE25,North Everett Circulator,25
+ET,27 ,EE27,MurphyÕs Corner-Mall Station,27
+ET,29 ,EE29,Mall Station-College Station,29
+ET,70 ,EE70,Boeing-Mukilteo,70
+ET,79 ,EE79,Everett-Marysville-Navy Support Center,79
+ET,701,EE701,Mall Station Express,701
+ET,702,EE702,Everett Station Express,702
+IntC,603,EE603,Tacoma-Olympia Express,603
+IntC,620,EE620,Tacoma-Olympia Express,620
+IT,412,EE412,Camano Island-Everett Express,412
+IT,411C,IT411C,Camano Island-Mt Vernon,411C
+IT,411W,IT411W,Oak Harbor-Mt Vernon,411W
+MT,1,M1,Kinnear-Downtown Seattle,1
+MT,2,M2,West Queen Anne-Madrona Park,2
+MT,3,M3,N. Queen Anne-Madrona/34th,3
+MT,4,M4,East Queen Anne-Judkins Park,4
+MT,5,M5,Shoreline CC-Downtown Seattle,5
+MT,7,M7,Rainier Beach-Downtown Seattle,7
+MT,8,M8,Rainier Beach-Seattle Center,8
+MT,9,M9,Broadway-Rainier Beach Express,9
+MT,10 ,M10,Capitol Hill-Downtown Seattle,10
+MT,11 ,M11,Madison Park-Downtown Seattle,11
+MT,12 ,M12,Interlaken Park-Downtown Sea.,12
+MT,13 ,M13,Seattle Pacific-Downtown Seattle,13
+MT,14 ,M14,Summit-Mt. Baker,14
+MT,15 ,M15,Blue Ridge-Downtown Seattle,15
+MT,16 ,M16,Northgate-Downtown Seattle,16
+MT,17 ,M17,Sunset Hill-Downtown Seattle,17
+MT,18 ,M18,North Beach-Downtown Seattle,18
+MT,19 ,M19,West Magnolia-Downtown Sea.,19
+MT,21 ,M21,Arbor Heights-Downtown Seattle,21
+MT,22 ,M22,White Center-Downtown Seattle,22
+MT,23 ,M23,White Center-Downtown Seattle,23
+MT,24 ,M24,W Magnolia-Downtown Seattle,24
+MT,25 ,M25,Laurelhurst-Downtown Seattle,25
+MT,26 ,M26,E Green Lake-Downtown Seattle,26
+MT,27 ,M27,Leschi Park-Downtown Seattle,27
+MT,28 ,M28,Broadview-Downtown Seattle,28
+MT,30 ,M30,University District-Seattle Center,30
+MT,31 ,M31,Magnolia-University District,31
+MT,33 ,M33,Discovery Park-Downtown Sea.,33
+MT,34 ,M34,Rainier Beach-Downtown Sea. Exp.,34
+MT,35 ,M35,Harbor Island-Downtown Seattle,35
+MT,36 ,M36,Othello Stn.-Downtown Seattle,36
+MT,37 ,M37,W Seattle-Alki-Downtown Sea.,37
+MT,38 ,M38,Beacon Hill-Rainier Valley,38
+MT,39 ,M39,Othello Stn.-Downtown Seattle,39
+MT,41 ,M41,Lake City-Downtown Seattle,41
+MT,42 ,M42,Pioneer Square-Columbia City,42
+MT,43 ,M43,Univ. District-Downtown Seattle,43
+MT,44 ,M44,Ballard-University District,44
+MT,45 ,M45,Queen Anne-University District,45
+MT,46 ,M46,Ballard-University District,46
+MT,48 ,M48,Loyal Heights-Mount Baker,48
+MT,49 ,M49,University Dist.-Downtown Sea.,49
+MT,51 ,M51,West Seattle-Admiral District,51
+MT,53 ,M53,West Seattle-Alki,53
+MT,54 ,M54,White Center-Downtown Seattle,54
+MT,55 ,M55,Admiral District-Downtown Sea.,55
+MT,56 ,M56,Alki-Downtown Seattle,56
+MT,57 ,M57,W. Seattle-Downtown Seattle,57
+MT,60 ,M60,Broadway-White Center,60
+MT,64 ,M64,Lake City-First Hill,64
+MT,65 ,M65,Lake City-University District,65
+MT,66 ,M66,Northgate-Downtown Seattle Exp.,66
+MT,67 ,M67,Northgate-University District,67
+MT,68 ,M68,Northgate-University District,68
+MT,70 ,M70,Univ. District-Downtown Sea.,70
+MT,71 ,M71,Wedgwood-Downtown Seattle,71
+MT,72 ,M72,Lake City-Downtown Seattle,72
+MT,73 ,M73,Jackson Park-Downtown Seattle,73
+MT,74 ,M74,Sand Point-Downtown Seattle,74
+MT,75 ,M75,Ballard-University District,75
+MT,76 ,M76,Wedgwood-Downtown Seattle,76
+MT,77 ,M77,North City-Downtown Seattle,77
+MT,79 ,M79,Lake City-Downtown Seattle,79
+MT,81 ,M81,Ballard-Downtown Seattle,81
+MT,82 ,M82,Green Lake-Downtown Seattle,82
+MT,83 ,M83,Maple Leaf-Downtown Seattle,83
+MT,84 ,M84,Madison Park-Downtown Seattle,84
+MT,85 ,M85,West Seattle-Downtown Seattle,85
+MT,99 ,M99,Waterfront,99
+MT,101,M101,Renton-Downtown Seattle,101
+MT,102,M102,Fairwood-Downtown Seattle,102
+MT,105,M105,Renton Highlands-Renton,105
+MT,106,M106,Renton-Downtown Seattle,106
+MT,107,M107,Renton-Rainier Beach,107
+MT,110,M110,North Renton-Tukwila Station,110
+MT,111,M111,"Lake Kathleen, Kennydale-Downtown Seattle",111
+MT,113,M113,Shorewood-Downtown Seattle,113
+MT,114,M114,Renton Highlands-Downtown Seattle,114
+MT,116,M116,Fauntleroy Ferry-Downtown Seattle Express,116
+MT,118,M118,Tahlequah-Vashon-(Downtown Seattle),118
+MT,119,M119,Dockton-Vashon-(Downtown Seattle),119
+MT,120,M120,Burien-Downtown Seattle,120
+MT,121,M121,Des Moines-Downtown Seattle Express,121
+MT,122,M122,Des Moines-Downtown Seattle Express,122
+MT,123,M123,Gregory Heights-Downtown Seattle Express,123
+MT,124,M124,Tukwila-Downtown Seattle,124
+MT,125,M125,Shorewood-Downtown Seattle,125
+MT,128,M128,Southcenter-West Seattle,128
+MT,129,M129,Tukwila Station-Riverton Heights,129
+MT,131,M131,Des Moines-Downtown Seattle,131
+MT,132,M132,Des Moines-Downtown Seattle,132
+MT,133,M133,Burien-University District,133
+MT,134,M134,Burien-Downtown Seattle,134
+MT,139,M139,Burien-Gregory Heights,139
+MT,140,M140,Burien-Renton,140
+MT,143,M143,Black Diamond-Downtown Seattle,143
+MT,148,M148,Fairwood-Renton,148
+MT,149,M149,Enumclaw-Black Diamond-Maple Valley-Renton,149
+MT,150,M150,Kent-Downtown Seattle,150
+MT,152,M152,Auburn-Downtown Seattle,152
+MT,153,M153,Renton-Kent,153
+MT,154,M154,Tukwila-Boeing Industrial,154
+MT,155,M155,Fairwood-Southcenter,155
+MT,156,M156,SeaTac-Tukwila Station,156
+MT,157,M157,Lake Meridian Park & Ride-Downtown Seattle,157
+MT,158,M158,Kent East Hill-Downtown Seattle,158
+MT,159,M159,Timberlane-Downtown Seattle,159
+MT,161,M161,Lake Meridian Park & Ride-Downtown Seattle,161
+MT,162,M162,Kent-Des Moines Park & Ride-Downtown Seattle,162
+MT,164,M164,Kent-Green River Community College,164
+MT,166,M166,Kent-Des Moines,166
+MT,167,M167,Renton-University District,167
+MT,168,M168,Kent-Maple Valley,168
+MT,169,M169,Kent-Renton,169
+MT,173,M173,Federal Way-Duwamish,173
+MT,175,M175,W. Federal Way-Downtown Seattle,175
+MT,177,M177,Federal Way Park & Ride-Downtown Seattle,177
+MT,179,M179,Twin Lakes Park & Ride-Downtown Seattle,179
+MT,180,M180,Kent-Southeast Auburn,180
+MT,181,M181,Twin Lakes-Auburn-Green River Community College,181
+MT,182,M182,Federal Way-Northeast Tacoma,182
+MT,183,M183,Federal Way-Kent,183
+MT,186,M186,Enumclaw-Auburn,186
+MT,187,M187,Twin Lakes-Federal Way,187
+MT,190,M190,Redondo Heights Park & Ride-Downtown Seattle,190
+MT,192,M192,Star Lake-Downtown Seattle,192
+MT,193,M193,Star Lake-First Hill,193
+MT,196,M196,South Federal Way Park & Ride-Downtown Seattle,196
+MT,197,M197,Twin Lakes Park & Ride-University District,197
+MT,200,M200,Issaquah-North Issaquah,200
+MT,201,M201,Mercer Island-South Mercer Island,201
+MT,202,M202,S. Mercer Island-Seattle,202
+MT,202,M202,South Mercer Island-Seattle,202
+MT,203,M203,Shorewood-Mercer Island,203
+MT,204,M204,S. Mercer Island-Mercer Island,204
+MT,205,M205,S. Mercer Island-University Dist.,205
+MT,209,M209,North Bend-Issaquah,209
+MT,210,M210,Issaquah-Seattle,210
+MT,211,M211,Eastgate-First Hill,211
+MT,212,M212,Eastgate Park & Ride-Seattle,212
+MT,213,M213,Covenant Shores-Mercer Island,213
+MT,214,M214,Issaquah P&R-Downtown Seattle,214
+MT,215,M215,North Bend-Downtown Seattle,215
+MT,216,M216,Sammamish-Downtown Seattle,216
+MT,217,M217,Downtown Seattle-Issaquah,217
+MT,218,M218,Issaquah Highlands-Downtown Sea.,218
+MT,219,M219,Newport Hills-Factoria,219
+MT,221,M221,Education Hill-Eastgate,221
+MT,222,M222,Bellevue-Eastgate,222
+MT,224,M224,Fall City-Redmond,224
+MT,225,M225,Overlake-Downtown Seattle,225
+MT,226,M226,Overlake-Crossroads Seattle,226
+MT,229,M229,Overlake-Downtown Seattle,229
+MT,230,M230,Kingsgate-Redmond,230
+MT,232,M232,Duvall-Bellevue,232
+MT,233,M233,Bear Creek-Bellevue,233
+MT,234,M234,Kenmore-Bellevue,234
+MT,235,M235,Bellevue-Kingsgate,235
+MT,236,M236,Woodinville-Kirkland,236
+MT,237,M237,Woodinville-Bellevue,237
+MT,238,M238,UW Bothell/Cascadia CC-Kirkland,238
+MT,240,M240,Clyde Hill-Renton,240
+MT,241,M241,Bellevue-Eastgate,241
+MT,242,M242,North City-Overlake,242
+MT,243,M243,Jackson Park-Bellevue,243
+MT,244,M244,Kenmore-Overlake,244
+MT,245,M245,Kirkland-Factoria,245
+MT,246,M246,"Bellevue-Somerset, Factoria",246
+MT,247,M247,Overlake-Kent,247
+MT,248,M248,Avondale-Redmond-Kirkland,248
+MT,249,M249,Overlake-Bellevue,249
+MT,250,M250,Redmond-Downtown Seattle,250
+MT,251,M251,UW Bothell/Cascadia CC-Redmond,251
+MT,252,M252,Kingsgate-Downtown Seattle,252
+MT,253,M253,Bear Creek-Bellevue,253
+MT,255,M255,Brickyard-Downtown Seattle,255
+MT,256,M256,Downtown Seattle-Overlake,256
+MT,257,M257,Brickyard-Downtown Seattle,257
+MT,260,M260,Finn Hill-Downtown Seattle,260
+MT,261,M261,Overlake-Downtown Seattle,261
+MT,265,M265,Redmond-First Hill,265
+MT,266,M266,Redmond-Downtown Seattle,266
+MT,268,M268,Bear Creek P&R-Downtown Seattle,268
+MT,269,M269,Issaquah-Overlake,269
+MT,271,M271,Issaquah-University District,271
+MT,272,M272,Eastgate-University District,272
+MT,277,M277,Juanita-University District,277
+MT,280,M280,East & South County-Downtown Seattle,280
+MT,301,M301,Aurora Village-Downtown Seattle,301
+MT,303,M303,Shoreline-Northgate-First Hill,303
+MT,304,M304,Richmond Beach-Downtown Seattle,304
+MT,306,M306,Kenmore-Downtown Seattle,306
+MT,308,M308,Horizon View-Downtown Seattle,308
+MT,309,M309,First Hill-Kenmore,309
+MT,311,M311,Duvall-Downtown Seattle,311
+MT,312,M312,Bothell-Seattle,312
+MT,316,M316,Meridian Park-Downtown Seattle,316
+MT,330,M330,Shoreline CC-Lake City,330
+MT,331,M331,Kenmore-Shoreline CC,331
+MT,342,M342,Shoreline-Renton,342
+MT,345,M345,Shoreline CC-Northgate,345
+MT,346,M346,Aurora Village-Northgate,346
+MT,347,M347,Mountlake Terrace-Northgate,347
+MT,348,M348,Richmond Beach-Northgate,348
+MT,355,M355,Shoreline CC-Downtown Seattle,355
+MT,358,M358,Aurora Village-Downtown Seattle,358
+MT,372,M372,Woodinville-University District,372
+MT,373,M373,Shoreline-University District,373
+MT,600,M600,Group Health Express Downtown Seattle-Tukwila,600
+MT,773,M773,Seacrest Park-W. Seattle Junction,773
+MT,775,M775,Seacrest Park-Admiral District,775
+MT,821,M821,Newcastle-Newport High School,821
+MT,822,M822,Newcastle-Newport High School,822
+MT,823,M823,Newport High School-International School,823
+MT,824,M824,Newcastle-Newport High School,824
+MT,885,M885,Bellevue High School-International School,885
+MT,886,M886,Clyde Hill-Bellevue High School,886
+MT,888,M888,Interlake High School-International School,888
+MT,889,M889,International School-Cherry Crest ,889
+MT,890,M890,International School-Eastgate,890
+MT,891,M891,Mercer Island High School,891
+MT,892,M892,Mercer Island High School,892
+MT,893,M893,Lake Washington High School,893
+MT,901,M901,Mirror Lake-Federal Way,901
+MT,903,M903,Northshore-Federal Way,903
+MT,908,M908,Renton-Renton Highlands,908
+MT,909,M909,Kennydale-Renton,909
+MT,910,M910,North Auburn-SuperMall,910
+MT,912,M912,Enumclaw-Covington,912
+MT,913,M913,Riverview-Kent,913
+MT,914,M914,Downtown Kent-Kent East Hill,914
+MT,916,M916,Downtown Kent-Kent East Hill,916
+MT,917,M917,Pacific-Algona-Auburn,917
+MT,918,M918,Kent-North Kent Industrial,918
+MT,919,M919,Southeast Auburn-Auburn Park & Ride,919
+MT,926,M926,Crossroads-Eastgate Park & Ride-Seattle,926
+MT,927,M927,Downtown Issaquah-Lake Sammamish Plateau,927
+MT,930,M930,Redmond-Kingsgate,930
+MT,935,M935,Kenmore-Totem Lake,935
+MT,952,M952,Auburn-Boeing Everett,952
+MT,973,M973,West Seattle Water Taxi,973
+MT,975,M975,Vashon Island Passenger Ferry,975
+MT,980,M980,Lakeside School,980
+MT,981,M981,S Kirkland Park & Ride,981
+MT,982,M982,Bear Creek Park & Ride-Lakeside,982
+MT,983,M983,Issaquah Park & Ride-Lakeside,983
+MT,984,M984,Seattle,984
+MT,986,M986,Houghton Park & Ride-Lakeside,986
+MT,987,M987,Rainier Beach-Lakeside,987
+MT,988,M988,Madrona-Lakeside,988
+MT,989,M989,Lakeside-Lakeside,989
+MT,994,M994,Downtown-Lakeside,994
+MT,995,M995,Laurelhurst-Lakeside,995
+MT,14N,M14N,Downtown Seattle-Summit,14N
+MT,14S,M14S,Downtown Seattle-Mount Baker,14S
+MT,230E,M230E,Bellevue-Redmond,230E
+MT,230W,M230W,Bellevue-Kingsgate,230W
+MT,2N,M2N,Downtown Seattle-Queen Anne,2N
+MT,2S,M2S,Downtown Seattle-Madrona Park,2S
+MT,3N,M3N,Downtown Seattle-Queen Anne Hill,3N
+MT,3S,M3S,Downtown Seattle-Madrona/Judkins Park,3S
+MT,48N,M48N,University District-Loyal Heights,48N
+MT,48S,M48S,University District-Mt Baker,48S
+MT,4N,M4N,Downtown Seattle-Queen Anne Hill,4N
+MT,4S,M4S,Downtown Seattle-Madrona/Judkins Park,4S
+MT,A,MALINE,Federal Way-Tukwila,A
+PT,1,P1,Tacoma Community College-Roy ÒYÓ/Mountain Highway,1
+PT,2,P2,Downtown Tacoma-Lakewood,2
+PT,3,P3,Downtown Tacoma-Lakewood,3
+PT,10 ,P10,Point Defiance-Tacoma Community College,10
+PT,11 ,P11,Point Defiance-Downtown Tacoma,11
+PT,13 ,P13,Downtown Tacoma-North 30th & Pearl,13
+PT,14 ,P14,Proctor District,14
+PT,16 ,P16,Downtown Tacoma-Tacoma Community College,16
+PT,26 ,P26,Downtown Tacoma-Downtown Tacoma,26
+PT,28 ,P28,Tacoma Community College-Downtown Tacoma,28
+PT,41 ,P41,72nd St. Transit Center-Downtown Tacoma,41
+PT,42 ,P42,72nd St. Transit Center-Downtown Tacoma,42
+PT,45 ,P45,Parkland Transit Center-Downtown Tacoma,45
+PT,48 ,P48,Downtown Tacoma-Lakewood,48
+PT,51 ,P51,N. 45th & Huson-Tacoma Mall,51
+PT,52 ,P52,Tacoma Community College-Tacoma Mall,52
+PT,53 ,P53,Downtown Tacoma-Tacoma Community College,53
+PT,54 ,P54,Tacoma Mall-56th & Portland,54
+PT,55 ,P55,Tacoma Mall-Parkland,55
+PT,56 ,P56,72nd St. Transit Center-Tacoma Mall,56
+PT,57 ,P57,Tacoma Mall-Downtown Tacoma,57
+PT,59 ,P59,Tacoma Mall-Oakland & Manitou,59
+PT,60 ,P60,Downtown Tacoma-Tideflats,60
+PT,61 ,P61,Downtown Tacoma-N.E. Tacoma,61
+PT,62 ,P62,Northeast Tacoma,62
+PT,100,P100,Tacoma Community College-Purdy,100
+PT,102,P102,Gig Harbor-Tacoma Express,102
+PT,113,P113,Key Peninsula-Purdy Park & Ride,113
+PT,202,P202,Lakewood-72nd St. Transit Center,202
+PT,204,P204,Lakewood-Parkland,204
+PT,206,P206,Lakewood-Madigan,206
+PT,207,P207,Fort Lewis,207
+PT,212,P212,Lakewood-Steilacoom,212
+PT,214,P214,Pierce College-Lakewood,214
+PT,220,P220,Lakewood-North Tacoma,220
+PT,300,P300,Tacoma Mall-McChord AFB,300
+PT,400,P400,Puyallup-Downtown Tacoma,400
+PT,402,P402,Federal Way-Mountain Highway,402
+PT,406,P406,Bonney Lake Park & Ride-Buckley,406
+PT,407,P407,Bonney Lake Park & Ride-Prairie Ridge,407
+PT,408,P408,Sumner-Bonney Lake,408
+PT,409,P409,72nd Street Transit Center-Sumner,409
+PT,410,P410,Parkland-South Hill Mall,410
+PT,413,P413,South Hill Mall-Puyallup,413
+PT,444,P444,Parkland-Spanaway Bus PLUS,444
+PT,446,P446,Canyon Road-South Hill Mall Bus PLUS,446
+PT,490,P490,South Hill-Downtown Tacoma,490
+PT,495,P495,Puyallup Train Station-South Hill Mall,495
+PT,496,P496,Sumner Sounder Connector,496
+PT,497,P497,Lakeland Hills-Auburn,497
+PT,500,P500,Downtown Tacoma-Federal Way,500
+PT,501,P501,Downtown Tacoma-Federal Way,501
+PT,601,P601,Gig Harbor-Olympia Express,601
+PT,602,P602,Tacoma-Olympia,602
+PT,603,P603,Tacoma-Olympia Express,603
+PT,603,P603XIT,Tacoma-Olympia Express,603
+PT,603IT,P603IT,Tacoma-Olympia Express,603
+PT,605IT,P605IT,Tacoma-Olympia Express,605
+PT,612IT,P612IT,Tacoma-Olympia,612
+PT,620IT,P620IT,Tacoma-Olympia,620
+PT,620X,P620XIT,Tacoma-Olympia,620X
+S,98,M98,Seattle Streetcar: South Lake Union Line,98
+S,90X,90X,Mount Vernon-Everett Express,90X
+ST,510,510,Everett-Seattle Express,510
+ST,511,511,Ash Way-Seattle Express,511
+ST,512,512,Everett-Seattle,512
+ST,513,513,Everett-Seattle Express,513
+ST,522,M522,Woodinville-Seattle Express,522
+ST,532,532,Everett-Bellevue Express,532
+ST,535,535,Lynnwood-Bellevue Express,535
+ST,540,M540,Kirkland-University District Exp.,540
+ST,542,M542,Redmond-University District Exp.,542
+ST,545,M545,Redmond-Seattle Express,545
+ST,550,M550,Bellevue-Seattle Express,550
+ST,554,M554,Issaquah-Seattle Express,554
+ST,555,M555,Issaquah-Northgate Express,555
+ST,556,M556,Issaquah-Northgate Express,556
+ST,560,M560,Bellevue-SeaTac/West Seattle Express,560
+ST,566,P566,Auburn-Overlake Express,566
+ST,574,P574,Lakewood-Sea-Tac Airport Express,574
+ST,577,P577,Federal Way-Seattle Express,577
+ST,578,P578,Puyallup/Tacoma-Seattle Express,578
+ST,586,P586,Tacoma-University District Express,586
+ST,590,P590,Tacoma-Seattle Express,590
+ST,592,P592,DuPont/Lakewood-Seattle Express,592
+ST,593,P593,South Tacoma-Seattle Express,593
+ST,594,P594,Lakewood/Tacoma-Seattle Express,594
+ST,595,P595,Gig Harbor-Seattle Express,595

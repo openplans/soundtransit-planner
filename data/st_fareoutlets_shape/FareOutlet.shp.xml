@@ -1,0 +1,3 @@
+<?xml version="1.0"?>
+<!--<!DOCTYPE metadata SYSTEM "http://www.esri.com/metadata/esriprof80.dtd">-->
+<metadata xml:lang="en"><Esri><MetaID>{D00F38EA-E235-49E6-8AB8-71DF14FF1EE8}</MetaID><CreaDate>20101217</CreaDate><CreaTime>10305700</CreaTime><SyncOnce>TRUE</SyncOnce><DataProperties><lineage><Process ToolSource="C:\Program Files\ArcGIS\ArcToolbox\Toolboxes\Data Management Tools.tbx\DeleteField" Date="20101217" Time="103057">DeleteField G:\PROJECTS\001MISC\TripPlanner\Data\ProductionData\FareOutlet.shp OutletLink;Hours G:\PROJECTS\001MISC\TripPlanner\Data\ProductionData\FareOutlet.shp</Process></lineage></DataProperties></Esri></metadata>
