@@ -191,10 +191,10 @@ OTP.Util = {
         }
         
         if(leg["@mode"] === "WALK") {
-            var html = '<img class="mode-icon" src="' + OTP.Config.tripPlannerImagePath + 'walk16x16.png" alt="Walk" />' +
-                            'Walk from <strong>' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '</strong> to <strong>' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + '</strong>';
+            var html = '<span><img class="mode-icon" src="' + OTP.Config.tripPlannerImagePath + 'walk16x16.png" alt="Walk" />' +
+                            'Walk from <strong>' + ((leg.from.name !== null) ? leg.from.name : "Unknown") + '</strong> to <strong>' + ((leg.to.name !== null) ? leg.to.name : "Unknown") + '</strong> <a id="showsteps_' + legIndex + '" href="#" onclick="$(\'#substeps_' + legIndex + '\').toggle();">Details</a></span>';
 
-            html += '<table class="substeps"><tbody>';
+            html += '<table id="substeps_' + legIndex + '" class="substeps, hide"><tbody>';
 
             if(leg.steps !== null) {
                 var stepCollection = null;
@@ -228,10 +228,6 @@ OTP.Util = {
                             html += 'Turn ' + relativeDirection + ' at <strong>' + walkStep.streetName + '</strong>';
                         }
                     }
-
-                    if(i === stepCollection.length - 1) {
-                        html += '<div class="stepmeta">' + OTP.Util.millisecondsToString(leg.duration) + ' (' + OTP.Util.metersToPrettyDistance(leg.distance) + ')</div>';
-                    }
                     
                     html += '</td></tr>';
 
@@ -243,6 +239,8 @@ OTP.Util = {
             }
 
             html += '</tbody></table>';
+            
+            html += '<div class="stepmeta">' + OTP.Util.millisecondsToString(leg.duration) + ' (' + OTP.Util.metersToPrettyDistance(leg.distance) + ')</div>';
 
             return jQuery('<li class="walk leg-' + legIndex + '"></li>').html(html);
         } else {

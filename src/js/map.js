@@ -732,7 +732,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                  outputFormat: "json",
                  format_options: "callback:" + callbackFunction,
                  typeName: "soundtransit:routes",
-                 propertyName: "the_geom,designator,operator,routeid,direction,stops",
+                 propertyName: "the_geom,designator,operator,routeid,direction,stops,dayofweek",
                  cql_filter: cqlQuery
              },
              success: function(data) {
@@ -767,10 +767,15 @@ OTP.Map = function(_root, _controlsRoot, options) {
                             return;
                         }
 
-                        var style = {
+                        var style = {};
+                        
+                       
+                    	style = {
                             strokeColor: OTP.Agency.getColorForLeg(mode, feature.properties.designator),
                             strokeWidth: 5
-                        };
+                    	};
+
+                        
                         var polyline = new OpenLayers.Geometry.LineString(points);
                         var lineFeature = new OpenLayers.Feature.Vector(polyline, null, style);
                         routeLayer.addFeatures([lineFeature]);
@@ -1306,7 +1311,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                     var v = jQuery(this).val();
                     
                     if(v !== null && v !== "" && v !== "Select route") {
-                        systemMapRouteCriteria.WSF = "(designator LIKE '" + v + "' AND routetyp LIKE 'P')";
+                        systemMapRouteCriteria.WSF = "(designator LIKE '" + v + "')";
                     } else {
                         systemMapRouteCriteria.WSF = "";
                     }
@@ -1338,7 +1343,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                             if(systemMapRouteCriteria.LINK.length > 0) {
                                 systemMapRouteCriteria.LINK += " OR ";
                             }
-                            systemMapRouteCriteria.LINK += "(designator LIKE '" + checkbox.val() + "' AND routetyp LIKE 'P')";
+                            systemMapRouteCriteria.LINK += "(designator LIKE '" + checkbox.val() + "')";
                         }
                     });
 
@@ -1373,7 +1378,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                             if(systemMapRouteCriteria.SOUNDER.length > 0) {
                                 systemMapRouteCriteria.SOUNDER += " OR ";
                             }
-                            systemMapRouteCriteria.SOUNDER += "(designator LIKE '" + values[0] + "' AND stops=" + values[1] + " AND routetyp LIKE 'P')";
+                            systemMapRouteCriteria.SOUNDER += "(designator LIKE 'MSOUNDER' AND direction = '" + values[0] + "')";
                         }
                     });
                     
@@ -1416,7 +1421,7 @@ OTP.Map = function(_root, _controlsRoot, options) {
                                 format_options: "callback:" + callbackFunction,
                                 propertyName: "designator,routedescription",
                                 typeName: "soundtransit:routes",
-                                cql_filter: "(operator LIKE '" + agency + "' AND (type LIKE 'B' OR type LIKE 'X' OR type LIKE 'K'))"
+                                cql_filter: "(operator LIKE '" + agency + "')"
                             },
                             success: function(data) {
                                 hideBusy();
@@ -1490,17 +1495,85 @@ OTP.Map = function(_root, _controlsRoot, options) {
                 
                 content.find("#bus-route")
                     .change(function(e) {
-                        var v = jQuery(this).val();
+                    	
+                    	var agency = content.find("#bus-agency").val();
+                    	var route = jQuery(this).val();
                         
-                        if(v !== null && v !== "" && v !== "Select route") {
-                            systemMapRouteCriteria.BUS = "(operator LIKE '" + content.find("#bus-agency").val() 
-                                                            + "' AND designator LIKE '" + v + "' AND routetyp LIKE 'P')";
-                        } else {
-                            systemMapRouteCriteria.BUS = "";
+                        if(agency === "" || route === "") {
+                            return;
                         }
 
-                        drawRouteLayerForMode("BUS", element);
-                    });                
+                        showBusy();
+
+                        var callbackFunction = "getRouteListCallback" + Math.floor(Math.random() * 1000000000);
+                        jQuery.ajax({
+                                url: OTP.Config.wfsServiceUrl,
+                                dataType: "jsonp",
+                                jsonpCallback: callbackFunction,
+                                data: {
+                                    request: "GetFeature",
+                                    outputFormat: "json",
+                                    format_options: "callback:" + callbackFunction,
+                                    propertyName: "dayofweek",
+                                    typeName: "soundtransit:routes",
+                                    cql_filter: "(operator LIKE '" + agency + "' AND designator LIKE '" + route + "')"
+                                },
+                                success: function(data) {
+                                    hideBusy();
+                                    
+                                    var selectBox = content.find("#bus-service");
+                                    selectBox.children().remove();
+                                    selectBox.append("<option value=''>Select service</option>");
+
+                                    // push routes into an array and sort to remove dupes (can't do this in geoserver, unfortunately)
+                                    var weekday = null;
+                                    var saturday = null;
+                                    var sunday = null;
+                                   
+                                    for(var i = 0; i < data.features.length; i++) {
+                                        var route = data.features[i];
+                                        
+                                        
+                                        if(route.properties.dayofweek === "S")
+                                        	saturday = true;
+                                        else if(route.properties.dayofweek === "U")
+                                        	sunday = true;
+                                        else
+                                        	weekday = true;
+                                    }
+                                    
+                                    if(weekday)
+                                    	selectBox.append("<option value='W'>Weekday</option>");
+                                    
+                                    if(saturday)
+                                    	selectBox.append("<option value='S'>Saturday</option>");
+                                    
+                                    if(sunday)
+                                    	selectBox.append("<option value='U'>Sunday</option>");
+                                    
+                                }
+                                    
+                        });
+      
+                 
+                        
+                    }); 
+                
+                
+                content.find("#bus-service")
+                .change(function(e) {
+                    var v = jQuery(this).val();
+                    
+                    if(v !== null && v !== "" && v !== "Select route") {
+                        systemMapRouteCriteria.BUS = "(operator LIKE '" + content.find("#bus-agency").val() 
+                                                        + "' AND designator LIKE '" +  content.find("#bus-route").val()  + "' AND dayofweek = '" + v + "')";
+                    } else {
+                        systemMapRouteCriteria.BUS = "";
+                    }
+
+                    drawRouteLayerForMode("BUS", element);
+                }); 
+                
         }, function(content) {       
             // reset UI called each time popup is displayed
             if(typeof systemMapRouteCriteria.BUS === 'undefined' ||

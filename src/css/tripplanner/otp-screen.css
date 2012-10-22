@@ -1595,3 +1595,7 @@ display: none;
 .printable #print {
 display: block;
 }
+
+.hide {
+display: none;
+}
